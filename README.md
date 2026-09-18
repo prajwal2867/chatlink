@@ -21,3 +21,11 @@ The full-scale project plan, architecture specifications, database schemas, and 
 | **Shared Lab Privacy** | High risk of lingering sessions & saved cookies | Inactivity auto-logout, session-only storage, panic wipe button |
 | **Storage & Clutter** | Manual clearing required | Auto-purging ephemeral files (2h/12h/24h) |
 | **Developer Ergonomics** | Basic text formatting | Native code snippets with syntax highlighting & 1-click copy |
+---
+
+## 🛠 Planned Tech Stack
+- **Frontend:** React / Vite + Vanilla CSS (High performance, dark/light lab themes)
+- **Real-Time Layer:** WebSockets / Socket.io
+- **Backend API:** Node.js (Express/Fastify) or Go
+- **Database & Cache:** PostgreSQL / SQLite + Redis
+- **Storage:** MinIO / Cloudflare R2 / S3
