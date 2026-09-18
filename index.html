@@ -121,7 +121,7 @@
         </div>
 
         <!-- Conversation List -->
-        <div class="flex-1 overflow-y-auto divide-y divide-slate-50" id="conversationList">
+        <div class="flex-1 overflow-y-auto px-2.5 py-2 space-y-1" id="conversationList">
           <!-- Populated by JS -->
         </div>
       </section>
@@ -132,7 +132,7 @@
         <!-- Chat Header -->
         <header class="h-16 px-6 bg-white border-b border-slate-200 flex items-center justify-between z-10 shrink-0">
           <div class="flex items-center gap-3">
-            <div id="headerAvatar" class="w-10 h-10 rounded-full bg-brand/10 border border-brand/20 text-brand flex items-center justify-center font-bold text-sm">
+            <div id="headerAvatar" class="w-10 h-10 rounded-full text-white flex items-center justify-center font-bold text-sm shrink-0" style="background-color: #f4a4b0;">
               P
             </div>
             <div class="flex flex-col">
@@ -389,6 +389,7 @@
         unread: true,
         favourite: true,
         avatar: "P",
+        avatarBg: "#f4a4b0",
         members: "Alice, Bob, Charlie, David, +3 others",
         lastMessage: "Alice: Attached the updated requirements document...",
         time: "10:42 AM",
@@ -454,6 +455,7 @@
         unread: true,
         favourite: false,
         avatar: "D",
+        avatarBg: "#f4b7c0",
         members: "Dave, Evan, You",
         lastMessage: "Dave: Standup starts in 5 minutes.",
         time: "09:15 AM",
@@ -475,6 +477,7 @@
         unread: false,
         favourite: true,
         avatar: "A",
+        avatarBg: "#4A5FA5",
         members: "Direct Message",
         lastMessage: "Alice: Thanks for sending over the file!",
         time: "Yesterday",
@@ -496,6 +499,7 @@
         unread: false,
         favourite: false,
         avatar: "D",
+        avatarBg: "#a8d5c4",
         members: "Charlie, Figma Bot, You",
         lastMessage: "Charlie: Check out this icon snippet.",
         time: "2 days ago",
@@ -517,6 +521,10 @@
       lucide.createIcons();
       renderConversations();
       renderMessages();
+      const initialChat = conversations.find(c => c.id === activeChatId);
+      if(initialChat && initialChat.avatarBg) {
+        document.getElementById('headerAvatar').style.backgroundColor = initialChat.avatarBg;
+      }
     };
 
     // VIEW SWITCHING
@@ -591,21 +599,24 @@
         const isSelected = chat.id === activeChatId;
         const item = document.createElement('div');
         item.onclick = () => selectChat(chat.id);
-        item.className = `p-3.5 flex items-center gap-3 cursor-pointer transition-all hover:bg-slate-50 ${
-          isSelected ? 'bg-brand-light/60 border-l-4 border-brand' : 'border-l-4 border-transparent'
+        item.className = `p-3 rounded-xl flex items-center gap-3 cursor-pointer transition-all ${
+          isSelected 
+            ? 'bg-brand-light' 
+            : 'hover:bg-slate-50'
         }`;
 
         item.innerHTML = `
-          <div class="w-10 h-10 rounded-full ${isSelected ? 'bg-brand text-white' : 'bg-slate-200 text-slate-700'} flex items-center justify-center font-bold text-sm shrink-0">
+          <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0" style="background-color: ${chat.avatarBg || '#4A5FA5'}; color: #ffffff;">
             ${chat.avatar}
           </div>
           <div class="flex-1 min-w-0">
             <div class="flex justify-between items-baseline mb-0.5">
-              <h4 class="text-sm font-semibold text-slate-800 truncate ${isSelected ? 'text-brand' : ''}">${chat.name}</h4>
-              <span class="text-[10px] text-slate-400 shrink-0">${chat.time}</span>
+              <h4 class="text-sm font-semibold text-slate-800 truncate">${chat.name}</h4>
+              <span class="text-[11px] text-slate-400 shrink-0">${chat.time}</span>
             </div>
             <p class="text-xs text-slate-500 truncate">${chat.lastMessage}</p>
           </div>
+          ${chat.unread ? '<div class="w-2 h-2 rounded-full bg-brand shrink-0"></div>' : ''}
         `;
         listContainer.appendChild(item);
       });
@@ -622,6 +633,9 @@
       // Update Header
       document.getElementById('headerTitle').innerText = chat.name;
       document.getElementById('headerAvatar').innerText = chat.avatar;
+      if (chat.avatarBg) {
+        document.getElementById('headerAvatar').style.backgroundColor = chat.avatarBg;
+      }
       document.getElementById('headerMembers').innerText = chat.members;
       document.getElementById('headerBadge').innerText = chat.isRoom ? 'ROOM' : 'DIRECT';
 
