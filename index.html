@@ -236,8 +236,15 @@
       <form id="authForm" onsubmit="submitAuth(event)" class="space-y-4" novalidate>
         <div id="nameRow" class="hidden"><label class="lbl" for="aName">Name</label><input id="aName" class="inp"
             maxlength="40" autocomplete="name"></div>
-        <div><label class="lbl" for="aUser">Username</label><input id="aUser" class="inp" maxlength="20"
-            autocomplete="username" autocapitalize="off"></div>
+        <div>
+          <div class="flex justify-between items-center mb-1">
+            <label class="lbl !mb-0" for="aUser">Username</label>
+            <button id="genUserBtn" type="button" onclick="genUsernameAuth()" class="text-[11px] text-gray-400 hover:text-white flex items-center gap-1 transition-colors hidden">
+              <i data-lucide="sparkles" class="w-3 h-3"></i>Generate username
+            </button>
+          </div>
+          <input id="aUser" class="inp" maxlength="20" autocomplete="username" autocapitalize="off">
+        </div>
         <div><label class="lbl" for="aPass">Password</label><input id="aPass" type="password" class="inp"
             autocomplete="current-password"></div>
         <p id="aErr" role="alert" class="text-xs text-rose-400 min-h-[1rem]"></p>
@@ -255,10 +262,13 @@
       <div class="flex flex-col items-center gap-6">
         <div class="av w-10 h-10 rounded-xl bg-[#0C0C0C]"><i data-lucide="shield-check" class="w-5 h-5"></i></div>
         <nav class="flex flex-col gap-2">
-          <button class="nav on" data-v="chats" onclick="show('chats')" title="Chats"><i data-lucide="message-square"
+          <button class="nav on" data-v="chats" onclick="show('chats')" title="Messages"><i data-lucide="message-square"
               class="w-5 h-5"></i></button>
           <button class="nav" data-v="rooms" onclick="show('rooms')" title="Rooms"><i data-lucide="layout-grid"
               class="w-5 h-5"></i></button>
+          <button class="nav relative" data-v="users" onclick="show('users')" title="Search Users"><i data-lucide="user-search"
+              class="w-5 h-5"></i><span id="reqBadge"
+              class="hidden absolute top-2 right-2 w-2 h-2 rounded-full bg-white shadow-[0_0_6px_rgba(255,255,255,0.9)]"></span></button>
         </nav>
       </div>
       <div class="flex flex-col gap-2">
@@ -375,6 +385,81 @@
         </div>
       </div>
 
+      <!-- SEARCH USERS & DIRECTORY -->
+      <div id="view-users" class="hidden flex-1 p-8 overflow-y-auto bg-[#0F0F0F]">
+        <div class="max-w-4xl mx-auto space-y-6">
+          <!-- Header & Navigation -->
+          <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-white/[0.08] pb-6">
+            <div>
+              <h1 class="text-2xl font-bold text-white">Search Users</h1>
+              <p class="text-gray-400 text-sm mt-1">Look up colleagues by their @username, send friend requests, and connect.</p>
+            </div>
+            <div class="flex bg-[#0C0C0C] p-1 rounded-xl border border-white/10 shrink-0">
+              <button type="button" data-uv="search" onclick="setUserSubView('search')" class="chip !py-1.5 !px-3.5 !text-xs on">
+                <i data-lucide="search" class="w-3.5 h-3.5"></i>Search & Directory
+              </button>
+              <button type="button" data-uv="requests" onclick="setUserSubView('requests')" class="chip !py-1.5 !px-3.5 !text-xs relative">
+                <i data-lucide="bell" class="w-3.5 h-3.5"></i>Friend Requests
+                <span id="reqTabBadge" class="hidden ml-1.5 px-1.5 py-0.2 bg-white text-black font-bold text-[10px] rounded-full"></span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Search Tab -->
+          <div id="userSubView-search" class="space-y-6">
+            <!-- Search Input Container -->
+            <div class="bg-[#0C0C0C] p-5 rounded-2xl border border-white/[0.08] space-y-3">
+              <label class="lbl !mb-0 font-semibold text-gray-200" for="uSearchInp">Search by @username or name</label>
+              <div class="relative flex items-center">
+                <i data-lucide="at-sign" class="w-4 h-4 absolute left-3.5 text-gray-500"></i>
+                <input id="uSearchInp" oninput="renderUserSearch()" placeholder="Type @username to search (e.g. @sarah, @alice, @bob)..." class="inp !pl-10 !py-3 text-sm flex-1">
+                <button type="button" onclick="renderUserSearch()" class="btn absolute right-2 !py-1.5 !px-3 text-xs">Search</button>
+              </div>
+              <div class="flex justify-between items-center text-[11px] text-gray-500">
+                <span>Search across registered accounts & directory</span>
+                <span id="uCountHint" class="text-gray-400 font-mono"></span>
+              </div>
+            </div>
+
+            <!-- Error message when no matches found -->
+            <div id="uSearchErr" class="hidden p-4 rounded-xl bg-rose-950/40 border border-rose-500/30 text-rose-200 text-xs flex items-center gap-3">
+              <i data-lucide="alert-circle" class="w-4 h-4 shrink-0 text-rose-400"></i>
+              <span id="uSearchErrMsg">No user found matching this search.</span>
+            </div>
+
+            <!-- Results Grid -->
+            <div id="uSearchResults" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+          </div>
+
+          <!-- Friend Requests Tab -->
+          <div id="userSubView-requests" class="hidden space-y-6">
+            <!-- Incoming Friend Requests -->
+            <div class="bg-[#0C0C0C] p-6 rounded-2xl border border-white/[0.08] space-y-4">
+              <div class="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="inbox" class="w-4 h-4 text-gray-300"></i>
+                  <h3 class="font-bold text-white text-sm">Incoming Friend Requests</h3>
+                </div>
+                <span id="inReqBadgeCount" class="text-xs text-gray-400 font-medium"></span>
+              </div>
+              <div id="incomingReqList" class="space-y-2.5"></div>
+            </div>
+
+            <!-- Outgoing Friend Requests -->
+            <div class="bg-[#0C0C0C] p-6 rounded-2xl border border-white/[0.08] space-y-4">
+              <div class="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="send" class="w-4 h-4 text-gray-300"></i>
+                  <h3 class="font-bold text-white text-sm">Sent Friend Requests</h3>
+                </div>
+                <span id="outReqBadgeCount" class="text-xs text-gray-400 font-medium"></span>
+              </div>
+              <div id="outgoingReqList" class="space-y-2.5"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- PROFILE -->
       <div id="view-profile" class="hidden flex-1 p-8 overflow-y-auto bg-[#0F0F0F]">
         <div class="max-w-2xl mx-auto bg-[#0C0C0C] rounded-2xl p-8 border border-white/[0.08] space-y-6">
@@ -452,12 +537,12 @@
 
         <!-- Join with room code field -->
         <div id="joinCodeRow" class="hidden space-y-1">
-          <label class="lbl" for="joinCode">Room code</label>
+          <label class="lbl" for="joinCode">Room code (6 digits)</label>
           <div class="relative">
-            <input id="joinCode" class="inp uppercase tracking-widest font-mono !pl-9" maxlength="12" placeholder="e.g. ALPHA7" autocomplete="off">
+            <input id="joinCode" class="inp tracking-widest font-mono !pl-9" maxlength="6" inputmode="numeric" oninput="this.value = this.value.replace(/\D/g, '').slice(0, 6)" placeholder="e.g. 482910" autocomplete="off">
             <i data-lucide="hash" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></i>
           </div>
-          <p class="text-[11px] text-gray-500 pt-1">Enter the room code shared by your teammate or colleague.</p>
+          <p class="text-[11px] text-gray-500 pt-1">Enter the 6-digit room code shared by your teammate or colleague.</p>
         </div>
 
         <!-- Name field (for Create Room or Direct Message) -->
@@ -469,16 +554,16 @@
         <!-- Room code field when creating a room -->
         <div id="ncCodeRow" class="space-y-1">
           <div class="flex justify-between items-center">
-            <label class="lbl !mb-0" for="ncCode">Room code</label>
+            <label class="lbl !mb-0" for="ncCode">Room code (6 digits)</label>
             <button type="button" onclick="genRoomCode()" class="text-[11px] text-gray-400 hover:text-white flex items-center gap-1 transition-colors">
               <i data-lucide="sparkles" class="w-3 h-3"></i>Generate code
             </button>
           </div>
           <div class="relative">
-            <input id="ncCode" class="inp uppercase tracking-widest font-mono !pl-9" maxlength="12" placeholder="e.g. TEAM26">
+            <input id="ncCode" class="inp tracking-widest font-mono !pl-9" maxlength="6" inputmode="numeric" oninput="this.value = this.value.replace(/\D/g, '').slice(0, 6)" placeholder="e.g. 683921">
             <i data-lucide="hash" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></i>
           </div>
-          <p class="text-[11px] text-gray-500 pt-1">Share this code so others can join your room directly.</p>
+          <p class="text-[11px] text-gray-500 pt-1">Share this 6-digit code so others can join your room directly.</p>
         </div>
 
         <!-- Optional members field -->
@@ -532,37 +617,99 @@
       const n = Date.now(), M = (from, text, ago, a, mine) => ({ id: rnd(), from, text, ts: n - ago, me: !!mine, att: a || null });
       return [
         {
-          id: 'c1', name: 'Project Alpha Team', code: 'ALPHA7', room: 1, unread: 1, at: n, online: 8, members: 'Alice, Bob, Charlie, David, +3 others', desc: 'Central hub for Q3 specifications, system designs and sprint updates.', msgs: [
+          id: 'c1', name: 'Project Alpha Team', code: '482910', room: 1, unread: 1, at: n, online: 8, members: 'Alice, Bob, Charlie, David, +3 others', desc: 'Central hub for Q3 specifications, system designs and sprint updates.', msgs: [
             M('Alice Smith', 'Hey everyone, here is the updated specifications deck for review.', 42 * 6e4, { type: 'pdf', name: 'Q3_Project_Requirements.pdf', size: '2.4 MB' }),
             M('Bob Johnson', "Thanks! I've cross-referenced it with the financials.", 37 * 6e4, { type: 'excel', name: 'Budget_Forecast_2026.xlsx', size: '1.1 MB' }),
             M('', 'Looks good. I also committed the API contract draft.', 34 * 6e4, { type: 'doc', name: 'API_Contract_v2.md', size: '45 KB' }, true),
             M('Charlie', 'Screenshot of the proposed dashboard view.', 30 * 6e4, { type: 'image', name: 'Dashboard_Snippet.png', size: '1.4 MB', url: 'image_placeholder.png' })]
         },
-        { id: 'c2', name: 'Dev Standup Room', code: 'DEV101', room: 1, unread: 1, at: n, online: 3, members: 'Dave, Evan', desc: 'Daily engineering checkpoint and blocker resolution.', msgs: [M('Dave', 'Standup starts in 5 minutes. Please bring your blockers.', 90 * 6e4)] },
+        { id: 'c2', name: 'Dev Standup Room', code: '104829', room: 1, unread: 1, at: n, online: 3, members: 'Dave, Evan', desc: 'Daily engineering checkpoint and blocker resolution.', msgs: [M('Dave', 'Standup starts in 5 minutes. Please bring your blockers.', 90 * 6e4)] },
         { id: 'c3', name: 'Alice Smith', room: 0, unread: 0, at: n, members: 'Direct message', msgs: [M('Alice Smith', "Thanks for sending over the file! I'll review it shortly.", 26 * 36e5)] },
-        { id: 'c4', name: 'Design Systems', code: 'DSYNC', room: 1, unread: 0, at: n, online: 4, members: 'Charlie, Figma Bot', desc: 'Token syncs, UI kit revisions and prototype feedback.', msgs: [M('Charlie', 'Check out this icon snippet before we push to production.', 50 * 36e5)] }
+        { id: 'c4', name: 'Design Systems', code: '739201', room: 1, unread: 0, at: n, online: 4, members: 'Charlie, Figma Bot', desc: 'Token syncs, UI kit revisions and prototype feedback.', msgs: [M('Charlie', 'Check out this icon snippet before we push to production.', 50 * 36e5)] }
       ];
     }
 
-    // ---------- auth flow ----------
+    // ---------- auth flow & directory ----------
+    const MOCK_USERS = [
+      { id: 'u_alex', username: 'alex', name: 'Alex Rivera', role: 'Product Lead' },
+      { id: 'u_alice', username: 'alice', name: 'Alice Smith', role: 'UI/UX Designer' },
+      { id: 'u_bob', username: 'bob', name: 'Bob Johnson', role: 'Backend Engineer' },
+      { id: 'u_sarah', username: 'sarah', name: 'Sarah Jenkins', role: 'Frontend Developer' },
+      { id: 'u_david', username: 'david', name: 'David Kim', role: 'DevOps Specialist' },
+      { id: 'u_evan', username: 'evan', name: 'Evan Wright', role: 'QA Lead' }
+    ];
+
+    function getUserDirectory() {
+      const map = new Map();
+      MOCK_USERS.forEach(u => map.set(u.username.toLowerCase(), { ...u }));
+      (users || []).forEach(u => {
+        const existing = map.get(u.username.toLowerCase()) || {};
+        map.set(u.username.toLowerCase(), { ...existing, ...u });
+      });
+      return Array.from(map.values());
+    }
+
+    function genAvailableUsername(name) {
+      let base = (name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+      if (!base) base = 'user';
+      base = base.slice(0, 10);
+
+      const all = getUserDirectory();
+      if (!all.some(u => u.username.toLowerCase() === base && (!me || u.id !== me.id))) {
+        return base;
+      }
+      for (let i = 0; i < 50; i++) {
+        const num = Math.floor(10 + Math.random() * 900);
+        const candidate = `${base}${num}`.slice(0, 20);
+        if (!all.some(u => u.username.toLowerCase() === candidate && (!me || u.id !== me.id))) {
+          return candidate;
+        }
+      }
+      return (base + '_' + Math.random().toString(36).slice(2, 6)).slice(0, 20);
+    }
+
+    function genUsernameAuth() {
+      const name = $('aName').value.trim();
+      const u = genAvailableUsername(name);
+      $('aUser').value = u;
+      $('aErr').textContent = '';
+      toast(`Generated username @${u}`);
+    }
+
     function setMode(m) {
-      mode = m; $('nameRow').classList.toggle('hidden', m === 'in'); $('aHint').classList.toggle('hidden', m !== 'in');
-      $('aBtn').textContent = m === 'in' ? 'Sign in' : 'Create account'; $('aErr').textContent = '';
+      mode = m;
+      $('nameRow').classList.toggle('hidden', m === 'in');
+      $('genUserBtn').classList.toggle('hidden', m === 'in');
+      $('aHint').classList.toggle('hidden', m !== 'in');
+      $('aBtn').textContent = m === 'in' ? 'Sign in' : 'Create account';
+      $('aErr').textContent = '';
       $('aPass').autocomplete = m === 'in' ? 'current-password' : 'new-password';
       document.querySelectorAll('[data-m]').forEach(b => b.classList.toggle('on', b.dataset.m === m));
+      ic();
     }
+
     function checkUser(u, selfId) {
       if (!/^[a-z0-9_.]{3,20}$/.test(u)) return 'Username must be 3–20 characters: letters, numbers, . or _';
-      if (users.some(x => x.username === u && x.id !== selfId)) return 'That username is already taken.';
+      const all = getUserDirectory();
+      if (all.some(x => x.username.toLowerCase() === u.toLowerCase() && x.id !== selfId)) {
+        return `Username "@${u}" is already taken. Please choose a different username.`;
+      }
       return '';
     }
+
     async function submitAuth(e) {
       e.preventDefault();
       const u = $('aUser').value.trim().toLowerCase(), p = $('aPass').value, err = $('aErr');
       err.textContent = '';
       if (!u || !p) return err.textContent = 'Enter your username and password.';
       if (mode === 'in') {
-        const x = users.find(v => v.username === u);
+        let x = users.find(v => v.username.toLowerCase() === u);
+        if (!x && u === 'alex' && p === 'chatlink123') {
+          const salt = rnd();
+          x = { id: 'u_alex', username: 'alex', name: 'Alex Rivera', salt, hash: await hash('chatlink123', salt), created: Date.now() - 30 * 864e5 };
+          users.push(x); saveUsers();
+          return login(x);
+        }
         if (!x || await hash(p, x.salt) !== x.hash) return err.textContent = 'Incorrect username or password.';
         return login(x);
       }
@@ -573,17 +720,25 @@
       const salt = rnd(), x = { id: 'u' + rnd(), username: u, name, salt, hash: await hash(p, salt), created: Date.now() };
       users.push(x); saveUsers(); login(x);
     }
+
     function login(x) {
       me = users.find(u => u.id === x.id) || x;
       store.set('cl:session', me.id);
       db = store.get('cl:data:' + me.id) || { convos: seed(), blocked: [], dis: 0 };
-      const defaultCodes = { c1: 'ALPHA7', c2: 'DEV101', c4: 'DSYNC' };
+      const defaultCodes = { c1: '482910', c2: '104829', c4: '739201' };
       db.convos?.forEach(c => {
-        if (c.room && !c.code) c.code = defaultCodes[c.id] || ('RM' + Math.random().toString(36).slice(2, 6).toUpperCase());
+        if (c.room && (!c.code || !/^\d{6}$/.test(c.code))) c.code = defaultCodes[c.id] || String(Math.floor(100000 + Math.random() * 900000));
         c.msgs?.forEach(m => {
           if (m.att?.name === 'Dashboard_Snippet.png' && m.att?.url !== 'image_placeholder.png') m.att.url = 'image_placeholder.png';
         });
       });
+      if (!db.incomingRequests) {
+        db.incomingRequests = [
+          { id: 'req_sarah', username: 'sarah', name: 'Sarah Jenkins', role: 'Frontend Developer', ts: Date.now() - 35 * 6e4 }
+        ];
+      }
+      if (!db.outgoingRequests) db.outgoingRequests = [];
+      if (!db.friends) db.friends = ['alice'];
       save(); sweep();
       $('authForm').reset(); $('aErr').textContent = '';
       $('auth').classList.add('hidden'); $('auth').classList.remove('flex');
@@ -591,6 +746,7 @@
       activeId = vis()[0]?.id || null;
       show('chats'); refreshMe(); renderAll();
     }
+
     function logout() {
       store.del('cl:session'); me = db = activeId = att = null;
       closeModal('settings');
@@ -614,8 +770,13 @@
     // ---------- rendering ----------
     function show(v) {
       view = v;
-      ['chats', 'rooms', 'profile'].forEach(x => $('view-' + x).classList.toggle('hidden', x !== v));
+      ['chats', 'rooms', 'users', 'profile'].forEach(x => $('view-' + x).classList.toggle('hidden', x !== v));
       document.querySelectorAll('.nav[data-v]').forEach(b => b.classList.toggle('on', b.dataset.v === v));
+      if (v === 'users') {
+        if (userSubView === 'search') renderUserSearch();
+        else renderFriendRequests();
+      }
+      updateReqBadges();
       ic();
     }
     function refreshMe() {
@@ -623,7 +784,7 @@
       $('railAv').textContent = $('pvAv').textContent = ini(me.name);
       $('pvName').textContent = me.name; $('pvUser').textContent = '@' + me.username;
     }
-    function renderAll() { renderList(); renderHead(); renderMsgs(); renderRooms(); ic(); }
+    function renderAll() { renderList(); renderHead(); renderMsgs(); renderRooms(); renderUserSearch(); renderFriendRequests(); updateReqBadges(); ic(); }
     function setF(k, v) { if (k === 'tf') tf = tf === v ? 'all' : v; else rf = rf === v ? 'all' : v; renderList(); }
     function renderList() {
       const q = $('search').value.toLowerCase();
@@ -733,11 +894,289 @@
       save(); renderMsgs(); toast('All attachments removed.');
     }
 
+    // ---------- users, search & friend requests ----------
+    let userSubView = 'search';
+
+    function setUserSubView(sub) {
+      userSubView = sub;
+      document.querySelectorAll('[data-uv]').forEach(b => b.classList.toggle('on', b.dataset.uv === sub));
+      $('userSubView-search').classList.toggle('hidden', sub !== 'search');
+      $('userSubView-requests').classList.toggle('hidden', sub !== 'requests');
+      if (sub === 'search') renderUserSearch();
+      if (sub === 'requests') renderFriendRequests();
+      ic();
+    }
+
+    function updateReqBadges() {
+      const inc = (db?.incomingRequests || []).length;
+      const badge = $('reqBadge');
+      const tabBadge = $('reqTabBadge');
+      if (badge) badge.classList.toggle('hidden', inc === 0);
+      if (tabBadge) {
+        tabBadge.classList.toggle('hidden', inc === 0);
+        tabBadge.textContent = inc;
+      }
+    }
+
+    function renderUserSearch() {
+      const raw = ($('uSearchInp')?.value || '').trim();
+      const q = raw.replace(/^@/, '').toLowerCase();
+      const all = getUserDirectory();
+      const hint = $('uCountHint');
+      if (hint) hint.textContent = `${all.length} registered members`;
+
+      let list = all;
+      if (q) {
+        list = all.filter(u => u.username.toLowerCase().includes(q) || u.name.toLowerCase().includes(q));
+      }
+
+      const errBox = $('uSearchErr');
+      const resBox = $('uSearchResults');
+      if (!resBox) return;
+
+      if (q && list.length === 0) {
+        errBox.classList.remove('hidden');
+        $('uSearchErrMsg').innerHTML = `No user found matching <b>"@${esc(raw)}"</b>. Please check the spelling and try again.`;
+        resBox.innerHTML = '';
+        ic();
+        return;
+      }
+
+      if (errBox) errBox.classList.add('hidden');
+
+      resBox.innerHTML = list.map(u => {
+        const isSelf = me && u.username.toLowerCase() === me.username.toLowerCase();
+        const isFriend = (db?.friends || []).includes(u.username.toLowerCase());
+        const isIncoming = (db?.incomingRequests || []).some(r => r.username.toLowerCase() === u.username.toLowerCase());
+        const isOutgoing = (db?.outgoingRequests || []).some(r => r.username.toLowerCase() === u.username.toLowerCase());
+
+        let actionHtml = '';
+        if (isSelf) {
+          actionHtml = `<span class="text-xs text-gray-500 px-3 py-1.5 rounded-lg bg-[#0F0F0F] border border-white/5 font-mono">You</span>`;
+        } else if (isFriend) {
+          actionHtml = `<button onclick="startDirectChat('${esc(u.name)}', '${esc(u.username)}')" class="btn !py-1.5 !px-3 !text-xs flex items-center gap-1.5">
+            <i data-lucide="message-square" class="w-3.5 h-3.5"></i>Message
+          </button>`;
+        } else if (isIncoming) {
+          actionHtml = `<div class="flex items-center gap-1.5">
+            <button onclick="acceptFriendRequest('${esc(u.username)}')" class="btn !py-1.5 !px-2.5 !text-xs bg-white text-black hover:bg-gray-200">
+              Accept
+            </button>
+            <button onclick="declineFriendRequest('${esc(u.username)}')" class="ghost !py-1.5 !px-2 !text-xs text-gray-400 hover:text-rose-400">
+              Decline
+            </button>
+          </div>`;
+        } else if (isOutgoing) {
+          actionHtml = `<div class="flex items-center gap-1.5">
+            <span class="text-xs text-gray-400 bg-[#0F0F0F] px-2.5 py-1.5 rounded-lg border border-white/10 flex items-center gap-1">
+              <i data-lucide="clock" class="w-3 h-3"></i>Sent
+            </span>
+            <button onclick="cancelFriendRequest('${esc(u.username)}')" class="ghost !p-1.5 text-xs text-gray-400 hover:text-rose-400" title="Cancel request">
+              <i data-lucide="x" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>`;
+        } else {
+          actionHtml = `<button onclick="sendFriendRequest('${esc(u.username)}')" class="btn !py-1.5 !px-3 !text-xs flex items-center gap-1.5">
+            <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>Add Friend
+          </button>`;
+        }
+
+        return `<div class="bg-[#0C0C0C] rounded-2xl p-4 border border-white/[0.08] hover:border-white/20 transition-all flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="av w-10 h-10 rounded-xl text-xs font-bold bg-[#0F0F0F] border border-white/10 shrink-0">
+              ${esc(ini(u.name))}
+            </div>
+            <div class="min-w-0">
+              <div class="flex items-center gap-1.5">
+                <h4 class="text-xs font-semibold text-white truncate">${esc(u.name)}</h4>
+                ${isFriend ? '<span class="text-[9px] bg-emerald-950/70 border border-emerald-500/30 text-emerald-400 px-1.5 py-0.2 rounded-full font-medium">Friend</span>' : ''}
+              </div>
+              <p class="text-[11px] text-gray-400 font-mono truncate">@${esc(u.username)}</p>
+              ${u.role ? `<p class="text-[10px] text-gray-500 truncate">${esc(u.role)}</p>` : ''}
+            </div>
+          </div>
+          <div class="shrink-0">${actionHtml}</div>
+        </div>`;
+      }).join('');
+
+      ic();
+    }
+
+    function renderFriendRequests() {
+      const inList = db?.incomingRequests || [];
+      const outList = db?.outgoingRequests || [];
+
+      if ($('inReqBadgeCount')) $('inReqBadgeCount').textContent = `${inList.length} pending`;
+      if ($('outReqBadgeCount')) $('outReqBadgeCount').textContent = `${outList.length} sent`;
+
+      const inBox = $('incomingReqList');
+      if (inBox) {
+        inBox.innerHTML = inList.length ? inList.map(r => `
+          <div class="p-3.5 rounded-xl bg-[#0F0F0F] border border-white/10 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="av w-10 h-10 rounded-xl text-xs font-bold bg-[#0C0C0C] border border-white/15 shrink-0">
+                ${esc(ini(r.name))}
+              </div>
+              <div class="min-w-0">
+                <h4 class="text-xs font-semibold text-white truncate">${esc(r.name)}</h4>
+                <p class="text-[11px] text-gray-400 font-mono">@${esc(r.username)}</p>
+                <p class="text-[10px] text-gray-500 mt-0.5">${fmt(r.ts)}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <button onclick="acceptFriendRequest('${esc(r.username)}')" class="btn !py-1.5 !px-3 !text-xs bg-white text-black hover:bg-gray-200">
+                Accept
+              </button>
+              <button onclick="declineFriendRequest('${esc(r.username)}')" class="ghost !py-1.5 !px-2.5 !text-xs text-gray-400 hover:text-rose-400">
+                Decline
+              </button>
+            </div>
+          </div>
+        `).join('') : '<p class="text-xs text-gray-500 p-6 text-center bg-[#0F0F0F] rounded-xl border border-white/[0.06]">No pending incoming friend requests.</p>';
+      }
+
+      const outBox = $('outgoingReqList');
+      if (outBox) {
+        outBox.innerHTML = outList.length ? outList.map(r => `
+          <div class="p-3.5 rounded-xl bg-[#0F0F0F] border border-white/10 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="av w-10 h-10 rounded-xl text-xs font-bold bg-[#0C0C0C] border border-white/15 shrink-0">
+                ${esc(ini(r.name))}
+              </div>
+              <div class="min-w-0">
+                <h4 class="text-xs font-semibold text-white truncate">${esc(r.name)}</h4>
+                <p class="text-[11px] text-gray-400 font-mono">@${esc(r.username)}</p>
+                <p class="text-[10px] text-gray-500 mt-0.5">${fmt(r.ts)}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <span class="text-xs text-gray-400 bg-[#0C0C0C] px-2.5 py-1.5 rounded-lg border border-white/10 flex items-center gap-1">
+                <i data-lucide="clock" class="w-3 h-3"></i>Pending
+              </span>
+              <button onclick="cancelFriendRequest('${esc(r.username)}')" class="ghost !py-1.5 !px-2 text-xs text-gray-400 hover:text-rose-400" title="Cancel request">
+                Cancel
+              </button>
+            </div>
+          </div>
+        `).join('') : '<p class="text-xs text-gray-500 p-6 text-center bg-[#0F0F0F] rounded-xl border border-white/[0.06]">No outgoing requests.</p>';
+      }
+
+      updateReqBadges();
+      ic();
+    }
+
+    function sendFriendRequest(username) {
+      const target = getUserDirectory().find(u => u.username.toLowerCase() === username.toLowerCase());
+      if (!target) return toast('User not found.', 1);
+      if (me && target.username.toLowerCase() === me.username.toLowerCase()) return toast('You cannot send a friend request to yourself.', 1);
+      if ((db?.friends || []).includes(target.username.toLowerCase())) return toast(`You are already friends with @${target.username}.`);
+      if ((db?.outgoingRequests || []).some(r => r.username.toLowerCase() === target.username.toLowerCase())) return toast(`Request already sent to @${target.username}.`);
+
+      if ((db?.incomingRequests || []).some(r => r.username.toLowerCase() === target.username.toLowerCase())) {
+        return acceptFriendRequest(target.username);
+      }
+
+      if (!db.outgoingRequests) db.outgoingRequests = [];
+      db.outgoingRequests.push({
+        id: 'req_' + rnd(),
+        username: target.username,
+        name: target.name,
+        ts: Date.now()
+      });
+      save();
+      renderUserSearch();
+      renderFriendRequests();
+      toast(`Friend request sent to @${target.username}!`);
+    }
+
+    function acceptFriendRequest(username) {
+      if (!db.incomingRequests) db.incomingRequests = [];
+      const idx = db.incomingRequests.findIndex(r => r.username.toLowerCase() === username.toLowerCase());
+      let target = null;
+      if (idx !== -1) {
+        target = db.incomingRequests.splice(idx, 1)[0];
+      } else {
+        target = getUserDirectory().find(u => u.username.toLowerCase() === username.toLowerCase());
+      }
+      if (!target) return toast('Request not found.', 1);
+
+      if (!db.friends) db.friends = [];
+      if (!db.friends.includes(target.username.toLowerCase())) {
+        db.friends.push(target.username.toLowerCase());
+      }
+
+      const ex = db.convos.find(c => !c.room && c.name.toLowerCase() === target.name.toLowerCase());
+      if (!ex) {
+        const c = {
+          id: 'c' + rnd(),
+          name: target.name,
+          room: 0,
+          unread: 0,
+          at: Date.now(),
+          members: 'Direct message',
+          desc: '',
+          msgs: [{ id: rnd(), ts: Date.now(), from: 'System', text: `You and @${target.username} are now connected! Start messaging.`, me: false }]
+        };
+        db.convos.unshift(c);
+      }
+
+      save();
+      renderAll();
+      renderUserSearch();
+      renderFriendRequests();
+      toast(`Accepted friend request from @${target.username}!`);
+    }
+
+    function declineFriendRequest(username) {
+      if (!db.incomingRequests) return;
+      const idx = db.incomingRequests.findIndex(r => r.username.toLowerCase() === username.toLowerCase());
+      if (idx !== -1) {
+        db.incomingRequests.splice(idx, 1);
+        save();
+        renderUserSearch();
+        renderFriendRequests();
+        toast(`Declined friend request from @${username}.`);
+      }
+    }
+
+    function cancelFriendRequest(username) {
+      if (!db.outgoingRequests) return;
+      const idx = db.outgoingRequests.findIndex(r => r.username.toLowerCase() === username.toLowerCase());
+      if (idx !== -1) {
+        db.outgoingRequests.splice(idx, 1);
+        save();
+        renderUserSearch();
+        renderFriendRequests();
+        toast(`Cancelled friend request to @${username}.`);
+      }
+    }
+
+    function startDirectChat(name, username) {
+      const ex = db.convos.find(c => !c.room && c.name.toLowerCase() === name.toLowerCase());
+      if (ex) {
+        openChat(ex.id);
+      } else {
+        const c = {
+          id: 'c' + rnd(),
+          name,
+          room: 0,
+          unread: 0,
+          at: Date.now(),
+          members: 'Direct message',
+          desc: '',
+          msgs: [{ id: rnd(), ts: Date.now(), from: 'System', text: `Direct conversation with ${name} (@${username}) started.`, me: false }]
+        };
+        db.convos.unshift(c);
+        save();
+        openChat(c.id);
+      }
+    }
+
     // ---------- new chat & room codes ----------
     let roomAction = 'create'; // 'create' or 'join'
 
     function genRoomCode() {
-      const code = 'RM' + Math.random().toString(36).slice(2, 6).toUpperCase();
+      const code = String(Math.floor(100000 + Math.random() * 900000));
       $('ncCode').value = code;
       return code;
     }
@@ -797,11 +1236,12 @@
       err.textContent = '';
 
       if (newIsRoom && roomAction === 'join') {
-        const code = $('joinCode').value.trim().toUpperCase();
-        if (!code) return err.textContent = 'Please enter a room code.';
+        const code = $('joinCode').value.trim().replace(/\D/g, '');
+        if (!code) return err.textContent = 'Please enter a 6-digit room code.';
+        if (code.length !== 6) return err.textContent = 'Room code must be exactly 6 digits.';
 
         // Look up room across current conversations or all user datasets/seeds
-        let targetRoom = db.convos.find(c => c.room && c.code && c.code.toUpperCase() === code);
+        let targetRoom = db.convos.find(c => c.room && c.code && c.code === code);
         if (targetRoom) {
           closeModal('newChat');
           openChat(targetRoom.id);
@@ -811,7 +1251,7 @@
 
         // Check if room exists in seeded rooms or other saved state
         const allKnownRooms = seed().filter(c => c.room);
-        targetRoom = allKnownRooms.find(c => c.code && c.code.toUpperCase() === code);
+        targetRoom = allKnownRooms.find(c => c.code && c.code === code);
         if (targetRoom) {
           const cloned = JSON.parse(JSON.stringify(targetRoom));
           cloned.id = 'c' + rnd();
@@ -824,7 +1264,7 @@
           return;
         }
 
-        return err.textContent = `No room found with code "${code}". Please check the code and try again.`;
+        return err.textContent = `No room found with code #${code}. Please check the 6-digit code and try again.`;
       }
 
       const name = $('ncName').value.trim();
@@ -843,11 +1283,12 @@
 
       let code = '';
       if (newIsRoom) {
-        code = $('ncCode').value.trim().toUpperCase().replace(/[^A-Z0-9_-]/g, '');
+        code = $('ncCode').value.trim().replace(/\D/g, '').slice(0, 6);
         if (!code) code = genRoomCode();
+        if (code.length !== 6) return err.textContent = 'Room code must be exactly 6 digits.';
         // Ensure uniqueness among existing rooms in workspace
-        if (db.convos.some(c => c.room && c.code && c.code.toUpperCase() === code)) {
-          return err.textContent = `A room with code "${code}" already exists. Please choose a different code.`;
+        if (db.convos.some(c => c.room && c.code && c.code === code)) {
+          return err.textContent = `A room with code #${code} already exists. Please choose a different code.`;
         }
       }
 
