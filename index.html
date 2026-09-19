@@ -7,11 +7,12 @@
   <title>ChatLink</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
   <style>
     body {
       font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-      background: #000000;
+      background: #0F0F0F;
       color: #F3F4F6;
     }
 
@@ -19,20 +20,23 @@
       width: 5px;
       height: 5px;
     }
+
     ::-webkit-scrollbar-track {
       background: transparent;
     }
+
     ::-webkit-scrollbar-thumb {
       background: rgba(255, 255, 255, 0.14);
       border-radius: 9999px;
     }
+
     ::-webkit-scrollbar-thumb:hover {
       background: rgba(255, 255, 255, 0.28);
     }
 
     .inp {
       width: 100%;
-      background: #000000;
+      background: #0F0F0F;
       border: 1px solid rgba(255, 255, 255, 0.10);
       color: #ffffff;
       font-size: 0.75rem;
@@ -41,9 +45,11 @@
       outline: none;
       transition: border-color 0.15s ease;
     }
+
     .inp:focus {
       border-color: rgba(255, 255, 255, 0.30);
     }
+
     .inp::placeholder {
       color: #6b7280;
     }
@@ -54,7 +60,7 @@
       font-weight: 500;
       border-radius: 0.75rem;
       border: 1px solid rgba(255, 255, 255, 0.25);
-      background: #121212;
+      background: #0C0C0C;
       color: #ffffff;
       transition: all 0.15s ease;
       cursor: pointer;
@@ -62,6 +68,7 @@
       align-items: center;
       justify-content: center;
     }
+
     .btn:hover {
       border-color: rgba(255, 255, 255, 0.50);
       background: #1a1a1a;
@@ -76,6 +83,7 @@
       transition: color 0.15s ease;
       cursor: pointer;
     }
+
     .ghost:hover {
       color: #ffffff;
     }
@@ -91,12 +99,13 @@
       transition: all 0.15s ease;
       cursor: pointer;
     }
+
     .danger:hover {
       background: rgba(136, 19, 55, 0.60);
     }
 
     .card {
-      background: #000000;
+      background: #0F0F0F;
       border: 1px solid rgba(255, 255, 255, 0.06);
       border-radius: 0.75rem;
       padding: 1rem;
@@ -116,7 +125,7 @@
       justify-content: center;
       font-weight: 700;
       color: #ffffff;
-      background: #121212;
+      background: #0C0C0C;
       border: 1px solid rgba(255, 255, 255, 0.15);
       flex-shrink: 0;
     }
@@ -134,11 +143,13 @@
       transition: all 0.15s ease;
       cursor: pointer;
     }
+
     .chip:hover {
       color: #e5e7eb;
     }
+
     .chip.on {
-      background: #000000;
+      background: #0F0F0F;
       color: #ffffff;
       border-color: rgba(255, 255, 255, 0.25);
     }
@@ -156,10 +167,12 @@
       transition: all 0.15s ease;
       cursor: pointer;
     }
+
     .st:hover {
       color: #ffffff;
       background: rgba(255, 255, 255, 0.05);
     }
+
     .st.on {
       color: #ffffff;
       background: rgba(255, 255, 255, 0.10);
@@ -178,15 +191,18 @@
       transition: all 0.15s ease;
       cursor: pointer;
     }
+
     .nav:hover {
       color: #ffffff;
       background: rgba(255, 255, 255, 0.06);
     }
+
     .nav.on {
       color: #ffffff;
-      background: #121212;
+      background: #0C0C0C;
       border-color: rgba(255, 255, 255, 0.15);
     }
+
     .nav.on::before {
       content: '';
       position: absolute;
@@ -203,7 +219,7 @@
 <body class="h-screen w-screen overflow-hidden antialiased selection:bg-white/20">
 
   <!-- LOGIN / REGISTER -->
-  <div id="auth" class="fixed inset-0 z-[60] bg-black hidden items-center justify-center p-4">
+  <div id="auth" class="fixed inset-0 z-[60] bg-[#0F0F0F] hidden items-center justify-center p-4">
     <div class="w-full max-w-sm">
       <div class="flex items-center gap-3 mb-8">
         <div class="av w-11 h-11 rounded-xl"><i data-lucide="shield-check" class="w-5 h-5"></i></div>
@@ -212,97 +228,128 @@
           <p class="text-xs text-gray-500">Sign in to your workspace</p>
         </div>
       </div>
-      <div class="flex bg-[#121212] p-1 rounded-xl border border-white/10 mb-5">
+      <div class="flex bg-[#0C0C0C] p-1 rounded-xl border border-white/10 mb-5">
         <button type="button" data-m="in" onclick="setMode('in')" class="chip flex-1 justify-center">Sign in</button>
-        <button type="button" data-m="up" onclick="setMode('up')" class="chip flex-1 justify-center">Create account</button>
+        <button type="button" data-m="up" onclick="setMode('up')" class="chip flex-1 justify-center">Create
+          account</button>
       </div>
       <form id="authForm" onsubmit="submitAuth(event)" class="space-y-4" novalidate>
-        <div id="nameRow" class="hidden"><label class="lbl" for="aName">Name</label><input id="aName" class="inp" maxlength="40" autocomplete="name"></div>
-        <div><label class="lbl" for="aUser">Username</label><input id="aUser" class="inp" maxlength="20" autocomplete="username" autocapitalize="off"></div>
-        <div><label class="lbl" for="aPass">Password</label><input id="aPass" type="password" class="inp" autocomplete="current-password"></div>
+        <div id="nameRow" class="hidden"><label class="lbl" for="aName">Name</label><input id="aName" class="inp"
+            maxlength="40" autocomplete="name"></div>
+        <div><label class="lbl" for="aUser">Username</label><input id="aUser" class="inp" maxlength="20"
+            autocomplete="username" autocapitalize="off"></div>
+        <div><label class="lbl" for="aPass">Password</label><input id="aPass" type="password" class="inp"
+            autocomplete="current-password"></div>
         <p id="aErr" role="alert" class="text-xs text-rose-400 min-h-[1rem]"></p>
         <button id="aBtn" class="btn w-full py-3 text-sm">Sign in</button>
-        <p id="aHint" class="text-[11px] text-gray-500 text-center">Demo account: <b class="text-gray-300">alex</b> / <b class="text-gray-300">chatlink123</b></p>
+        <p id="aHint" class="text-[11px] text-gray-500 text-center">Demo account: <b class="text-gray-300">alex</b> / <b
+            class="text-gray-300">chatlink123</b></p>
       </form>
     </div>
   </div>
 
   <!-- APP -->
   <div id="app" class="w-full h-full flex">
-    <aside class="w-16 border-r border-white/[0.08] flex flex-col items-center py-4 justify-between shrink-0 bg-[#000000]">
+    <aside
+      class="w-16 border-r border-white/[0.08] flex flex-col items-center py-4 justify-between shrink-0 bg-[#0F0F0F]">
       <div class="flex flex-col items-center gap-6">
-        <div class="av w-10 h-10 rounded-xl bg-[#121212]"><i data-lucide="shield-check" class="w-5 h-5"></i></div>
+        <div class="av w-10 h-10 rounded-xl bg-[#0C0C0C]"><i data-lucide="shield-check" class="w-5 h-5"></i></div>
         <nav class="flex flex-col gap-2">
-          <button class="nav on" data-v="chats" onclick="show('chats')" title="Chats"><i data-lucide="message-square" class="w-5 h-5"></i></button>
-          <button class="nav" data-v="rooms" onclick="show('rooms')" title="Rooms"><i data-lucide="layout-grid" class="w-5 h-5"></i></button>
+          <button class="nav on" data-v="chats" onclick="show('chats')" title="Chats"><i data-lucide="message-square"
+              class="w-5 h-5"></i></button>
+          <button class="nav" data-v="rooms" onclick="show('rooms')" title="Rooms"><i data-lucide="layout-grid"
+              class="w-5 h-5"></i></button>
         </nav>
       </div>
       <div class="flex flex-col gap-2">
-        <button class="nav" onclick="openSettings('profile')" title="Settings"><i data-lucide="sliders-horizontal" class="w-5 h-5"></i></button>
-        <button class="nav" data-v="profile" onclick="show('profile')" title="Profile"><span id="railAv" class="av w-8 h-8 rounded-full text-xs"></span></button>
+        <button class="nav" onclick="openSettings('profile')" title="Settings"><i data-lucide="sliders-horizontal"
+            class="w-5 h-5"></i></button>
+        <button class="nav" data-v="profile" onclick="show('profile')" title="Profile"><span id="railAv"
+            class="av w-8 h-8 rounded-full text-xs"></span></button>
       </div>
     </aside>
 
-    <main class="flex-1 flex overflow-hidden relative bg-[#000000]">
+    <main class="flex-1 flex overflow-hidden relative bg-[#0F0F0F]">
       <!-- CHATS -->
       <div id="view-chats" class="flex-1 flex w-full h-full">
-        <section class="w-80 md:w-96 bg-[#121212] border-r border-white/[0.08] flex flex-col shrink-0">
+        <section class="w-80 md:w-96 bg-[#0C0C0C] border-r border-white/[0.08] flex flex-col shrink-0">
           <div class="p-4 border-b border-white/[0.08] space-y-3">
             <div class="flex justify-between items-center">
               <h2 class="text-lg font-bold text-white">Messages</h2>
-              <button onclick="openNew(false)" class="btn !p-2" title="New message or room"><i data-lucide="plus" class="w-4 h-4"></i></button>
+              <button onclick="openNew(false)" class="btn !p-2" title="New message or room"><i data-lucide="plus"
+                  class="w-4 h-4"></i></button>
             </div>
-            <div class="relative"><i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></i>
+            <div class="relative"><i data-lucide="search"
+                class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></i>
               <input id="search" oninput="renderList()" placeholder="Search conversations" class="inp !pl-9 !py-2.5">
             </div>
           </div>
           <div class="px-4 py-2.5 flex items-center justify-between border-b border-white/[0.08]">
             <div class="flex gap-1.5">
-              <button class="chip" data-tf="direct" onclick="setF('tf','direct')"><i data-lucide="user" class="w-3.5 h-3.5"></i>Direct</button>
-              <button class="chip" data-tf="rooms" onclick="setF('tf','rooms')"><i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>Rooms</button>
+              <button class="chip" data-tf="direct" onclick="setF('tf','direct')"><i data-lucide="user"
+                  class="w-3.5 h-3.5"></i>Direct</button>
+              <button class="chip" data-tf="rooms" onclick="setF('tf','rooms')"><i data-lucide="layout-grid"
+                  class="w-3.5 h-3.5"></i>Rooms</button>
             </div>
-            <div class="flex bg-black p-0.5 rounded-lg border border-white/10">
+            <div class="flex bg-[#0F0F0F] p-0.5 rounded-lg border border-white/10">
               <button class="chip !py-1 !px-2.5 !text-[11px]" data-rf="read" onclick="setF('rf','read')">Read</button>
-              <button class="chip !py-1 !px-2.5 !text-[11px]" data-rf="unread" onclick="setF('rf','unread')">Unread<span id="unreadDot" class="w-1.5 h-1.5 rounded-full bg-white hidden"></span></button>
+              <button class="chip !py-1 !px-2.5 !text-[11px]" data-rf="unread" onclick="setF('rf','unread')">Unread<span
+                  id="unreadDot" class="w-1.5 h-1.5 rounded-full bg-white hidden"></span></button>
             </div>
           </div>
           <div id="list" class="flex-1 overflow-y-auto px-2.5 py-2 space-y-1"></div>
         </section>
 
-        <section class="flex-1 flex flex-col h-full overflow-hidden bg-[#000000]">
-          <div id="emptyPane" class="flex-1 hidden flex-col items-center justify-center text-center text-gray-500 gap-2">
+        <section class="flex-1 flex flex-col h-full overflow-hidden bg-[#0F0F0F]">
+          <div id="emptyPane"
+            class="flex-1 hidden flex-col items-center justify-center text-center text-gray-500 gap-2">
             <i data-lucide="message-square" class="w-8 h-8"></i>
             <p class="text-sm text-gray-300 font-semibold">No conversation selected</p>
             <button class="btn mt-2" onclick="openNew(false)">Start a conversation</button>
           </div>
           <div id="chatPane" class="flex-1 flex flex-col overflow-hidden">
-            <header class="h-16 px-6 bg-[#121212] border-b border-white/[0.08] flex items-center justify-between shrink-0">
+            <header
+              class="h-16 px-6 bg-[#0C0C0C] border-b border-white/[0.08] flex items-center justify-between shrink-0">
               <div class="flex items-center gap-3 min-w-0">
                 <div id="hAv" class="av w-10 h-10 rounded-xl text-sm"></div>
                 <div class="min-w-0">
                   <div class="flex items-center gap-2">
                     <h2 id="hTitle" class="font-bold text-white text-sm truncate"></h2>
-                    <span id="hBadge" class="bg-black text-gray-300 text-[10px] font-semibold px-2 py-0.5 rounded-full border border-white/15"></span>
+                    <span id="hBadge"
+                      class="bg-[#0F0F0F] text-gray-300 text-[10px] font-semibold px-2 py-0.5 rounded-full border border-white/15"></span>
+                    <button id="hCodeBtn" onclick="copyRoomCode()"
+                      class="hidden items-center gap-1 bg-[#0F0F0F] hover:bg-white/10 text-gray-300 hover:text-white text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full border border-white/15 transition-all"
+                      title="Click to copy Room Code"><i data-lucide="hash" class="w-3 h-3"></i><span id="hCodeVal"></span><i data-lucide="copy" class="w-2.5 h-2.5 ml-0.5 text-gray-400"></i></button>
                   </div>
                   <p id="hMem" class="text-xs text-gray-400 truncate"></p>
                 </div>
               </div>
               <div class="flex items-center gap-2 text-gray-400">
-                <button id="hDis" onclick="openSettings('privacy')" class="hidden flex items-center gap-1.5 text-[11px] px-2 py-1 rounded-lg border border-white/10 hover:text-white" title="Disappearing messages are on"><i data-lucide="timer" class="w-3.5 h-3.5"></i><span id="hDisLbl"></span></button>
-                <button id="hBlock" onclick="blockActive()" class="p-2 hover:bg-white/[0.06] hover:text-rose-400 rounded-lg transition-colors" title="Block contact"><i data-lucide="ban" class="w-4 h-4"></i></button>
+                <button id="hDis" onclick="openSettings('privacy')"
+                  class="hidden flex items-center gap-1.5 text-[11px] px-2 py-1 rounded-lg border border-white/10 hover:text-white"
+                  title="Disappearing messages are on"><i data-lucide="timer" class="w-3.5 h-3.5"></i><span
+                    id="hDisLbl"></span></button>
+                <button id="hBlock" onclick="blockActive()"
+                  class="p-2 hover:bg-white/[0.06] hover:text-rose-400 rounded-lg transition-colors"
+                  title="Block contact"><i data-lucide="ban" class="w-4 h-4"></i></button>
               </div>
             </header>
-            <div id="feed" class="flex-1 overflow-y-auto p-6 flex flex-col gap-4 bg-[#000000]"></div>
-            <div id="attBar" class="hidden px-6 py-2 bg-[#121212] border-t border-white/[0.08] items-center justify-between text-xs text-gray-300">
-              <span class="flex items-center gap-2 min-w-0"><i data-lucide="paperclip" class="w-3.5 h-3.5"></i><span id="attName" class="truncate"></span></span>
-              <button onclick="clearAtt()" class="text-gray-400 hover:text-white p-1" aria-label="Remove attachment"><i data-lucide="x" class="w-4 h-4"></i></button>
+            <div id="feed" class="flex-1 overflow-y-auto p-6 flex flex-col gap-4 bg-[#0F0F0F]"></div>
+            <div id="attBar"
+              class="hidden px-6 py-2 bg-[#0C0C0C] border-t border-white/[0.08] items-center justify-between text-xs text-gray-300">
+              <span class="flex items-center gap-2 min-w-0"><i data-lucide="paperclip" class="w-3.5 h-3.5"></i><span
+                  id="attName" class="truncate"></span></span>
+              <button onclick="clearAtt()" class="text-gray-400 hover:text-white p-1" aria-label="Remove attachment"><i
+                  data-lucide="x" class="w-4 h-4"></i></button>
             </div>
-            <div class="p-4 bg-[#121212] border-t border-white/[0.08]">
+            <div class="p-4 bg-[#0C0C0C] border-t border-white/[0.08]">
               <form onsubmit="send(event)" class="flex items-center gap-2.5">
                 <input type="file" id="file" class="hidden" onchange="pickFile(event)">
-                <button type="button" onclick="$('file').click()" class="btn !p-2.5" title="Attach file"><i data-lucide="paperclip" class="w-5 h-5"></i></button>
+                <button type="button" onclick="$('file').click()" class="btn !p-2.5" title="Attach file"><i
+                    data-lucide="paperclip" class="w-5 h-5"></i></button>
                 <input id="msg" autocomplete="off" placeholder="Type a message" class="inp !text-sm !py-2.5 flex-1">
-                <button class="btn !py-2.5 !text-sm flex items-center gap-2">Send<i data-lucide="send" class="w-4 h-4"></i></button>
+                <button class="btn !py-2.5 !text-sm flex items-center gap-2">Send<i data-lucide="send"
+                    class="w-4 h-4"></i></button>
               </form>
             </div>
           </div>
@@ -310,22 +357,27 @@
       </div>
 
       <!-- ROOMS -->
-      <div id="view-rooms" class="hidden flex-1 p-8 overflow-y-auto bg-[#000000]">
+      <div id="view-rooms" class="hidden flex-1 p-8 overflow-y-auto bg-[#0F0F0F]">
         <div class="max-w-5xl mx-auto space-y-6">
           <div class="flex justify-between items-center border-b border-white/[0.08] pb-6">
             <div>
               <h1 class="text-2xl font-bold text-white">Collaborative Workspaces</h1>
-              <p class="text-gray-400 text-sm mt-1">Join a room or start a new one.</p>
+              <p class="text-gray-400 text-sm mt-1">Join a room with a code or create your own.</p>
             </div>
-            <button onclick="openNew(true)" class="btn flex items-center gap-2"><i data-lucide="plus-circle" class="w-4 h-4"></i>Create room</button>
+            <div class="flex items-center gap-2">
+              <button onclick="openNew(true, 'join')" class="btn flex items-center gap-2 bg-[#0F0F0F] hover:bg-white/10 text-white"><i data-lucide="log-in"
+                  class="w-4 h-4"></i>Join with code</button>
+              <button onclick="openNew(true, 'create')" class="btn flex items-center gap-2"><i data-lucide="plus-circle"
+                  class="w-4 h-4"></i>Create room</button>
+            </div>
           </div>
           <div id="roomGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </div>
       </div>
 
       <!-- PROFILE -->
-      <div id="view-profile" class="hidden flex-1 p-8 overflow-y-auto bg-[#000000]">
-        <div class="max-w-2xl mx-auto bg-[#121212] rounded-2xl p-8 border border-white/[0.08] space-y-6">
+      <div id="view-profile" class="hidden flex-1 p-8 overflow-y-auto bg-[#0F0F0F]">
+        <div class="max-w-2xl mx-auto bg-[#0C0C0C] rounded-2xl p-8 border border-white/[0.08] space-y-6">
           <div class="flex items-center gap-6">
             <div id="pvAv" class="av w-20 h-20 rounded-2xl text-2xl"></div>
             <div class="min-w-0">
@@ -348,18 +400,24 @@
   </div>
 
   <!-- SETTINGS -->
-  <div id="settings" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden items-center justify-center p-4">
-    <div class="bg-[#121212] rounded-2xl w-full max-w-2xl border border-white/15 overflow-hidden" role="dialog" aria-label="Settings">
+  <div id="settings" class="fixed inset-0 bg-[#0F0F0F]/85 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+    <div class="bg-[#0C0C0C] rounded-2xl w-full max-w-2xl border border-white/15 overflow-hidden" role="dialog"
+      aria-label="Settings">
       <div class="px-6 py-4 border-b border-white/[0.08] flex justify-between items-center">
         <h3 class="font-bold text-white">Settings</h3>
-        <button onclick="closeModal('settings')" class="text-gray-400 hover:text-white p-1" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
+        <button onclick="closeModal('settings')" class="text-gray-400 hover:text-white p-1" aria-label="Close"><i
+            data-lucide="x" class="w-5 h-5"></i></button>
       </div>
       <div class="flex flex-col sm:flex-row">
         <nav class="sm:w-48 p-3 sm:border-r border-white/[0.08] flex sm:flex-col gap-1 shrink-0">
-          <button class="st" data-t="profile" onclick="setTab('profile')"><i data-lucide="user" class="w-4 h-4"></i>Profile</button>
-          <button class="st" data-t="account" onclick="setTab('account')"><i data-lucide="key-round" class="w-4 h-4"></i>Account</button>
-          <button class="st" data-t="privacy" onclick="setTab('privacy')"><i data-lucide="shield" class="w-4 h-4"></i>Privacy</button>
-          <button class="st !text-rose-400" data-t="logout" onclick="setTab('logout')"><i data-lucide="log-out" class="w-4 h-4"></i>Logout</button>
+          <button class="st" data-t="profile" onclick="setTab('profile')"><i data-lucide="user"
+              class="w-4 h-4"></i>Profile</button>
+          <button class="st" data-t="account" onclick="setTab('account')"><i data-lucide="key-round"
+              class="w-4 h-4"></i>Account</button>
+          <button class="st" data-t="privacy" onclick="setTab('privacy')"><i data-lucide="shield"
+              class="w-4 h-4"></i>Privacy</button>
+          <button class="st !text-rose-400" data-t="logout" onclick="setTab('logout')"><i data-lucide="log-out"
+              class="w-4 h-4"></i>Logout</button>
         </nav>
         <div id="pane" class="flex-1 p-6 max-h-[70vh] min-h-[360px] overflow-y-auto"></div>
       </div>
@@ -367,25 +425,81 @@
   </div>
 
   <!-- NEW CHAT -->
-  <div id="newChat" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden items-center justify-center p-4">
-    <div class="bg-[#121212] rounded-2xl w-full max-w-md border border-white/15 overflow-hidden">
+  <div id="newChat" class="fixed inset-0 bg-[#0F0F0F]/85 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+    <div class="bg-[#0C0C0C] rounded-2xl w-full max-w-md border border-white/15 overflow-hidden">
       <div class="px-6 py-4 border-b border-white/[0.08] flex justify-between items-center">
-        <h3 class="font-bold text-white">New conversation</h3>
-        <button onclick="closeModal('newChat')" class="text-gray-400 hover:text-white p-1" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
+        <h3 id="ncModalTitle" class="font-bold text-white">New conversation</h3>
+        <button onclick="closeModal('newChat')" class="text-gray-400 hover:text-white p-1" aria-label="Close"><i
+            data-lucide="x" class="w-5 h-5"></i></button>
       </div>
       <form onsubmit="createChat(event)" class="p-6 space-y-4">
         <div class="grid grid-cols-2 gap-2">
-          <button type="button" class="chip justify-center !py-2.5" data-nt="1" onclick="setNT(true)"><i data-lucide="layout-grid" class="w-4 h-4"></i>Room</button>
-          <button type="button" class="chip justify-center !py-2.5" data-nt="0" onclick="setNT(false)"><i data-lucide="user" class="w-4 h-4"></i>Direct message</button>
+          <button type="button" class="chip justify-center !py-2.5" data-nt="1" onclick="setNT(true)"><i
+              data-lucide="layout-grid" class="w-4 h-4"></i>Room</button>
+          <button type="button" class="chip justify-center !py-2.5" data-nt="0" onclick="setNT(false)"><i
+              data-lucide="user" class="w-4 h-4"></i>Direct message</button>
         </div>
-        <div><label class="lbl" for="ncName">Name</label><input id="ncName" class="inp" maxlength="40" required></div>
-        <div id="ncMemRow"><label class="lbl" for="ncMem">Members (optional)</label><input id="ncMem" class="inp" placeholder="Dave, Sarah"></div>
-        <div class="flex justify-end gap-2"><button type="button" class="ghost" onclick="closeModal('newChat')">Cancel</button><button class="btn">Create</button></div>
+
+        <!-- Room Action Selector: Create or Join -->
+        <div id="roomActionRow" class="flex bg-[#0F0F0F] p-1 rounded-xl border border-white/10">
+          <button type="button" data-ra="create" onclick="setRoomAction('create')" class="chip flex-1 justify-center !py-1.5 !text-xs on">
+            <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>Create room
+          </button>
+          <button type="button" data-ra="join" onclick="setRoomAction('join')" class="chip flex-1 justify-center !py-1.5 !text-xs">
+            <i data-lucide="log-in" class="w-3.5 h-3.5"></i>Join with code
+          </button>
+        </div>
+
+        <!-- Join with room code field -->
+        <div id="joinCodeRow" class="hidden space-y-1">
+          <label class="lbl" for="joinCode">Room code</label>
+          <div class="relative">
+            <input id="joinCode" class="inp uppercase tracking-widest font-mono !pl-9" maxlength="12" placeholder="e.g. ALPHA7" autocomplete="off">
+            <i data-lucide="hash" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></i>
+          </div>
+          <p class="text-[11px] text-gray-500 pt-1">Enter the room code shared by your teammate or colleague.</p>
+        </div>
+
+        <!-- Name field (for Create Room or Direct Message) -->
+        <div id="ncNameRow">
+          <label id="ncNameLbl" class="lbl" for="ncName">Name</label>
+          <input id="ncName" class="inp" maxlength="40">
+        </div>
+
+        <!-- Room code field when creating a room -->
+        <div id="ncCodeRow" class="space-y-1">
+          <div class="flex justify-between items-center">
+            <label class="lbl !mb-0" for="ncCode">Room code</label>
+            <button type="button" onclick="genRoomCode()" class="text-[11px] text-gray-400 hover:text-white flex items-center gap-1 transition-colors">
+              <i data-lucide="sparkles" class="w-3 h-3"></i>Generate code
+            </button>
+          </div>
+          <div class="relative">
+            <input id="ncCode" class="inp uppercase tracking-widest font-mono !pl-9" maxlength="12" placeholder="e.g. TEAM26">
+            <i data-lucide="hash" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></i>
+          </div>
+          <p class="text-[11px] text-gray-500 pt-1">Share this code so others can join your room directly.</p>
+        </div>
+
+        <!-- Optional members field -->
+        <div id="ncMemRow">
+          <label class="lbl" for="ncMem">Members (optional)</label>
+          <input id="ncMem" class="inp" placeholder="Dave, Sarah">
+        </div>
+
+        <p id="ncErr" class="text-xs text-rose-400 min-h-[1rem]"></p>
+
+        <div class="flex justify-end gap-2 pt-1">
+          <button type="button" class="ghost" onclick="closeModal('newChat')">Cancel</button>
+          <button id="ncSubmitBtn" class="btn">Create room</button>
+        </div>
       </form>
     </div>
   </div>
 
-  <div id="toast" class="fixed bottom-5 right-5 z-[70] hidden px-4 py-2.5 rounded-xl text-xs font-medium border bg-[#121212]" role="status"></div>
+  <div id="toast"
+    class="fixed bottom-5 right-5 z-[70] hidden px-4 py-2.5 rounded-xl text-xs font-medium border bg-[#0C0C0C]"
+    role="status"></div>
 
   <script>
     const $ = id => document.getElementById(id);
@@ -418,15 +532,15 @@
       const n = Date.now(), M = (from, text, ago, a, mine) => ({ id: rnd(), from, text, ts: n - ago, me: !!mine, att: a || null });
       return [
         {
-          id: 'c1', name: 'Project Alpha Team', room: 1, unread: 1, at: n, online: 8, members: 'Alice, Bob, Charlie, David, +3 others', desc: 'Central hub for Q3 specifications, system designs and sprint updates.', msgs: [
+          id: 'c1', name: 'Project Alpha Team', code: 'ALPHA7', room: 1, unread: 1, at: n, online: 8, members: 'Alice, Bob, Charlie, David, +3 others', desc: 'Central hub for Q3 specifications, system designs and sprint updates.', msgs: [
             M('Alice Smith', 'Hey everyone, here is the updated specifications deck for review.', 42 * 6e4, { type: 'pdf', name: 'Q3_Project_Requirements.pdf', size: '2.4 MB' }),
             M('Bob Johnson', "Thanks! I've cross-referenced it with the financials.", 37 * 6e4, { type: 'excel', name: 'Budget_Forecast_2026.xlsx', size: '1.1 MB' }),
             M('', 'Looks good. I also committed the API contract draft.', 34 * 6e4, { type: 'doc', name: 'API_Contract_v2.md', size: '45 KB' }, true),
-            M('Charlie', 'Screenshot of the proposed dashboard view.', 30 * 6e4, { type: 'image', name: 'Dashboard_Snippet.png', url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80' })]
+            M('Charlie', 'Screenshot of the proposed dashboard view.', 30 * 6e4, { type: 'image', name: 'Dashboard_Snippet.png', url: 'image_placeholder.png' })]
         },
-        { id: 'c2', name: 'Dev Standup Room', room: 1, unread: 1, at: n, online: 3, members: 'Dave, Evan', desc: 'Daily engineering checkpoint and blocker resolution.', msgs: [M('Dave', 'Standup starts in 5 minutes. Please bring your blockers.', 90 * 6e4)] },
+        { id: 'c2', name: 'Dev Standup Room', code: 'DEV101', room: 1, unread: 1, at: n, online: 3, members: 'Dave, Evan', desc: 'Daily engineering checkpoint and blocker resolution.', msgs: [M('Dave', 'Standup starts in 5 minutes. Please bring your blockers.', 90 * 6e4)] },
         { id: 'c3', name: 'Alice Smith', room: 0, unread: 0, at: n, members: 'Direct message', msgs: [M('Alice Smith', "Thanks for sending over the file! I'll review it shortly.", 26 * 36e5)] },
-        { id: 'c4', name: 'Design Systems', room: 1, unread: 0, at: n, online: 4, members: 'Charlie, Figma Bot', desc: 'Token syncs, UI kit revisions and prototype feedback.', msgs: [M('Charlie', 'Check out this icon snippet before we push to production.', 50 * 36e5)] }
+        { id: 'c4', name: 'Design Systems', code: 'DSYNC', room: 1, unread: 0, at: n, online: 4, members: 'Charlie, Figma Bot', desc: 'Token syncs, UI kit revisions and prototype feedback.', msgs: [M('Charlie', 'Check out this icon snippet before we push to production.', 50 * 36e5)] }
       ];
     }
 
@@ -463,6 +577,13 @@
       me = users.find(u => u.id === x.id) || x;
       store.set('cl:session', me.id);
       db = store.get('cl:data:' + me.id) || { convos: seed(), blocked: [], dis: 0 };
+      const defaultCodes = { c1: 'ALPHA7', c2: 'DEV101', c4: 'DSYNC' };
+      db.convos?.forEach(c => {
+        if (c.room && !c.code) c.code = defaultCodes[c.id] || ('RM' + Math.random().toString(36).slice(2, 6).toUpperCase());
+        c.msgs?.forEach(m => {
+          if (m.att?.name === 'Dashboard_Snippet.png' && m.att?.url !== 'image_placeholder.png') m.att.url = 'image_placeholder.png';
+        });
+      });
       save(); sweep();
       $('authForm').reset(); $('aErr').textContent = '';
       $('auth').classList.add('hidden'); $('auth').classList.remove('flex');
@@ -513,7 +634,7 @@
         && !(rf === 'unread' && !c.unread) && !(rf === 'read' && c.unread)).sort((a, b) => lastTs(b) - lastTs(a));
       $('list').innerHTML = items.length ? items.map(c => {
         const l = last(c), sel = c.id === activeId;
-        return `<div onclick="openChat('${c.id}')" class="p-3 rounded-xl flex items-center gap-3 cursor-pointer border transition-all ${sel ? 'bg-black border-white/15 shadow-md' : 'border-transparent hover:bg-black/60'}">
+        return `<div onclick="openChat('${c.id}')" class="p-3 rounded-xl flex items-center gap-3 cursor-pointer border transition-all ${sel ? 'bg-[#0F0F0F] border-white/15 shadow-md' : 'border-transparent hover:bg-[#0F0F0F]/60'}">
       <div class="av w-10 h-10 rounded-xl text-sm">${esc(c.name[0].toUpperCase())}</div>
       <div class="flex-1 min-w-0"><div class="flex justify-between items-baseline mb-0.5"><h4 class="text-xs font-semibold text-white truncate">${esc(c.name)}</h4><span class="text-[10px] text-gray-500 shrink-0">${fmt(lastTs(c))}</span></div>
       <p class="text-xs text-gray-400 truncate">${l ? esc((l.me ? 'You' : l.from) + ': ' + (l.text || '')) : 'No messages yet'}</p></div>
@@ -525,6 +646,10 @@
       $('chatPane').classList.toggle('hidden', !c); $('emptyPane').classList.toggle('hidden', !!c); $('emptyPane').classList.toggle('flex', !c);
       if (!c) return;
       $('hAv').textContent = c.name[0].toUpperCase(); $('hTitle').textContent = c.name; $('hBadge').textContent = c.room ? 'ROOM' : 'DIRECT';
+      const hasCode = !!(c.room && c.code);
+      $('hCodeBtn').classList.toggle('hidden', !hasCode);
+      $('hCodeBtn').classList.toggle('inline-flex', hasCode);
+      if (hasCode) $('hCodeVal').textContent = c.code;
       $('hMem').textContent = c.members; $('hBlock').classList.toggle('hidden', !!c.room);
       $('hDis').classList.toggle('hidden', !db.dis); $('hDis').classList.toggle('flex', !!db.dis); $('hDisLbl').textContent = DIS[db.dis] || '';
     }
@@ -534,21 +659,28 @@
       feed.innerHTML = c.msgs.map(m => `<div class="flex gap-3 max-w-xl ${m.me ? 'ml-auto flex-row-reverse' : ''}">
     <div class="av w-8 h-8 rounded-xl text-xs">${esc(ini(m.me ? me.name : m.from))}</div>
     <div class="space-y-1 min-w-0"><div class="flex items-center gap-2 ${m.me ? 'justify-end' : ''}"><span class="text-xs font-semibold text-gray-300">${esc(m.me ? me.name : m.from)}</span><span class="text-[10px] text-gray-500">${fmt(m.ts)}</span>${m.exp ? '<i data-lucide="timer" class="w-3 h-3 text-gray-500"></i>' : ''}</div>
-    <div class="p-3.5 rounded-2xl text-xs leading-relaxed break-words border ${m.me ? 'bg-[#121212] text-white border-white/[0.18] rounded-tr-none shadow-md' : 'bg-[#121212] text-gray-200 border-white/[0.08] rounded-tl-none'}"><p>${esc(m.text)}</p>${m.att ? attCard(m.att) : ''}</div></div></div>`).join('');
+    <div class="p-3.5 rounded-2xl text-xs leading-relaxed break-words border ${m.me ? 'bg-[#0C0C0C] text-white border-white/[0.18] rounded-tr-none shadow-md' : 'bg-[#0C0C0C] text-gray-200 border-white/[0.08] rounded-tl-none'}"><p>${esc(m.text)}</p>${m.att ? attCard(m.att) : ''}</div></div></div>`).join('');
       feed.scrollTop = feed.scrollHeight; ic();
     }
     function attCard(a) {
-      if (a.type === 'image' && a.url) return `<div class="mt-2.5 rounded-xl overflow-hidden border border-white/15 bg-black"><img src="${esc(a.url)}" alt="${esc(a.name)}" class="w-full max-h-48 object-cover"><div class="p-2 text-[10px] text-gray-300 truncate border-t border-white/10">${esc(a.name)}</div></div>`;
+      if (a.type === 'image' && a.url) return `<div class="mt-2.5 rounded-xl overflow-hidden border border-white/15 bg-[#0F0F0F]"><img src="${esc(a.url)}" alt="${esc(a.name)}" class="w-full max-h-48 object-cover"><div class="p-2 text-[10px] text-gray-300 truncate border-t border-white/10">${esc(a.name)}</div></div>`;
       const icon = { excel: 'file-spreadsheet', pdf: 'file-code' }[a.type] || 'file-text';
-      return `<div class="mt-2.5 p-2.5 rounded-xl border border-white/10 bg-black flex items-center gap-3"><div class="av p-2 rounded-lg"><i data-lucide="${icon}" class="w-4 h-4"></i></div><div class="min-w-0"><p class="font-semibold text-xs truncate">${esc(a.name)}</p><p class="text-[10px] text-gray-500">${esc(a.size || 'Attachment')}</p></div></div>`;
+      return `<div class="mt-2.5 p-2.5 rounded-xl border border-white/10 bg-[#0F0F0F] flex items-center gap-3"><div class="av p-2 rounded-lg"><i data-lucide="${icon}" class="w-4 h-4"></i></div><div class="min-w-0"><p class="font-semibold text-xs truncate">${esc(a.name)}</p><p class="text-[10px] text-gray-500">${esc(a.size || 'Attachment')}</p></div></div>`;
     }
     function renderRooms() {
       const rooms = vis().filter(c => c.room);
-      $('roomGrid').innerHTML = rooms.length ? rooms.map(c => `<div class="bg-[#121212] rounded-2xl p-6 border border-white/[0.08] hover:border-white/25 transition-all flex flex-col justify-between">
+      $('roomGrid').innerHTML = rooms.length ? rooms.map(c => `<div class="bg-[#0C0C0C] rounded-2xl p-6 border border-white/[0.08] hover:border-white/25 transition-all flex flex-col justify-between">
     <div class="space-y-3"><div class="flex justify-between items-start"><span class="av w-10 h-10 rounded-xl text-sm">${esc(c.name[0].toUpperCase())}</span>
-    <span class="text-emerald-400 text-xs bg-emerald-950/60 border border-emerald-500/30 px-2.5 py-1 rounded-full">${c.online || 1} online</span></div>
+    <div class="flex items-center gap-1.5">
+      ${c.code ? `<span class="bg-[#0F0F0F] text-gray-300 border border-white/10 px-2 py-0.5 rounded-md font-mono text-[10px]" title="Room code">#${esc(c.code)}</span>` : ''}
+      <span class="text-emerald-400 text-xs bg-emerald-950/60 border border-emerald-500/30 px-2.5 py-1 rounded-full">${c.online || 1} online</span>
+    </div></div>
     <h3 class="font-bold text-white text-lg">${esc(c.name)}</h3><p class="text-gray-400 text-xs leading-relaxed">${esc(c.desc || 'No description yet.')}</p></div>
-    <button onclick="openChat('${c.id}')" class="btn mt-6 self-start">Enter room</button></div>`).join('') : '<p class="text-gray-500 text-sm">No rooms yet. Create one to get started.</p>';
+    <div class="flex items-center gap-2 mt-6">
+      <button onclick="openChat('${c.id}')" class="btn">Enter room</button>
+      ${c.code ? `<button onclick="copyCode('${esc(c.code)}')" class="btn !px-2.5 !py-2 text-gray-400 hover:text-white" title="Copy room code"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>` : ''}
+    </div></div>`).join('') : '<p class="text-gray-500 text-sm">No rooms yet. Create one to get started.</p>';
+      ic();
     }
 
     // ---------- chat logic ----------
@@ -594,25 +726,177 @@
       save(); renderMsgs(); toast('All attachments removed.');
     }
 
-    // ---------- new chat ----------
-    function setNT(r) { newIsRoom = r; document.querySelectorAll('[data-nt]').forEach(b => b.classList.toggle('on', (b.dataset.nt === '1') === r)); $('ncMemRow').classList.toggle('hidden', !r); }
-    function openNew(r) { setNT(r); $('newChat').classList.remove('hidden'); $('newChat').classList.add('flex'); $('ncName').focus(); ic(); }
+    // ---------- new chat & room codes ----------
+    let roomAction = 'create'; // 'create' or 'join'
+
+    function genRoomCode() {
+      const code = 'RM' + Math.random().toString(36).slice(2, 6).toUpperCase();
+      $('ncCode').value = code;
+      return code;
+    }
+
+    function setRoomAction(action) {
+      roomAction = action;
+      document.querySelectorAll('[data-ra]').forEach(b => b.classList.toggle('on', b.dataset.ra === action));
+      $('ncErr').textContent = '';
+      const isJoin = action === 'join';
+      $('joinCodeRow').classList.toggle('hidden', !isJoin);
+      $('ncNameRow').classList.toggle('hidden', isJoin);
+      $('ncCodeRow').classList.toggle('hidden', isJoin);
+      $('ncMemRow').classList.toggle('hidden', isJoin);
+      $('ncSubmitBtn').textContent = isJoin ? 'Join room' : 'Create room';
+      if (isJoin) {
+        setTimeout(() => $('joinCode').focus(), 50);
+      } else {
+        if (!$('ncCode').value.trim()) genRoomCode();
+        setTimeout(() => $('ncName').focus(), 50);
+      }
+      ic();
+    }
+
+    function setNT(r) {
+      newIsRoom = r;
+      document.querySelectorAll('[data-nt]').forEach(b => b.classList.toggle('on', (b.dataset.nt === '1') === r));
+      $('roomActionRow').classList.toggle('hidden', !r);
+      $('ncErr').textContent = '';
+      if (r) {
+        $('ncModalTitle').textContent = 'Room';
+        setRoomAction(roomAction);
+      } else {
+        $('ncModalTitle').textContent = 'Direct message';
+        $('joinCodeRow').classList.add('hidden');
+        $('ncCodeRow').classList.add('hidden');
+        $('ncMemRow').classList.add('hidden');
+        $('ncNameRow').classList.remove('hidden');
+        $('ncNameLbl').textContent = 'Contact name';
+        $('ncSubmitBtn').textContent = 'Start direct message';
+        setTimeout(() => $('ncName').focus(), 50);
+      }
+      ic();
+    }
+
+    function openNew(r, action) {
+      $('newChat').classList.remove('hidden');
+      $('newChat').classList.add('flex');
+      if (action) roomAction = action;
+      setNT(!!r);
+      if (r && roomAction === 'create' && !$('ncCode').value.trim()) genRoomCode();
+      ic();
+    }
+
     function createChat(e) {
       e.preventDefault();
-      const name = $('ncName').value.trim(); if (!name) return;
-      if (!newIsRoom) {
-        if (db.blocked.some(b => b.toLowerCase() === name.toLowerCase())) return toast(`${name} is blocked. Unblock them in Settings → Privacy.`, 1);
-        const ex = db.convos.find(c => !c.room && c.name.toLowerCase() === name.toLowerCase());
-        if (ex) { closeModal('newChat'); return openChat(ex.id); }
+      const err = $('ncErr');
+      err.textContent = '';
+
+      if (newIsRoom && roomAction === 'join') {
+        const code = $('joinCode').value.trim().toUpperCase();
+        if (!code) return err.textContent = 'Please enter a room code.';
+
+        // Look up room across current conversations or all user datasets/seeds
+        let targetRoom = db.convos.find(c => c.room && c.code && c.code.toUpperCase() === code);
+        if (targetRoom) {
+          closeModal('newChat');
+          openChat(targetRoom.id);
+          toast(`Joined room "${targetRoom.name}".`);
+          return;
+        }
+
+        // Check if room exists in seeded rooms or other saved state
+        const allKnownRooms = seed().filter(c => c.room);
+        targetRoom = allKnownRooms.find(c => c.code && c.code.toUpperCase() === code);
+        if (targetRoom) {
+          const cloned = JSON.parse(JSON.stringify(targetRoom));
+          cloned.id = 'c' + rnd();
+          push(cloned, { from: 'System', text: `You joined "${cloned.name}" using room code #${code}.`, me: false });
+          db.convos.unshift(cloned);
+          save();
+          closeModal('newChat');
+          openChat(cloned.id);
+          toast(`Joined room "${cloned.name}".`);
+          return;
+        }
+
+        return err.textContent = `No room found with code "${code}". Please check the code and try again.`;
       }
-      const c = { id: 'c' + rnd(), name, room: newIsRoom ? 1 : 0, unread: 0, at: Date.now(), online: 1, members: newIsRoom ? ($('ncMem').value.trim() || 'Just you') : 'Direct message', desc: '', msgs: [] };
-      push(c, { from: 'System', text: newIsRoom ? `Room "${name}" created.` : `Conversation with ${name} started.`, me: false });
-      db.convos.unshift(c); closeModal('newChat'); openChat(c.id);
+
+      const name = $('ncName').value.trim();
+      if (!name) return err.textContent = newIsRoom ? 'Please enter a room name.' : 'Please enter a contact name.';
+
+      if (!newIsRoom) {
+        if (db.blocked.some(b => b.toLowerCase() === name.toLowerCase())) {
+          return err.textContent = `${name} is blocked. Unblock them in Settings → Privacy.`;
+        }
+        const ex = db.convos.find(c => !c.room && c.name.toLowerCase() === name.toLowerCase());
+        if (ex) {
+          closeModal('newChat');
+          return openChat(ex.id);
+        }
+      }
+
+      let code = '';
+      if (newIsRoom) {
+        code = $('ncCode').value.trim().toUpperCase().replace(/[^A-Z0-9_-]/g, '');
+        if (!code) code = genRoomCode();
+        // Ensure uniqueness among existing rooms in workspace
+        if (db.convos.some(c => c.room && c.code && c.code.toUpperCase() === code)) {
+          return err.textContent = `A room with code "${code}" already exists. Please choose a different code.`;
+        }
+      }
+
+      const c = {
+        id: 'c' + rnd(),
+        name,
+        code: newIsRoom ? code : '',
+        room: newIsRoom ? 1 : 0,
+        unread: 0,
+        at: Date.now(),
+        online: 1,
+        members: newIsRoom ? ($('ncMem').value.trim() || 'Just you') : 'Direct message',
+        desc: newIsRoom ? `Room created with code #${code}. Share this code with teammates.` : '',
+        msgs: []
+      };
+
+      push(c, {
+        from: 'System',
+        text: newIsRoom ? `Room "${name}" created with code #${code}. Share code #${code} so colleagues can join!` : `Conversation with ${name} started.`,
+        me: false
+      });
+      db.convos.unshift(c);
+      save();
+      closeModal('newChat');
+      openChat(c.id);
+      toast(newIsRoom ? `Room "${name}" created with code #${code}.` : `Conversation with ${name} started.`);
+    }
+
+    function copyText(str, msg) {
+      if (!str) return;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(str).then(() => toast(msg || 'Copied to clipboard!')).catch(() => toast(str));
+      } else {
+        toast(str);
+      }
+    }
+
+    function copyRoomCode() {
+      const c = active();
+      if (c && c.code) copyCode(c.code);
+    }
+
+    function copyCode(code) {
+      if (!code) return;
+      copyText(code, `Room code #${code} copied to clipboard!`);
     }
 
     // ---------- settings ----------
     function openSettings(t) { $('settings').classList.remove('hidden'); $('settings').classList.add('flex'); setTab(t); }
-    function closeModal(id) { $(id).classList.remove('flex'); $(id).classList.add('hidden'); if (id === 'newChat') { $('ncName').value = $('ncMem').value = ''; } }
+    function closeModal(id) {
+      $(id).classList.remove('flex'); $(id).classList.add('hidden');
+      if (id === 'newChat') {
+        $('ncName').value = $('ncMem').value = $('ncCode').value = $('joinCode').value = '';
+        $('ncErr').textContent = '';
+      }
+    }
     function setTab(t) {
       tab = t; document.querySelectorAll('.st').forEach(b => b.classList.toggle('on', b.dataset.t === t));
       const T = {
@@ -621,14 +905,99 @@
       <div><label class="lbl" for="pName">Name</label><input id="pName" class="inp" value="${esc(me.name)}" maxlength="40"></div>
       <div><label class="lbl" for="pUser">Username</label><input id="pUser" class="inp" value="${esc(me.username)}" maxlength="20" autocomplete="username"><p class="text-[11px] text-gray-500 mt-1.5">You sign in with your username. Use 3–20 letters, numbers, . or _</p></div>
       <button class="btn">Save changes</button></form>`,
-        account: () => `<div class="space-y-5"><h3 class="font-bold text-white">Account</h3>
-      <div class="card divide-y divide-white/[0.06] text-xs">${[['Username', '@' + me.username], ['Account ID', me.id], ['Member since', new Date(me.created).toLocaleDateString([], { dateStyle: 'medium' })], ['Conversations', db.convos.length]].map(r => `<div class="flex justify-between py-2 first:pt-0 last:pb-0"><span class="text-gray-500">${r[0]}</span><span class="text-gray-200">${esc(r[1])}</span></div>`).join('')}</div>
-      <form onsubmit="savePassword(event)" class="space-y-3"><h4 class="text-xs font-semibold text-gray-300">Change password</h4>
-      <input type="text" value="${esc(me.username)}" autocomplete="username" class="hidden" tabindex="-1">
-      <input id="pwOld" type="password" class="inp" placeholder="Current password" autocomplete="current-password">
-      <input id="pwNew" type="password" class="inp" placeholder="New password (8+ characters)" autocomplete="new-password">
-      <input id="pwNew2" type="password" class="inp" placeholder="Confirm new password" autocomplete="new-password">
-      <button class="btn">Update password</button></form></div>`,
+        account: () => `<div class="space-y-5">
+      <!-- Header -->
+      <div class="pb-1">
+        <h3 class="font-bold text-white text-base">Account</h3>
+        <p class="text-xs text-gray-400 mt-0.5">Your identity credentials and security preferences.</p>
+      </div>
+
+      <!-- Identity & Metadata Overview Card -->
+      <div class="bg-[#0F0F0F] rounded-xl p-4 border border-white/10 space-y-3.5">
+        <div class="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="av w-10 h-10 rounded-xl text-xs font-bold bg-[#0C0C0C] border border-white/15 text-white">${esc(ini(me.name))}</div>
+            <div class="min-w-0">
+              <h4 class="text-xs font-semibold text-white truncate">${esc(me.name)}</h4>
+              <p class="text-[11px] text-gray-400 truncate">@${esc(me.username)}</p>
+            </div>
+          </div>
+          <button type="button" onclick="copyText('@' + esc(me.username), 'Username copied!')" class="btn !py-1 !px-2.5 !text-[11px] text-gray-300 hover:text-white" title="Copy username">
+            <i data-lucide="copy" class="w-3 h-3 mr-1"></i>Copy handle
+          </button>
+        </div>
+
+        <div class="space-y-1.5 text-xs">
+          <div class="bg-[#0C0C0C] px-3.5 py-2.5 rounded-lg border border-white/[0.06] flex items-center justify-between">
+            <span class="text-xs text-gray-400 font-medium">Account ID</span>
+            <div class="flex items-center gap-2">
+              <span class="font-mono text-xs text-gray-200">${esc(me.id)}</span>
+              <button type="button" onclick="copyText(esc(me.id), 'Account ID copied!')" class="text-gray-400 hover:text-white p-0.5 transition-colors" title="Copy Account ID"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
+            </div>
+          </div>
+
+          <div class="bg-[#0C0C0C] px-3.5 py-2.5 rounded-lg border border-white/[0.06] flex items-center justify-between">
+            <span class="text-xs text-gray-400 font-medium">Member since</span>
+            <span class="text-xs text-gray-200">${new Date(me.created).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+          </div>
+
+          <div class="bg-[#0C0C0C] px-3.5 py-2.5 rounded-lg border border-white/[0.06] flex items-center justify-between">
+            <span class="text-xs text-gray-400 font-medium">Workspaces</span>
+            <span class="text-xs text-gray-200">${db.convos.length} conversations</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Password & Security Card -->
+      <div class="bg-[#0F0F0F] rounded-xl p-4 border border-white/10 space-y-3.5">
+        <div class="flex items-center gap-2 pb-2.5 border-b border-white/[0.08]">
+          <div class="p-1 rounded-lg bg-[#0C0C0C] border border-white/10 text-gray-300">
+            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+          </div>
+          <div>
+            <h4 class="text-xs font-semibold text-white">Password & Authentication</h4>
+            <p class="text-[10px] text-gray-400">Update your account login password and encryption salt.</p>
+          </div>
+        </div>
+
+        <form onsubmit="savePassword(event)" class="space-y-3">
+          <input type="text" value="${esc(me.username)}" autocomplete="username" class="hidden" tabindex="-1">
+          
+          <div>
+            <label class="lbl !mb-1 text-[11px]" for="pwOld">Current password</label>
+            <div class="relative">
+              <i data-lucide="key" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></i>
+              <input id="pwOld" type="password" class="inp !pl-9 !py-2 text-xs" placeholder="Current password" autocomplete="current-password" required>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div>
+              <label class="lbl !mb-1 text-[11px]" for="pwNew">New password</label>
+              <div class="relative">
+                <i data-lucide="lock" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></i>
+                <input id="pwNew" type="password" class="inp !pl-9 !py-2 text-xs" placeholder="8+ characters" autocomplete="new-password" required>
+              </div>
+            </div>
+
+            <div>
+              <label class="lbl !mb-1 text-[11px]" for="pwNew2">Confirm password</label>
+              <div class="relative">
+                <i data-lucide="check" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></i>
+                <input id="pwNew2" type="password" class="inp !pl-9 !py-2 text-xs" placeholder="Confirm password" autocomplete="new-password" required>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between pt-1.5">
+            <span class="text-[10px] text-gray-500 flex items-center gap-1"><i data-lucide="info" class="w-3 h-3"></i>SHA-256 encrypted</span>
+            <button class="btn flex items-center gap-1.5 !py-2 !px-3.5 !text-xs font-medium">
+              <i data-lucide="save" class="w-3.5 h-3.5"></i>Update password
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>`,
         privacy: () => `<div class="space-y-6"><h3 class="font-bold text-white">Privacy</h3>
       <div><label class="lbl" for="disSel">Disappearing messages</label>
       <select id="disSel" onchange="setDis(this.value)" class="inp">${Object.entries(DIS).map(([k, v]) => `<option value="${k}" ${+k === db.dis ? 'selected' : ''}>${v}</option>`).join('')}</select>
@@ -661,7 +1030,7 @@
     // ---------- toast & keyboard ----------
     let tt;
     function toast(msg, isErr) {
-      const t = $('toast'); t.textContent = msg; t.className = `fixed bottom-5 right-5 z-[70] px-4 py-2.5 rounded-xl text-xs font-medium border bg-[#121212] ${isErr ? 'border-rose-500/40 text-rose-300' : 'border-white/20 text-white'}`;
+      const t = $('toast'); t.textContent = msg; t.className = `fixed bottom-5 right-5 z-[70] px-4 py-2.5 rounded-xl text-xs font-medium border bg-[#0C0C0C] ${isErr ? 'border-rose-500/40 text-rose-300' : 'border-white/20 text-white'}`;
       clearTimeout(tt); tt = setTimeout(() => t.classList.add('hidden'), 3200);
     }
     document.addEventListener('keydown', e => { if (e.key === 'Escape') ['settings', 'newChat'].forEach(closeModal); });
