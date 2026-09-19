@@ -4,1162 +4,681 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ChatLink — True Black Workspace & Relay</title>
-  <!-- Tailwind CSS CDN -->
+  <title>ChatLink</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              DEFAULT: 'rgba(0, 0, 0, 1)',           /* #000000 - True Black Main Theme Canvas */
-              canvas: '#000000',
-              surface: 'rgba(18, 18, 18, 1)',        /* rgba(18, 18, 18, 255) / #121212 - Sleek Obsidian Surface */
-              surfaceAlt: '#1A1A1A',
-              border: 'rgba(255, 255, 255, 0.08)',
-              borderHover: 'rgba(255, 255, 255, 0.20)',
-              accent: '#FFFFFF',
-            }
-          }
-        }
-      }
-    }
-  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
-
-    :root {
-      --brand-canvas: rgba(0, 0, 0, 1);
-      --brand-surface: rgba(18, 18, 18, 1);
-      --brand-border: rgba(255, 255, 255, 0.08);
-    }
-
     body {
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      background-color: #000000;
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background: #000000;
       color: #F3F4F6;
     }
 
-    code,
-    pre {
-      font-family: 'JetBrains Mono', monospace;
-    }
-
-    /* Custom OLED Minimalist Scrollbar */
     ::-webkit-scrollbar {
       width: 5px;
       height: 5px;
     }
-
     ::-webkit-scrollbar-track {
       background: transparent;
     }
-
     ::-webkit-scrollbar-thumb {
       background: rgba(255, 255, 255, 0.14);
       border-radius: 9999px;
     }
-
     ::-webkit-scrollbar-thumb:hover {
       background: rgba(255, 255, 255, 0.28);
+    }
+
+    .inp {
+      width: 100%;
+      background: #000000;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      color: #ffffff;
+      font-size: 0.75rem;
+      border-radius: 0.75rem;
+      padding: 0.75rem;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+    .inp:focus {
+      border-color: rgba(255, 255, 255, 0.30);
+    }
+    .inp::placeholder {
+      color: #6b7280;
+    }
+
+    .btn {
+      padding: 0.5rem 1rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      border-radius: 0.75rem;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      background: #121212;
+      color: #ffffff;
+      transition: all 0.15s ease;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn:hover {
+      border-color: rgba(255, 255, 255, 0.50);
+      background: #1a1a1a;
+    }
+
+    .ghost {
+      padding: 0.5rem 1rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: #9ca3af;
+      border-radius: 0.75rem;
+      transition: color 0.15s ease;
+      cursor: pointer;
+    }
+    .ghost:hover {
+      color: #ffffff;
+    }
+
+    .danger {
+      padding: 0.5rem 1rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      border-radius: 0.75rem;
+      border: 1px solid rgba(244, 63, 94, 0.30);
+      background: rgba(76, 5, 25, 0.40);
+      color: #fb7185;
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+    .danger:hover {
+      background: rgba(136, 19, 55, 0.60);
+    }
+
+    .card {
+      background: #000000;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 0.75rem;
+      padding: 1rem;
+    }
+
+    .lbl {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #d1d5db;
+      display: block;
+      margin-bottom: 0.375rem;
+    }
+
+    .av {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: #ffffff;
+      background: #121212;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      flex-shrink: 0;
+    }
+
+    .chip {
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 0.375rem 0.75rem;
+      border-radius: 0.5rem;
+      color: #9ca3af;
+      border: 1px solid transparent;
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+    .chip:hover {
+      color: #e5e7eb;
+    }
+    .chip.on {
+      background: #000000;
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .st {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      width: 100%;
+      padding: 0.625rem 0.75rem;
+      border-radius: 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: #9ca3af;
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+    .st:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .st.on {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.10);
+    }
+
+    .nav {
+      position: relative;
+      width: 3rem;
+      height: 3rem;
+      border-radius: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #9ca3af;
+      border: 1px solid transparent;
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+    .nav:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .nav.on {
+      color: #ffffff;
+      background: #121212;
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+    .nav.on::before {
+      content: '';
+      position: absolute;
+      left: -0.5rem;
+      width: 4px;
+      height: 1.5rem;
+      background: #ffffff;
+      border-radius: 0 4px 4px 0;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
     }
   </style>
 </head>
 
-<body
-  class="bg-[#000000] text-gray-200 h-screen w-screen overflow-hidden flex font-sans antialiased selection:bg-white/20 selection:text-white">
+<body class="h-screen w-screen overflow-hidden antialiased selection:bg-white/20">
 
-  <!-- 1. VERTICAL NAVIGATION RAIL (Pitch Black: rgba(0, 0, 0, 1)) -->
-  <aside
-    class="w-16 bg-[#000000] border-r border-white/[0.08] flex flex-col items-center py-4 justify-between z-20 shrink-0 select-none">
-    <div class="flex flex-col items-center gap-6 w-full">
-      <!-- ChatLink Brand Logo -->
-      <div
-        class="w-10 h-10 rounded-xl bg-[#121212] border border-white/20 text-white flex items-center justify-center font-bold text-lg shadow-xl shadow-black/80 relative group cursor-pointer"
-        title="ChatLink Home">
-        <i data-lucide="shield-check" class="w-5 h-5 text-white"></i>
-        <span class="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-[#000000]"></span>
-      </div>
-
-      <!-- Main Navigation Icons -->
-      <nav class="flex flex-col gap-2 w-full px-2" id="navRail">
-        <button onclick="switchMainView('chats')" id="nav-chats"
-          class="nav-btn w-12 h-12 rounded-xl flex items-center justify-center text-white bg-[#121212] border border-white/15 transition-all relative group active"
-          title="Chats">
-          <i data-lucide="message-square" class="w-5 h-5"></i>
-          <span
-            class="absolute left-14 bg-[#121212] text-white text-xs font-medium px-2.5 py-1 rounded-lg border border-white/15 shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">Chats</span>
-          <div
-            class="active-indicator absolute left-0 w-1 h-6 bg-white rounded-r-full shadow-[0_0_10px_rgba(255,255,255,0.7)]">
-          </div>
-        </button>
-
-        <button onclick="switchMainView('rooms')" id="nav-rooms"
-          class="nav-btn w-12 h-12 rounded-xl flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/[0.06] transition-all relative group"
-          title="Workspaces & Rooms">
-          <i data-lucide="layout-grid" class="w-5 h-5"></i>
-          <span
-            class="absolute left-14 bg-[#121212] text-white text-xs font-medium px-2.5 py-1 rounded-lg border border-white/15 shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">Rooms</span>
-          <div
-            class="active-indicator absolute left-0 w-1 h-6 bg-white rounded-r-full shadow-[0_0_10px_rgba(255,255,255,0.7)] hidden">
-          </div>
-        </button>
-      </nav>
-    </div>
-
-    <!-- Bottom Actions -->
-    <div class="flex flex-col gap-2 w-full px-2">
-      <button onclick="toggleSettingsModal(true)" id="nav-settings"
-        class="w-12 h-12 rounded-xl flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/[0.06] transition-all relative group"
-        title="Settings">
-        <i data-lucide="sliders-horizontal" class="w-5 h-5"></i>
-        <span
-          class="absolute left-14 bg-[#121212] text-white text-xs font-medium px-2.5 py-1 rounded-lg border border-white/15 shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">Settings</span>
-      </button>
-
-      <button onclick="switchMainView('profile')" id="nav-profile"
-        class="nav-btn w-12 h-12 rounded-xl flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/[0.06] transition-all relative group"
-        title="Profile">
-        <div
-          class="w-8 h-8 rounded-full bg-[#121212] border border-white/20 text-white flex items-center justify-center text-xs font-semibold shadow-inner">
-          ME
-        </div>
-        <span
-          class="absolute left-14 bg-[#121212] text-white text-xs font-medium px-2.5 py-1 rounded-lg border border-white/15 shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">Profile</span>
-        <div
-          class="active-indicator absolute left-0 w-1 h-6 bg-white rounded-r-full shadow-[0_0_10px_rgba(255,255,255,0.7)] hidden">
-        </div>
-      </button>
-    </div>
-  </aside>
-
-  <!-- MAIN WRAPPER FOR VIEWS -->
-  <div class="flex-1 flex overflow-hidden relative">
-
-    <!-- CHATS VIEW CONTAINER -->
-    <div id="view-chats" class="flex-1 flex w-full h-full">
-
-      <!-- 2. CHAT LIST PANEL (Surface: rgba(18, 18, 18, 255) / #121212) -->
-      <section class="w-80 md:w-96 bg-[#121212] border-r border-white/[0.08] flex flex-col shrink-0 z-10">
-        <!-- Header & Search -->
-        <div class="p-4 border-b border-white/[0.08] flex flex-col gap-3">
-          <div class="flex justify-between items-center">
-            <div class="flex items-center gap-2">
-              <h1 class="text-lg font-bold text-white tracking-tight">Messages</h1>
-              <span
-                class="text-[10px] font-semibold tracking-wider uppercase px-2 py-0.5 rounded-md bg-[#000000] text-gray-400 border border-white/[0.08]"></span>
-            </div>
-            <button onclick="openNewChatModal()"
-              class="w-8 h-8 rounded-lg bg-white/[0.06] text-gray-200 hover:text-white hover:bg-white/[0.12] border border-white/[0.10] transition-all flex items-center justify-center shadow-sm"
-              title="New Message or Room">
-              <i data-lucide="plus" class="w-4 h-4"></i>
-            </button>
-          </div>
-          <!-- Search Input -->
-          <div class="relative">
-            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></i>
-            <input id="searchInput" oninput="filterConversations()" type="text"
-              placeholder="Search conversations or rooms..."
-              class="w-full bg-[#000000] border border-white/[0.08] focus:border-white/30 focus:bg-[#000000] text-gray-200 placeholder-gray-500 text-xs rounded-xl pl-9 pr-4 py-2.5 outline-none transition-all">
-          </div>
-        </div>
-
-        <!-- Filter Bar: Direct / Rooms & Read / Unread Toggle -->
-        <div class="px-4 py-2.5 flex items-center justify-between gap-2 border-b border-white/[0.08]"
-          id="filterContainer">
-          <!-- Type Filter: Direct / Rooms -->
-          <div class="flex items-center gap-1.5">
-            <button onclick="setTypeFilter('direct')" id="filter-direct"
-              class="type-btn text-xs font-medium px-3 py-1.5 rounded-lg bg-transparent text-gray-400 hover:text-gray-200 hover:bg-white/[0.04] border border-transparent transition-all flex items-center gap-1.5"
-              title="Filter Direct Messages">
-              <i data-lucide="user" class="w-3.5 h-3.5"></i>
-              <span>Direct</span>
-            </button>
-            <button onclick="setTypeFilter('rooms')" id="filter-rooms"
-              class="type-btn text-xs font-medium px-3 py-1.5 rounded-lg bg-transparent text-gray-400 hover:text-gray-200 hover:bg-white/[0.04] border border-transparent transition-all flex items-center gap-1.5"
-              title="Filter Rooms">
-              <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
-              <span>Rooms</span>
-            </button>
-          </div>
-
-          <!-- Read / Unread Toggle -->
-          <div class="flex items-center bg-[#000000] p-0.5 rounded-lg border border-white/[0.10] shrink-0"
-            title="Toggle Read / Unread">
-            <button onclick="setReadFilter('read')" id="toggle-read"
-              class="read-btn text-[11px] font-medium px-2.5 py-1 rounded-md transition-all text-gray-400 hover:text-gray-200"
-              title="Show Read Messages">
-              Read
-            </button>
-            <button onclick="setReadFilter('unread')" id="toggle-unread"
-              class="read-btn text-[11px] font-medium px-2.5 py-1 rounded-md transition-all text-gray-400 hover:text-gray-200 flex items-center gap-1"
-              title="Show Unread Messages">
-              <span>Unread</span>
-              <span id="unreadDot" class="w-1.5 h-1.5 rounded-full bg-white hidden"></span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Conversation List -->
-        <div class="flex-1 overflow-y-auto px-2.5 py-2 space-y-1" id="conversationList">
-          <!-- Populated by JS -->
-        </div>
-      </section>
-
-      <!-- 3. MAIN CHAT PANEL (Pitch Black Canvas: rgba(0, 0, 0, 1)) -->
-      <section class="flex-1 flex flex-col bg-[#000000] h-full overflow-hidden relative">
-
-        <!-- Chat Header (Surface: rgba(18, 18, 18, 255) / #121212) -->
-        <header
-          class="h-16 px-6 bg-[#121212] border-b border-white/[0.08] flex items-center justify-between z-10 shrink-0">
-          <div class="flex items-center gap-3">
-            <div id="headerAvatar"
-              class="w-10 h-10 rounded-xl text-white flex items-center justify-center font-bold text-sm shrink-0 border border-white/15 shadow-md bg-[#181818]">
-              P
-            </div>
-            <div class="flex flex-col">
-              <div class="flex items-center gap-2">
-                <h2 id="headerTitle" class="font-bold text-white text-sm tracking-tight leading-tight">Project Alpha
-                  Team</h2>
-                <span id="headerBadge"
-                  class="bg-[#000000] text-gray-300 text-[10px] font-semibold px-2 py-0.5 rounded-full border border-white/15">ROOM</span>
-              </div>
-              <p id="headerMembers" class="text-xs text-gray-400 truncate max-w-md">Alice, Bob, Charlie, David, +3
-                others</p>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-1 text-gray-400">
-            <button class="p-2 hover:bg-white/[0.06] hover:text-white rounded-lg transition-colors"
-              title="Search in Chat">
-              <i data-lucide="search" class="w-4 h-4"></i>
-            </button>
-            <button class="p-2 hover:bg-white/[0.06] hover:text-white rounded-lg transition-colors" title="Audio Call">
-              <i data-lucide="phone" class="w-4 h-4"></i>
-            </button>
-            <button class="p-2 hover:bg-white/[0.06] hover:text-white rounded-lg transition-colors"
-              title="Video Meeting">
-              <i data-lucide="video" class="w-4 h-4"></i>
-            </button>
-            <div class="w-px h-5 bg-white/[0.08] mx-1"></div>
-            <button class="p-2 hover:bg-white/[0.06] hover:text-white rounded-lg transition-colors"
-              title="More Options">
-              <i data-lucide="more-vertical" class="w-4 h-4"></i>
-            </button>
-          </div>
-        </header>
-
-        <!-- Message Feed Area (Pitch Black Theme: rgba(0, 0, 0, 1)) -->
-        <div id="messageFeed" class="flex-1 overflow-y-auto p-6 flex flex-col gap-4 bg-[#000000] relative">
-          <!-- Messages inserted dynamically -->
-        </div>
-
-        <!-- Attachment Preview Bar (Hidden by default) -->
-        <div id="attachmentPreview"
-          class="hidden px-6 py-2 bg-[#121212] border-t border-white/[0.08] flex items-center justify-between text-xs text-gray-300">
-          <div class="flex items-center gap-2">
-            <i data-lucide="paperclip" class="w-3.5 h-3.5 text-white"></i>
-            <span id="attachmentName" class="font-medium truncate max-w-xs text-gray-200">file_preview.png</span>
-          </div>
-          <button onclick="clearAttachment()" class="text-gray-400 hover:text-white p-1">
-            <i data-lucide="x" class="w-4 h-4"></i>
-          </button>
-        </div>
-
-        <!-- Message Input Container (Surface: rgba(18, 18, 18, 255) / #121212) -->
-        <div class="p-4 bg-[#121212] border-t border-white/[0.08] shrink-0">
-          <form id="chatForm" onsubmit="handleSendMessage(event)" class="flex items-center gap-2.5">
-
-            <!-- File Upload Hidden Input -->
-            <input type="file" id="fileInput" class="hidden" onchange="handleFileSelected(event)">
-
-            <button type="button" onclick="document.getElementById('fileInput').click()"
-              class="p-2.5 rounded-xl bg-[#000000] border border-white/[0.08] text-gray-400 hover:text-white hover:border-white/20 transition-all shrink-0"
-              title="Attach file">
-              <i data-lucide="paperclip" class="w-5 h-5"></i>
-            </button>
-
-            <div class="flex-1 relative">
-              <input type="text" id="messageInput"
-                placeholder="Type a message, drop lab files, or share code snippets..."
-                class="w-full bg-[#000000] border border-white/[0.08] focus:border-white/30 focus:bg-[#000000] text-white placeholder-gray-500 text-sm rounded-xl px-4 py-2.5 outline-none transition-all pr-10">
-              <button type="button"
-                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors">
-                <i data-lucide="smile" class="w-4 h-4"></i>
-              </button>
-            </div>
-
-            <button type="submit"
-              class="bg-[#000000] hover:bg-white/[0.12] text-white border border-white/20 hover:border-white/40 px-5 py-2.5 rounded-xl font-medium text-sm flex items-center gap-2 shadow-lg shadow-black/80 transition-all shrink-0">
-              <span>Send</span>
-              <i data-lucide="send" class="w-4 h-4 text-white"></i>
-            </button>
-          </form>
-        </div>
-
-      </section>
-    </div>
-
-    <!-- COLLABORATIVE ROOMS VIEW (Hidden by default) -->
-    <div id="view-rooms" class="hidden flex-1 p-8 bg-[#000000] overflow-y-auto">
-      <div class="max-w-5xl mx-auto space-y-6">
-        <div class="flex justify-between items-center border-b border-white/[0.08] pb-6">
-          <div>
-            <h1 class="text-2xl font-bold text-white tracking-tight">Collaborative Workspaces</h1>
-            <p class="text-gray-400 text-sm mt-1">Join active laboratory project rooms, share ephemeral assets, and
-              start real-time syncs.</p>
-          </div>
-          <button onclick="openNewChatModal(true)"
-            class="bg-[#121212] hover:bg-white/[0.10] text-white border border-white/20 hover:border-white/35 px-4 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 shadow-lg transition-all">
-            <i data-lucide="plus-circle" class="w-4 h-4 text-white"></i>
-            Create New Room
-          </button>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <!-- Room Card 1 -->
-          <div
-            class="bg-[#121212] rounded-2xl p-6 border border-white/[0.08] shadow-2xl hover:border-white/25 transition-all flex flex-col justify-between group">
-            <div class="space-y-3">
-              <div class="flex justify-between items-start">
-                <span
-                  class="w-10 h-10 rounded-xl bg-[#000000] border border-white/15 text-white font-bold flex items-center justify-center text-sm shadow-inner">P</span>
-                <span
-                  class="bg-emerald-950/60 border border-emerald-500/30 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-medium flex items-center gap-1.5">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  8 Online
-                </span>
-              </div>
-              <h3 class="font-bold text-white text-lg group-hover:text-gray-100 transition-colors">Project Alpha
-                Workspace</h3>
-              <p class="text-gray-400 text-xs leading-relaxed">Central hub for Q3 product specifications, system
-                designs, and sprint updates.</p>
-            </div>
-            <div class="mt-6 pt-4 border-t border-white/[0.06] flex items-center justify-between">
-              <div class="flex -space-x-2">
-                <div
-                  class="w-7 h-7 rounded-full bg-[#000000] border-2 border-white/20 text-[10px] font-bold text-white flex items-center justify-center">
-                  A</div>
-                <div
-                  class="w-7 h-7 rounded-full bg-[#1A1A1A] border-2 border-white/20 text-[10px] font-bold text-white flex items-center justify-center">
-                  B</div>
-                <div
-                  class="w-7 h-7 rounded-full bg-[#000000] border-2 border-white/20 text-white text-[10px] font-bold flex items-center justify-center">
-                  +6</div>
-              </div>
-              <button onclick="switchMainView('chats'); selectChat(1);"
-                class="text-white hover:underline font-semibold text-xs transition-colors flex items-center gap-1.5">
-                Enter Room <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-              </button>
-            </div>
-          </div>
-
-          <!-- Room Card 2 -->
-          <div
-            class="bg-[#121212] rounded-2xl p-6 border border-white/[0.08] shadow-2xl hover:border-white/25 transition-all flex flex-col justify-between group">
-            <div class="space-y-3">
-              <div class="flex justify-between items-start">
-                <span
-                  class="w-10 h-10 rounded-xl bg-[#000000] border border-white/15 text-white font-bold flex items-center justify-center text-sm shadow-inner">D</span>
-                <span
-                  class="bg-emerald-950/60 border border-emerald-500/30 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-medium flex items-center gap-1.5">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  4 Online
-                </span>
-              </div>
-              <h3 class="font-bold text-white text-lg group-hover:text-gray-100 transition-colors">Design System Huddle
-              </h3>
-              <p class="text-gray-400 text-xs leading-relaxed">Figma token syncs, UI kit revisions, and dark obsidian
-                prototype testing feedback.</p>
-            </div>
-            <div class="mt-6 pt-4 border-t border-white/[0.06] flex items-center justify-between">
-              <div class="flex -space-x-2">
-                <div
-                  class="w-7 h-7 rounded-full bg-[#000000] border-2 border-white/20 text-[10px] font-bold text-white flex items-center justify-center">
-                  C</div>
-                <div
-                  class="w-7 h-7 rounded-full bg-[#1A1A1A] border-2 border-white/20 text-[10px] font-bold text-white flex items-center justify-center">
-                  D</div>
-              </div>
-              <button onclick="switchMainView('chats'); selectChat(4);"
-                class="text-white hover:underline font-semibold text-xs transition-colors flex items-center gap-1.5">
-                Enter Room <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-              </button>
-            </div>
-          </div>
-
-          <!-- Room Card 3 (Dev Standup) -->
-          <div
-            class="bg-[#121212] rounded-2xl p-6 border border-white/[0.08] shadow-2xl hover:border-white/25 transition-all flex flex-col justify-between group">
-            <div class="space-y-3">
-              <div class="flex justify-between items-start">
-                <span
-                  class="w-10 h-10 rounded-xl bg-[#000000] border border-white/15 text-white font-bold flex items-center justify-center text-sm shadow-inner">S</span>
-                <span
-                  class="bg-emerald-950/60 border border-emerald-500/30 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-medium flex items-center gap-1.5">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  3 Online
-                </span>
-              </div>
-              <h3 class="font-bold text-white text-lg group-hover:text-gray-100 transition-colors">Dev Standup Room</h3>
-              <p class="text-gray-400 text-xs leading-relaxed">Daily engineering checkpoint, blocker resolution, and
-                quick code drop relay.</p>
-            </div>
-            <div class="mt-6 pt-4 border-t border-white/[0.06] flex items-center justify-between">
-              <div class="flex -space-x-2">
-                <div
-                  class="w-7 h-7 rounded-full bg-[#000000] border-2 border-white/20 text-[10px] font-bold text-white flex items-center justify-center">
-                  D</div>
-                <div
-                  class="w-7 h-7 rounded-full bg-[#1A1A1A] border-2 border-white/20 text-[10px] font-bold text-white flex items-center justify-center">
-                  E</div>
-              </div>
-              <button onclick="switchMainView('chats'); selectChat(2);"
-                class="text-white hover:underline font-semibold text-xs transition-colors flex items-center gap-1.5">
-                Enter Room <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- PROFILE VIEW (Hidden by default) -->
-    <div id="view-profile" class="hidden flex-1 p-8 bg-[#000000] overflow-y-auto">
-      <div class="max-w-2xl mx-auto bg-[#121212] rounded-2xl p-8 border border-white/[0.08] shadow-2xl space-y-6">
-        <div class="flex items-center gap-6">
-          <div
-            class="w-20 h-20 rounded-2xl bg-[#000000] border-2 border-white/20 text-white text-2xl font-bold flex items-center justify-center shadow-xl">
-            ME
-          </div>
-          <div>
-            <h2 class="text-2xl font-bold text-white tracking-tight">Alex Morgan</h2>
-            <p class="text-gray-400 text-sm mt-0.5">Senior Product Architect & Lab Admin</p>
-            <div class="flex items-center gap-2 mt-2.5">
-              <span
-                class="inline-flex items-center gap-1.5 bg-emerald-950/60 border border-emerald-500/30 text-emerald-400 text-xs font-semibold px-2.5 py-0.5 rounded-full">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                Active Lab Session
-              </span>
-              <span class="text-xs text-gray-500">ID: LAB-NODE-402</span>
-            </div>
-          </div>
-        </div>
-
-        <hr class="border-white/[0.08]">
-
-        <div class="space-y-4 text-sm">
-          <h3 class="font-bold text-gray-300 text-xs uppercase tracking-wider">Account Credentials</h3>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div class="bg-[#000000] p-4 rounded-xl border border-white/[0.06]">
-              <label class="text-[11px] text-gray-500 block mb-1">Username / Passcode Access</label>
-              <span class="font-medium text-gray-200">alex.morgan@lab.network</span>
-            </div>
-            <div class="bg-[#000000] p-4 rounded-xl border border-white/[0.06]">
-              <label class="text-[11px] text-gray-500 block mb-1">Workspace Region</label>
-              <span class="font-medium text-gray-200">Computer Lab 3 (North Wing)</span>
-            </div>
-          </div>
-
-          <h3 class="font-bold text-gray-300 text-xs uppercase tracking-wider pt-2">Security & Privacy</h3>
-          <div class="p-4 rounded-xl bg-[#000000] border border-white/[0.06] flex items-center justify-between">
-            <div>
-              <p class="text-xs font-semibold text-gray-200">Emergency Panic Wipe</p>
-              <p class="text-[11px] text-gray-500">Instantly erase local session cache and file buffers on this
-                terminal.</p>
-            </div>
-            <button onclick="alert('Session storage and temporary drops have been securely wiped.')"
-              class="px-3.5 py-1.5 rounded-lg bg-rose-950/40 border border-rose-500/30 text-rose-400 hover:bg-rose-900/60 text-xs font-medium transition-colors">
-              Wipe Session
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- 4. SETTINGS MODAL OVERLAY -->
-  <div id="settingsModal"
-    class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center hidden">
-    <div
-      class="bg-[#121212] rounded-2xl w-full max-w-lg shadow-2xl border border-white/[0.15] overflow-hidden transform transition-all">
-      <div class="px-6 py-4 border-b border-white/[0.08] flex justify-between items-center bg-[#121212]">
-        <div class="flex items-center gap-2.5">
-          <i data-lucide="sliders-horizontal" class="w-5 h-5 text-white"></i>
-          <h3 class="font-bold text-white text-base">Terminal & Room Preferences</h3>
-        </div>
-        <button onclick="toggleSettingsModal(false)"
-          class="text-gray-400 hover:text-white p-1 rounded-lg transition-colors">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-
-      <div class="p-6 space-y-6 max-h-[80vh] overflow-y-auto bg-[#121212]">
-
-        <!-- Hardware Settings -->
-        <div class="space-y-3">
-          <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Hardware Permissions</h4>
-
-          <!-- Mic Toggle -->
-          <div class="flex items-center justify-between p-3 rounded-xl bg-[#000000] border border-white/[0.06]">
-            <div class="flex items-center gap-3">
-              <i data-lucide="mic" class="w-5 h-5 text-gray-400"></i>
-              <div>
-                <p class="text-xs font-semibold text-gray-200">Microphone Access</p>
-                <p class="text-[11px] text-gray-500">Allow voice input during room calls</p>
-              </div>
-            </div>
-            <input type="checkbox" checked class="w-4 h-4 accent-white cursor-pointer">
-          </div>
-
-          <!-- Camera Toggle -->
-          <div class="flex items-center justify-between p-3 rounded-xl bg-[#000000] border border-white/[0.06]">
-            <div class="flex items-center gap-3">
-              <i data-lucide="video" class="w-5 h-5 text-gray-400"></i>
-              <div>
-                <p class="text-xs font-semibold text-gray-200">Camera Access</p>
-                <p class="text-[11px] text-gray-500">Allow video sharing in collaborative spaces</p>
-              </div>
-            </div>
-            <input type="checkbox" checked class="w-4 h-4 accent-white cursor-pointer">
-          </div>
-        </div>
-
-        <!-- Room Customization -->
-        <div class="space-y-3">
-          <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Laboratory Relay Settings</h4>
-
-          <div class="space-y-1.5">
-            <label class="text-xs font-semibold text-gray-300">Notification Sound</label>
-            <select
-              class="w-full bg-[#000000] border border-white/[0.10] text-gray-200 text-xs rounded-xl p-2.5 outline-none focus:border-white/30">
-              <option>Stealth Tone (Quiet)</option>
-              <option>Default Chime</option>
-              <option>Mute All</option>
-            </select>
-          </div>
-
-          <div class="space-y-1.5">
-            <label class="text-xs font-semibold text-gray-300">File Auto-Purge Duration</label>
-            <select
-              class="w-full bg-[#000000] border border-white/[0.10] text-gray-200 text-xs rounded-xl p-2.5 outline-none focus:border-white/30">
-              <option>Purge after 2 hours</option>
-              <option>Purge after 12 hours</option>
-              <option>Purge on logout / session end</option>
-            </select>
-          </div>
-        </div>
-
-      </div>
-
-      <div class="px-6 py-3 bg-[#000000] border-t border-white/[0.08] flex justify-end gap-2">
-        <button onclick="toggleSettingsModal(false)"
-          class="px-4 py-2 text-xs font-medium text-gray-400 hover:text-white rounded-xl transition-colors">Cancel</button>
-        <button onclick="toggleSettingsModal(false)"
-          class="px-4 py-2 text-xs font-medium bg-[#121212] text-white border border-white/25 hover:border-white/40 rounded-xl transition-all shadow-md">Save
-          Preferences</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 5. NEW CHAT / ROOM MODAL -->
-  <div id="newChatModal"
-    class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center hidden">
-    <div
-      class="bg-[#121212] rounded-2xl w-full max-w-md shadow-2xl border border-white/[0.15] overflow-hidden transform transition-all">
-      <div class="px-6 py-4 border-b border-white/[0.08] flex justify-between items-center">
-        <div class="flex items-center gap-2">
-          <i data-lucide="plus-circle" class="w-5 h-5 text-white"></i>
-          <h3 class="font-bold text-white text-base">New Conversation or Room</h3>
-        </div>
-        <button onclick="closeNewChatModal()" class="text-gray-400 hover:text-white p-1 rounded-lg">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-
-      <form onsubmit="handleCreateNewChat(event)" class="p-6 space-y-4">
+  <!-- LOGIN / REGISTER -->
+  <div id="auth" class="fixed inset-0 z-[60] bg-black hidden items-center justify-center p-4">
+    <div class="w-full max-w-sm">
+      <div class="flex items-center gap-3 mb-8">
+        <div class="av w-11 h-11 rounded-xl"><i data-lucide="shield-check" class="w-5 h-5"></i></div>
         <div>
-          <label class="text-xs font-semibold text-gray-300 block mb-1.5">Type</label>
-          <div class="grid grid-cols-2 gap-2">
-            <button type="button" id="type-room-btn" onclick="setNewChatType(true)"
-              class="p-2.5 rounded-xl border border-white/20 bg-[#000000] text-white text-xs font-medium flex items-center justify-center gap-2">
-              <i data-lucide="layout-grid" class="w-4 h-4 text-white"></i> Lab Room
-            </button>
-            <button type="button" id="type-dm-btn" onclick="setNewChatType(false)"
-              class="p-2.5 rounded-xl border border-white/[0.06] bg-white/[0.04] text-gray-400 text-xs font-medium flex items-center justify-center gap-2">
-              <i data-lucide="user" class="w-4 h-4"></i> Direct Message
-            </button>
-          </div>
+          <h1 class="text-xl font-bold text-white leading-tight">ChatLink</h1>
+          <p class="text-xs text-gray-500">Sign in to your workspace</p>
         </div>
-
-        <div>
-          <label class="text-xs font-semibold text-gray-300 block mb-1.5">Name</label>
-          <input id="newChatName" type="text" placeholder="e.g. Frontend Engineering or Alex" required
-            class="w-full bg-[#000000] border border-white/[0.10] text-white placeholder-gray-500 text-xs rounded-xl p-3 outline-none focus:border-white/30">
-        </div>
-
-        <div>
-          <label class="text-xs font-semibold text-gray-300 block mb-1.5">Participants / Members</label>
-          <input id="newChatMembers" type="text" placeholder="e.g. Dave, Sarah, You"
-            class="w-full bg-[#000000] border border-white/[0.10] text-white placeholder-gray-500 text-xs rounded-xl p-3 outline-none focus:border-white/30">
-        </div>
-
-        <div class="pt-2 flex justify-end gap-2">
-          <button type="button" onclick="closeNewChatModal()"
-            class="px-4 py-2 text-xs font-medium text-gray-400 hover:text-white rounded-xl">Cancel</button>
-          <button type="submit"
-            class="px-4 py-2 text-xs font-medium bg-[#000000] text-white border border-white/25 hover:border-white/40 rounded-xl shadow-md">Create</button>
-        </div>
+      </div>
+      <div class="flex bg-[#121212] p-1 rounded-xl border border-white/10 mb-5">
+        <button type="button" data-m="in" onclick="setMode('in')" class="chip flex-1 justify-center">Sign in</button>
+        <button type="button" data-m="up" onclick="setMode('up')" class="chip flex-1 justify-center">Create account</button>
+      </div>
+      <form id="authForm" onsubmit="submitAuth(event)" class="space-y-4" novalidate>
+        <div id="nameRow" class="hidden"><label class="lbl" for="aName">Name</label><input id="aName" class="inp" maxlength="40" autocomplete="name"></div>
+        <div><label class="lbl" for="aUser">Username</label><input id="aUser" class="inp" maxlength="20" autocomplete="username" autocapitalize="off"></div>
+        <div><label class="lbl" for="aPass">Password</label><input id="aPass" type="password" class="inp" autocomplete="current-password"></div>
+        <p id="aErr" role="alert" class="text-xs text-rose-400 min-h-[1rem]"></p>
+        <button id="aBtn" class="btn w-full py-3 text-sm">Sign in</button>
+        <p id="aHint" class="text-[11px] text-gray-500 text-center">Demo account: <b class="text-gray-300">alex</b> / <b class="text-gray-300">chatlink123</b></p>
       </form>
     </div>
   </div>
 
-  <script>
-    // DATA STATE
-    let currentTypeFilter = 'all'; // 'all' | 'direct' | 'rooms'
-    let currentReadFilter = 'all'; // 'all' | 'read' | 'unread'
-    let activeChatId = 1;
-    let currentAttachment = null;
-    let isCreatingRoom = true;
+  <!-- APP -->
+  <div id="app" class="w-full h-full flex">
+    <aside class="w-16 border-r border-white/[0.08] flex flex-col items-center py-4 justify-between shrink-0 bg-[#000000]">
+      <div class="flex flex-col items-center gap-6">
+        <div class="av w-10 h-10 rounded-xl bg-[#121212]"><i data-lucide="shield-check" class="w-5 h-5"></i></div>
+        <nav class="flex flex-col gap-2">
+          <button class="nav on" data-v="chats" onclick="show('chats')" title="Chats"><i data-lucide="message-square" class="w-5 h-5"></i></button>
+          <button class="nav" data-v="rooms" onclick="show('rooms')" title="Rooms"><i data-lucide="layout-grid" class="w-5 h-5"></i></button>
+        </nav>
+      </div>
+      <div class="flex flex-col gap-2">
+        <button class="nav" onclick="openSettings('profile')" title="Settings"><i data-lucide="sliders-horizontal" class="w-5 h-5"></i></button>
+        <button class="nav" data-v="profile" onclick="show('profile')" title="Profile"><span id="railAv" class="av w-8 h-8 rounded-full text-xs"></span></button>
+      </div>
+    </aside>
 
-    const conversations = [
-      {
-        id: 1,
-        name: "Project Alpha Team",
-        isRoom: true,
-        unread: true,
-        favourite: true,
-        avatar: "P",
-        avatarBg: "rgba(18, 18, 18, 255)",
-        members: "Alice, Bob, Charlie, David, +3 others",
-        lastMessage: "Alice: Attached the updated requirements document...",
-        time: "10:42 AM",
-        messages: [
-          {
-            id: 101,
-            sender: "Alice Smith",
-            avatar: "A",
-            isOutgoing: false,
-            time: "10:30 AM",
-            text: "Hey everyone, here is the updated specifications deck for review.",
-            attachment: {
-              type: "pdf",
-              name: "Q3_Project_Requirements.pdf",
-              size: "2.4 MB"
-            }
-          },
-          {
-            id: 102,
-            sender: "Bob Johnson",
-            avatar: "B",
-            isOutgoing: false,
-            time: "10:35 AM",
-            text: "Thanks! I've cross-referenced it with the financials spreadsheet.",
-            attachment: {
-              type: "excel",
-              name: "Budget_Forecast_2026.xlsx",
-              size: "1.1 MB"
-            }
-          },
-          {
-            id: 103,
-            sender: "You",
-            avatar: "ME",
-            isOutgoing: true,
-            time: "10:38 AM",
-            text: "Looks good. I also committed the Markdown draft for API contracts.",
-            attachment: {
-              type: "doc",
-              name: "API_Contract_v2.md",
-              size: "45 KB"
-            }
-          },
-          {
-            id: 104,
-            sender: "Charlie",
-            avatar: "C",
-            isOutgoing: false,
-            time: "10:42 AM",
-            text: "Here is the screenshot snippet of the proposed dashboard view.",
-            attachment: {
-              type: "image",
-              name: "Dashboard_Snippet.png",
-              url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80"
-            }
-          }
-        ]
-      },
-      {
-        id: 2,
-        name: "Dev Standup Room",
-        isRoom: true,
-        unread: true,
-        favourite: false,
-        avatar: "D",
-        avatarBg: "rgba(18, 18, 18, 255)",
-        members: "Dave, Evan, You",
-        lastMessage: "Dave: Standup starts in 5 minutes.",
-        time: "09:15 AM",
-        messages: [
-          {
-            id: 201,
-            sender: "Dave",
-            avatar: "D",
-            isOutgoing: false,
-            time: "09:15 AM",
-            text: "Standup starts in 5 minutes. Please bring your blockers."
-          }
-        ]
-      },
-      {
-        id: 3,
-        name: "Alice Smith",
-        isRoom: false,
-        unread: false,
-        favourite: true,
-        avatar: "A",
-        avatarBg: "rgba(18, 18, 18, 255)",
-        members: "Direct Message",
-        lastMessage: "Alice: Thanks for sending over the file!",
-        time: "Yesterday",
-        messages: [
-          {
-            id: 301,
-            sender: "Alice Smith",
-            avatar: "A",
-            isOutgoing: false,
-            time: "Yesterday",
-            text: "Thanks for sending over the file! I'll review it shortly."
-          }
-        ]
-      },
-      {
-        id: 4,
-        name: "Design Systems",
-        isRoom: true,
-        unread: false,
-        favourite: false,
-        avatar: "D",
-        avatarBg: "rgba(18, 18, 18, 255)",
-        members: "Charlie, Figma Bot, You",
-        lastMessage: "Charlie: Check out this icon snippet.",
-        time: "2 days ago",
-        messages: [
-          {
-            id: 401,
-            sender: "Charlie",
-            avatar: "C",
-            isOutgoing: false,
-            time: "2 days ago",
-            text: "Check out this icon snippet before we push to production."
-          }
-        ]
-      }
-    ];
-
-    // INITIALIZATION
-    window.onload = () => {
-      lucide.createIcons();
-      updateFilterUI();
-      renderConversations();
-      renderMessages();
-      const initialChat = conversations.find(c => c.id === activeChatId);
-      if (initialChat && initialChat.avatarBg) {
-        document.getElementById('headerAvatar').style.backgroundColor = initialChat.avatarBg;
-      }
-    };
-
-    // VIEW SWITCHING
-    function switchMainView(viewName) {
-      // Hide all views
-      ['chats', 'rooms', 'profile'].forEach(v => {
-        document.getElementById(`view-${v}`).classList.add('hidden');
-      });
-      // Show targeted view
-      document.getElementById(`view-${viewName}`).classList.remove('hidden');
-
-      // Update Nav Rail Active State
-      document.querySelectorAll('.nav-btn').forEach(btn => {
-        btn.classList.remove('active', 'text-white', 'bg-[#121212]', 'border', 'border-white/15');
-        btn.classList.add('text-gray-400');
-        const indicator = btn.querySelector('.active-indicator');
-        if (indicator) indicator.classList.add('hidden');
-      });
-
-      const activeBtn = document.getElementById(`nav-${viewName}`);
-      if (activeBtn) {
-        activeBtn.classList.add('active', 'text-white', 'bg-[#121212]', 'border', 'border-white/15');
-        activeBtn.classList.remove('text-gray-400');
-        const indicator = activeBtn.querySelector('.active-indicator');
-        if (indicator) indicator.classList.remove('hidden');
-      }
-      lucide.createIcons();
-    }
-
-    // TYPE FILTER (Direct / Rooms)
-    function setTypeFilter(type) {
-      if (currentTypeFilter === type) {
-        currentTypeFilter = 'all'; // Toggle off to show both
-      } else {
-        currentTypeFilter = type;
-      }
-      updateFilterUI();
-      renderConversations();
-    }
-
-    // READ / UNREAD TOGGLE
-    function setReadFilter(status) {
-      if (currentReadFilter === status) {
-        currentReadFilter = 'all'; // Toggle off to show all
-      } else {
-        currentReadFilter = status;
-      }
-      updateFilterUI();
-      renderConversations();
-    }
-
-    // UPDATE FILTER UI CONTROLS
-    function updateFilterUI() {
-      const directBtn = document.getElementById('filter-direct');
-      const roomsBtn = document.getElementById('filter-rooms');
-      const readBtn = document.getElementById('toggle-read');
-      const unreadBtn = document.getElementById('toggle-unread');
-      const unreadDot = document.getElementById('unreadDot');
-
-      if (directBtn) {
-        if (currentTypeFilter === 'direct') {
-          directBtn.className = "type-btn text-xs font-medium px-3 py-1.5 rounded-lg bg-[#000000] text-white border border-white/25 transition-all shadow-sm flex items-center gap-1.5";
-        } else {
-          directBtn.className = "type-btn text-xs font-medium px-3 py-1.5 rounded-lg bg-transparent text-gray-400 hover:text-gray-200 hover:bg-white/[0.04] border border-transparent transition-all flex items-center gap-1.5";
-        }
-      }
-
-      if (roomsBtn) {
-        if (currentTypeFilter === 'rooms') {
-          roomsBtn.className = "type-btn text-xs font-medium px-3 py-1.5 rounded-lg bg-[#000000] text-white border border-white/25 transition-all shadow-sm flex items-center gap-1.5";
-        } else {
-          roomsBtn.className = "type-btn text-xs font-medium px-3 py-1.5 rounded-lg bg-transparent text-gray-400 hover:text-gray-200 hover:bg-white/[0.04] border border-transparent transition-all flex items-center gap-1.5";
-        }
-      }
-
-      if (readBtn && unreadBtn) {
-        if (currentReadFilter === 'read') {
-          readBtn.className = "read-btn text-[11px] font-medium px-2.5 py-1 rounded-md transition-all bg-[#121212] text-white border border-white/20 shadow-sm";
-          unreadBtn.className = "read-btn text-[11px] font-medium px-2.5 py-1 rounded-md transition-all text-gray-400 hover:text-gray-200 flex items-center gap-1";
-        } else if (currentReadFilter === 'unread') {
-          readBtn.className = "read-btn text-[11px] font-medium px-2.5 py-1 rounded-md transition-all text-gray-400 hover:text-gray-200";
-          unreadBtn.className = "read-btn text-[11px] font-medium px-2.5 py-1 rounded-md transition-all bg-[#121212] text-white border border-white/20 shadow-sm flex items-center gap-1";
-        } else {
-          readBtn.className = "read-btn text-[11px] font-medium px-2.5 py-1 rounded-md transition-all text-gray-400 hover:text-gray-200";
-          unreadBtn.className = "read-btn text-[11px] font-medium px-2.5 py-1 rounded-md transition-all text-gray-400 hover:text-gray-200 flex items-center gap-1";
-        }
-      }
-
-      if (unreadDot) {
-        const hasUnread = conversations.some(c => c.unread);
-        if (hasUnread) {
-          unreadDot.classList.remove('hidden');
-        } else {
-          unreadDot.classList.add('hidden');
-        }
-      }
-      lucide.createIcons();
-    }
-
-    // FILTER CONVERSATIONS LIST
-    function filterConversations() {
-      renderConversations();
-    }
-
-    function renderConversations() {
-      const listContainer = document.getElementById('conversationList');
-      const searchQuery = document.getElementById('searchInput').value.toLowerCase();
-      listContainer.innerHTML = '';
-
-      const filtered = conversations.filter(c => {
-        const matchesSearch = c.name.toLowerCase().includes(searchQuery);
-        if (!matchesSearch) return false;
-
-        // Type Filter (Direct vs Rooms)
-        if (currentTypeFilter === 'direct' && c.isRoom) return false;
-        if (currentTypeFilter === 'rooms' && !c.isRoom) return false;
-
-        // Read / Unread Filter
-        if (currentReadFilter === 'unread' && !c.unread) return false;
-        if (currentReadFilter === 'read' && c.unread) return false;
-
-        return true;
-      });
-
-      if (filtered.length === 0) {
-        listContainer.innerHTML = `
-          <div class="p-8 text-center text-gray-500 text-xs">
-            No conversations found matching criteria
-          </div>
-        `;
-        return;
-      }
-
-      filtered.forEach(chat => {
-        const isSelected = chat.id === activeChatId;
-        const item = document.createElement('div');
-        item.onclick = () => selectChat(chat.id);
-        item.className = `p-3 rounded-xl flex items-center gap-3 cursor-pointer transition-all border ${isSelected
-            ? 'bg-[#000000] border-white/[0.15] shadow-md'
-            : 'border-transparent hover:bg-[#000000]/60'
-          }`;
-
-        item.innerHTML = `
-          <div class="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm shrink-0 border border-white/10" style="background-color: ${chat.avatarBg || '#121212'}; color: #ffffff;">
-            ${chat.avatar}
-          </div>
-          <div class="flex-1 min-w-0">
-            <div class="flex justify-between items-baseline mb-0.5">
-              <h4 class="text-xs font-semibold ${isSelected ? 'text-white' : 'text-gray-200'} truncate">${chat.name}</h4>
-              <span class="text-[10px] text-gray-500 shrink-0">${chat.time}</span>
+    <main class="flex-1 flex overflow-hidden relative bg-[#000000]">
+      <!-- CHATS -->
+      <div id="view-chats" class="flex-1 flex w-full h-full">
+        <section class="w-80 md:w-96 bg-[#121212] border-r border-white/[0.08] flex flex-col shrink-0">
+          <div class="p-4 border-b border-white/[0.08] space-y-3">
+            <div class="flex justify-between items-center">
+              <h2 class="text-lg font-bold text-white">Messages</h2>
+              <button onclick="openNew(false)" class="btn !p-2" title="New message or room"><i data-lucide="plus" class="w-4 h-4"></i></button>
             </div>
-            <p class="text-xs text-gray-400 truncate">${chat.lastMessage}</p>
-          </div>
-          ${chat.unread ? '<div class="w-2 h-2 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.9)] shrink-0"></div>' : ''}
-        `;
-        listContainer.appendChild(item);
-      });
-    }
-
-    // SELECT CHAT
-    function selectChat(id) {
-      activeChatId = id;
-      const chat = conversations.find(c => c.id === id);
-      if (!chat) return;
-
-      chat.unread = false; // Mark read on select
-      updateFilterUI();
-
-      // Update Header
-      document.getElementById('headerTitle').innerText = chat.name;
-      document.getElementById('headerAvatar').innerText = chat.avatar;
-      if (chat.avatarBg) {
-        document.getElementById('headerAvatar').style.backgroundColor = chat.avatarBg;
-      }
-      document.getElementById('headerMembers').innerText = chat.members;
-      document.getElementById('headerBadge').innerText = chat.isRoom ? 'ROOM' : 'DIRECT';
-
-      renderConversations();
-      renderMessages();
-    }
-
-    // RENDER FEED MESSAGES
-    function renderMessages() {
-      const feed = document.getElementById('messageFeed');
-      const chat = conversations.find(c => c.id === activeChatId);
-      feed.innerHTML = '';
-
-      if (!chat || !chat.messages) return;
-
-      chat.messages.forEach(msg => {
-        const msgDiv = document.createElement('div');
-        msgDiv.className = `flex gap-3 max-w-xl ${msg.isOutgoing ? 'ml-auto flex-row-reverse' : ''}`;
-
-        let attachmentHTML = '';
-        if (msg.attachment) {
-          attachmentHTML = renderAttachmentCard(msg.attachment, msg.isOutgoing);
-        }
-
-        msgDiv.innerHTML = `
-          <div class="w-8 h-8 rounded-xl ${msg.isOutgoing ? 'bg-[#121212] border border-white/20 text-white' : 'bg-[#121212] border border-white/10 text-gray-300'} text-xs font-bold flex items-center justify-center shrink-0 shadow-sm">
-            ${msg.avatar}
-          </div>
-          <div class="space-y-1">
-            <div class="flex items-center gap-2 ${msg.isOutgoing ? 'justify-end' : ''}">
-              <span class="text-xs font-semibold text-gray-300">${msg.sender}</span>
-              <span class="text-[10px] text-gray-500">${msg.time}</span>
-            </div>
-            <div class="p-3.5 rounded-2xl text-xs leading-relaxed ${msg.isOutgoing
-            ? 'bg-[#121212] text-white border border-white/[0.18] rounded-tr-none shadow-xl shadow-black/80'
-            : 'bg-[#141414] text-gray-200 border border-white/[0.08] rounded-tl-none shadow-md'
-          }">
-              <p>${msg.text}</p>
-              ${attachmentHTML}
+            <div class="relative"><i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></i>
+              <input id="search" oninput="renderList()" placeholder="Search conversations" class="inp !pl-9 !py-2.5">
             </div>
           </div>
-        `;
-        feed.appendChild(msgDiv);
-      });
-
-      // Auto-scroll to bottom
-      feed.scrollTop = feed.scrollHeight;
-      lucide.createIcons();
-    }
-
-    // ATTACHMENT CARD BUILDER
-    function renderAttachmentCard(att, isOutgoing) {
-      if (att.type === 'image') {
-        return `
-          <div class="mt-2.5 rounded-xl overflow-hidden border border-white/15 bg-[#000000]">
-            <img src="${att.url}" alt="Snippet Preview" class="w-full max-h-48 object-cover">
-            <div class="p-2 text-[10px] bg-[#000000] text-gray-300 flex items-center justify-between border-t border-white/10">
-              <span class="truncate">${att.name}</span>
-              <i data-lucide="external-link" class="w-3.5 h-3.5 cursor-pointer text-gray-400 hover:text-white"></i>
+          <div class="px-4 py-2.5 flex items-center justify-between border-b border-white/[0.08]">
+            <div class="flex gap-1.5">
+              <button class="chip" data-tf="direct" onclick="setF('tf','direct')"><i data-lucide="user" class="w-3.5 h-3.5"></i>Direct</button>
+              <button class="chip" data-tf="rooms" onclick="setF('tf','rooms')"><i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>Rooms</button>
+            </div>
+            <div class="flex bg-black p-0.5 rounded-lg border border-white/10">
+              <button class="chip !py-1 !px-2.5 !text-[11px]" data-rf="read" onclick="setF('rf','read')">Read</button>
+              <button class="chip !py-1 !px-2.5 !text-[11px]" data-rf="unread" onclick="setF('rf','unread')">Unread<span id="unreadDot" class="w-1.5 h-1.5 rounded-full bg-white hidden"></span></button>
             </div>
           </div>
-        `;
-      }
+          <div id="list" class="flex-1 overflow-y-auto px-2.5 py-2 space-y-1"></div>
+        </section>
 
-      let iconName = 'file-text';
-      if (att.type === 'excel') iconName = 'file-spreadsheet';
-      if (att.type === 'pdf') iconName = 'file-code';
+        <section class="flex-1 flex flex-col h-full overflow-hidden bg-[#000000]">
+          <div id="emptyPane" class="flex-1 hidden flex-col items-center justify-center text-center text-gray-500 gap-2">
+            <i data-lucide="message-square" class="w-8 h-8"></i>
+            <p class="text-sm text-gray-300 font-semibold">No conversation selected</p>
+            <button class="btn mt-2" onclick="openNew(false)">Start a conversation</button>
+          </div>
+          <div id="chatPane" class="flex-1 flex flex-col overflow-hidden">
+            <header class="h-16 px-6 bg-[#121212] border-b border-white/[0.08] flex items-center justify-between shrink-0">
+              <div class="flex items-center gap-3 min-w-0">
+                <div id="hAv" class="av w-10 h-10 rounded-xl text-sm"></div>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2">
+                    <h2 id="hTitle" class="font-bold text-white text-sm truncate"></h2>
+                    <span id="hBadge" class="bg-black text-gray-300 text-[10px] font-semibold px-2 py-0.5 rounded-full border border-white/15"></span>
+                  </div>
+                  <p id="hMem" class="text-xs text-gray-400 truncate"></p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 text-gray-400">
+                <button id="hDis" onclick="openSettings('privacy')" class="hidden flex items-center gap-1.5 text-[11px] px-2 py-1 rounded-lg border border-white/10 hover:text-white" title="Disappearing messages are on"><i data-lucide="timer" class="w-3.5 h-3.5"></i><span id="hDisLbl"></span></button>
+                <button id="hBlock" onclick="blockActive()" class="p-2 hover:bg-white/[0.06] hover:text-rose-400 rounded-lg transition-colors" title="Block contact"><i data-lucide="ban" class="w-4 h-4"></i></button>
+              </div>
+            </header>
+            <div id="feed" class="flex-1 overflow-y-auto p-6 flex flex-col gap-4 bg-[#000000]"></div>
+            <div id="attBar" class="hidden px-6 py-2 bg-[#121212] border-t border-white/[0.08] items-center justify-between text-xs text-gray-300">
+              <span class="flex items-center gap-2 min-w-0"><i data-lucide="paperclip" class="w-3.5 h-3.5"></i><span id="attName" class="truncate"></span></span>
+              <button onclick="clearAtt()" class="text-gray-400 hover:text-white p-1" aria-label="Remove attachment"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <div class="p-4 bg-[#121212] border-t border-white/[0.08]">
+              <form onsubmit="send(event)" class="flex items-center gap-2.5">
+                <input type="file" id="file" class="hidden" onchange="pickFile(event)">
+                <button type="button" onclick="$('file').click()" class="btn !p-2.5" title="Attach file"><i data-lucide="paperclip" class="w-5 h-5"></i></button>
+                <input id="msg" autocomplete="off" placeholder="Type a message" class="inp !text-sm !py-2.5 flex-1">
+                <button class="btn !py-2.5 !text-sm flex items-center gap-2">Send<i data-lucide="send" class="w-4 h-4"></i></button>
+              </form>
+            </div>
+          </div>
+        </section>
+      </div>
 
-      return `
-        <div class="mt-2.5 p-2.5 rounded-xl border flex items-center gap-3 bg-[#000000] border-white/[0.10] text-gray-200">
-          <div class="p-2 rounded-lg bg-[#121212] text-white border border-white/[0.12]">
-            <i data-lucide="${iconName}" class="w-4 h-4"></i>
+      <!-- ROOMS -->
+      <div id="view-rooms" class="hidden flex-1 p-8 overflow-y-auto bg-[#000000]">
+        <div class="max-w-5xl mx-auto space-y-6">
+          <div class="flex justify-between items-center border-b border-white/[0.08] pb-6">
+            <div>
+              <h1 class="text-2xl font-bold text-white">Collaborative Workspaces</h1>
+              <p class="text-gray-400 text-sm mt-1">Join a room or start a new one.</p>
+            </div>
+            <button onclick="openNew(true)" class="btn flex items-center gap-2"><i data-lucide="plus-circle" class="w-4 h-4"></i>Create room</button>
           </div>
-          <div class="flex-1 min-w-0">
-            <p class="font-semibold text-xs truncate text-gray-200">${att.name}</p>
-            <p class="text-[10px] text-gray-500">${att.size || 'Attachment'}</p>
-          </div>
-          <i data-lucide="download" class="w-4 h-4 text-gray-400 hover:text-white cursor-pointer transition-colors"></i>
+          <div id="roomGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </div>
-      `;
+      </div>
+
+      <!-- PROFILE -->
+      <div id="view-profile" class="hidden flex-1 p-8 overflow-y-auto bg-[#000000]">
+        <div class="max-w-2xl mx-auto bg-[#121212] rounded-2xl p-8 border border-white/[0.08] space-y-6">
+          <div class="flex items-center gap-6">
+            <div id="pvAv" class="av w-20 h-20 rounded-2xl text-2xl"></div>
+            <div class="min-w-0">
+              <h2 id="pvName" class="text-2xl font-bold text-white truncate"></h2>
+              <p id="pvUser" class="text-gray-400 text-sm mt-0.5"></p>
+              <button onclick="openSettings('profile')" class="btn mt-3">Edit profile</button>
+            </div>
+          </div>
+          <hr class="border-white/[0.08]">
+          <div class="card flex items-center justify-between gap-4">
+            <div>
+              <p class="text-xs font-semibold text-gray-200">Emergency wipe</p>
+              <p class="text-[11px] text-gray-500">Remove every attachment and file preview from this device.</p>
+            </div>
+            <button onclick="wipe()" class="danger shrink-0">Wipe files</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- SETTINGS -->
+  <div id="settings" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+    <div class="bg-[#121212] rounded-2xl w-full max-w-2xl border border-white/15 overflow-hidden" role="dialog" aria-label="Settings">
+      <div class="px-6 py-4 border-b border-white/[0.08] flex justify-between items-center">
+        <h3 class="font-bold text-white">Settings</h3>
+        <button onclick="closeModal('settings')" class="text-gray-400 hover:text-white p-1" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="flex flex-col sm:flex-row">
+        <nav class="sm:w-48 p-3 sm:border-r border-white/[0.08] flex sm:flex-col gap-1 shrink-0">
+          <button class="st" data-t="profile" onclick="setTab('profile')"><i data-lucide="user" class="w-4 h-4"></i>Profile</button>
+          <button class="st" data-t="account" onclick="setTab('account')"><i data-lucide="key-round" class="w-4 h-4"></i>Account</button>
+          <button class="st" data-t="privacy" onclick="setTab('privacy')"><i data-lucide="shield" class="w-4 h-4"></i>Privacy</button>
+          <button class="st !text-rose-400" data-t="logout" onclick="setTab('logout')"><i data-lucide="log-out" class="w-4 h-4"></i>Logout</button>
+        </nav>
+        <div id="pane" class="flex-1 p-6 max-h-[70vh] min-h-[360px] overflow-y-auto"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NEW CHAT -->
+  <div id="newChat" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+    <div class="bg-[#121212] rounded-2xl w-full max-w-md border border-white/15 overflow-hidden">
+      <div class="px-6 py-4 border-b border-white/[0.08] flex justify-between items-center">
+        <h3 class="font-bold text-white">New conversation</h3>
+        <button onclick="closeModal('newChat')" class="text-gray-400 hover:text-white p-1" aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <form onsubmit="createChat(event)" class="p-6 space-y-4">
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" class="chip justify-center !py-2.5" data-nt="1" onclick="setNT(true)"><i data-lucide="layout-grid" class="w-4 h-4"></i>Room</button>
+          <button type="button" class="chip justify-center !py-2.5" data-nt="0" onclick="setNT(false)"><i data-lucide="user" class="w-4 h-4"></i>Direct message</button>
+        </div>
+        <div><label class="lbl" for="ncName">Name</label><input id="ncName" class="inp" maxlength="40" required></div>
+        <div id="ncMemRow"><label class="lbl" for="ncMem">Members (optional)</label><input id="ncMem" class="inp" placeholder="Dave, Sarah"></div>
+        <div class="flex justify-end gap-2"><button type="button" class="ghost" onclick="closeModal('newChat')">Cancel</button><button class="btn">Create</button></div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast" class="fixed bottom-5 right-5 z-[70] hidden px-4 py-2.5 rounded-xl text-xs font-medium border bg-[#121212]" role="status"></div>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const rnd = () => Math.random().toString(36).slice(2, 10);
+    const ic = () => window.lucide && lucide.createIcons();
+    const ini = n => (n ? n.trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2) : '?').toUpperCase();
+
+    // ---------- storage (localStorage with in-memory fallback) ----------
+    const mem = {};
+    const store = {
+      get: k => { try { const v = localStorage.getItem(k); if (v !== null) return JSON.parse(v); } catch { } return mem[k] ?? null; },
+      set: (k, v) => { mem[k] = v; try { localStorage.setItem(k, JSON.stringify(v)); } catch { } },
+      del: k => { delete mem[k]; try { localStorage.removeItem(k); } catch { } }
+    };
+    async function hash(pw, salt) {
+      try { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(salt + pw)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join(''); }
+      catch { let h = 0; for (const c of salt + pw) h = (h * 31 + c.charCodeAt(0)) | 0; return 'x' + h; }
     }
 
-    // SEND MESSAGE LOGIC
-    function handleSendMessage(e) {
+    // ---------- state ----------
+    let users = store.get('cl:users') || [];
+    let me = null, db = null, activeId = null, view = 'chats', tab = 'profile';
+    let tf = 'all', rf = 'all', att = null, newIsRoom = true, mode = 'in';
+    const saveUsers = () => store.set('cl:users', users);
+    const save = () => me && store.set('cl:data:' + me.id, JSON.parse(JSON.stringify(db, (k, v) => k === 'url' && String(v).startsWith('blob:') ? null : v)));
+    const DIS = { 0: 'Off', 30000: '30 seconds', 3600000: '1 hour', 86400000: '24 hours', 604800000: '7 days' };
+
+    function seed() {
+      const n = Date.now(), M = (from, text, ago, a, mine) => ({ id: rnd(), from, text, ts: n - ago, me: !!mine, att: a || null });
+      return [
+        {
+          id: 'c1', name: 'Project Alpha Team', room: 1, unread: 1, at: n, online: 8, members: 'Alice, Bob, Charlie, David, +3 others', desc: 'Central hub for Q3 specifications, system designs and sprint updates.', msgs: [
+            M('Alice Smith', 'Hey everyone, here is the updated specifications deck for review.', 42 * 6e4, { type: 'pdf', name: 'Q3_Project_Requirements.pdf', size: '2.4 MB' }),
+            M('Bob Johnson', "Thanks! I've cross-referenced it with the financials.", 37 * 6e4, { type: 'excel', name: 'Budget_Forecast_2026.xlsx', size: '1.1 MB' }),
+            M('', 'Looks good. I also committed the API contract draft.', 34 * 6e4, { type: 'doc', name: 'API_Contract_v2.md', size: '45 KB' }, true),
+            M('Charlie', 'Screenshot of the proposed dashboard view.', 30 * 6e4, { type: 'image', name: 'Dashboard_Snippet.png', url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80' })]
+        },
+        { id: 'c2', name: 'Dev Standup Room', room: 1, unread: 1, at: n, online: 3, members: 'Dave, Evan', desc: 'Daily engineering checkpoint and blocker resolution.', msgs: [M('Dave', 'Standup starts in 5 minutes. Please bring your blockers.', 90 * 6e4)] },
+        { id: 'c3', name: 'Alice Smith', room: 0, unread: 0, at: n, members: 'Direct message', msgs: [M('Alice Smith', "Thanks for sending over the file! I'll review it shortly.", 26 * 36e5)] },
+        { id: 'c4', name: 'Design Systems', room: 1, unread: 0, at: n, online: 4, members: 'Charlie, Figma Bot', desc: 'Token syncs, UI kit revisions and prototype feedback.', msgs: [M('Charlie', 'Check out this icon snippet before we push to production.', 50 * 36e5)] }
+      ];
+    }
+
+    // ---------- auth flow ----------
+    function setMode(m) {
+      mode = m; $('nameRow').classList.toggle('hidden', m === 'in'); $('aHint').classList.toggle('hidden', m !== 'in');
+      $('aBtn').textContent = m === 'in' ? 'Sign in' : 'Create account'; $('aErr').textContent = '';
+      $('aPass').autocomplete = m === 'in' ? 'current-password' : 'new-password';
+      document.querySelectorAll('[data-m]').forEach(b => b.classList.toggle('on', b.dataset.m === m));
+    }
+    function checkUser(u, selfId) {
+      if (!/^[a-z0-9_.]{3,20}$/.test(u)) return 'Username must be 3–20 characters: letters, numbers, . or _';
+      if (users.some(x => x.username === u && x.id !== selfId)) return 'That username is already taken.';
+      return '';
+    }
+    async function submitAuth(e) {
       e.preventDefault();
-      const input = document.getElementById('messageInput');
-      const text = input.value.trim();
-
-      if (!text && !currentAttachment) return;
-
-      const chat = conversations.find(c => c.id === activeChatId);
-      if (!chat) return;
-
-      const newMsg = {
-        id: Date.now(),
-        sender: "You",
-        avatar: "ME",
-        isOutgoing: true,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        text: text || "Shared an attachment.",
-        attachment: currentAttachment ? { ...currentAttachment } : null
-      };
-
-      chat.messages.push(newMsg);
-      chat.lastMessage = `You: ${text || currentAttachment.name}`;
-      chat.time = "Just now";
-
-      input.value = '';
-      clearAttachment();
-      renderConversations();
-      renderMessages();
-    }
-
-    // FILE ATTACHMENT SELECTION
-    function handleFileSelected(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const ext = file.name.split('.').pop().toLowerCase();
-      let type = 'doc';
-      if (['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(ext)) type = 'image';
-      if (['xls', 'xlsx', 'csv'].includes(ext)) type = 'excel';
-      if (ext === 'pdf') type = 'pdf';
-
-      currentAttachment = {
-        type: type,
-        name: file.name,
-        size: (file.size / 1024).toFixed(1) + ' KB',
-        url: type === 'image' ? URL.createObjectURL(file) : null
-      };
-
-      document.getElementById('attachmentName').innerText = `${file.name} (${currentAttachment.size})`;
-      document.getElementById('attachmentPreview').classList.remove('hidden');
-      lucide.createIcons();
-    }
-
-    function clearAttachment() {
-      currentAttachment = null;
-      document.getElementById('fileInput').value = '';
-      document.getElementById('attachmentPreview').classList.add('hidden');
-    }
-
-    // MODAL TOGGLES
-    function toggleSettingsModal(show) {
-      const modal = document.getElementById('settingsModal');
-      if (show) {
-        modal.classList.remove('hidden');
-      } else {
-        modal.classList.add('hidden');
+      const u = $('aUser').value.trim().toLowerCase(), p = $('aPass').value, err = $('aErr');
+      err.textContent = '';
+      if (!u || !p) return err.textContent = 'Enter your username and password.';
+      if (mode === 'in') {
+        const x = users.find(v => v.username === u);
+        if (!x || await hash(p, x.salt) !== x.hash) return err.textContent = 'Incorrect username or password.';
+        return login(x);
       }
-      lucide.createIcons();
+      const name = $('aName').value.trim(), bad = checkUser(u);
+      if (!name) return err.textContent = 'Enter your name.';
+      if (bad) return err.textContent = bad;
+      if (p.length < 8) return err.textContent = 'Use at least 8 characters for your password.';
+      const salt = rnd(), x = { id: 'u' + rnd(), username: u, name, salt, hash: await hash(p, salt), created: Date.now() };
+      users.push(x); saveUsers(); login(x);
+    }
+    function login(x) {
+      me = users.find(u => u.id === x.id) || x;
+      store.set('cl:session', me.id);
+      db = store.get('cl:data:' + me.id) || { convos: seed(), blocked: [], dis: 0 };
+      save(); sweep();
+      $('authForm').reset(); $('aErr').textContent = '';
+      $('auth').classList.add('hidden'); $('auth').classList.remove('flex');
+      $('app').classList.remove('hidden'); $('app').classList.add('flex');
+      activeId = vis()[0]?.id || null;
+      show('chats'); refreshMe(); renderAll();
+    }
+    function logout() {
+      store.del('cl:session'); me = db = activeId = att = null;
+      closeModal('settings');
+      $('app').classList.add('hidden'); $('app').classList.remove('flex');
+      $('auth').classList.remove('hidden'); $('auth').classList.add('flex');
+      setMode('in');
     }
 
-    function openNewChatModal(asRoom = false) {
-      setNewChatType(asRoom);
-      document.getElementById('newChatModal').classList.remove('hidden');
-      document.getElementById('newChatName').focus();
-      lucide.createIcons();
+    // ---------- derived data ----------
+    const blocked = c => !c.room && db.blocked.includes(c.name);
+    const vis = () => (db?.convos || []).filter(c => !blocked(c));
+    const active = () => vis().find(c => c.id === activeId) || null;
+    const last = c => c.msgs[c.msgs.length - 1];
+    const lastTs = c => last(c)?.ts || c.at || 0;
+    function fmt(ts) {
+      const d = new Date(), t = new Date(ts);
+      if (t.toDateString() === d.toDateString()) return t.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      return t.toDateString() === new Date(d - 864e5).toDateString() ? 'Yesterday' : t.toLocaleDateString([], { month: 'short', day: 'numeric' });
     }
 
-    function closeNewChatModal() {
-      document.getElementById('newChatModal').classList.add('hidden');
-      document.getElementById('newChatName').value = '';
-      document.getElementById('newChatMembers').value = '';
+    // ---------- rendering ----------
+    function show(v) {
+      view = v;
+      ['chats', 'rooms', 'profile'].forEach(x => $('view-' + x).classList.toggle('hidden', x !== v));
+      document.querySelectorAll('.nav[data-v]').forEach(b => b.classList.toggle('on', b.dataset.v === v));
+      ic();
+    }
+    function refreshMe() {
+      if (!me) return;
+      $('railAv').textContent = $('pvAv').textContent = ini(me.name);
+      $('pvName').textContent = me.name; $('pvUser').textContent = '@' + me.username;
+    }
+    function renderAll() { renderList(); renderHead(); renderMsgs(); renderRooms(); ic(); }
+    function setF(k, v) { if (k === 'tf') tf = tf === v ? 'all' : v; else rf = rf === v ? 'all' : v; renderList(); }
+    function renderList() {
+      const q = $('search').value.toLowerCase();
+      document.querySelectorAll('[data-tf]').forEach(b => b.classList.toggle('on', b.dataset.tf === tf));
+      document.querySelectorAll('[data-rf]').forEach(b => b.classList.toggle('on', b.dataset.rf === rf));
+      $('unreadDot').classList.toggle('hidden', !vis().some(c => c.unread));
+      const items = vis().filter(c => c.name.toLowerCase().includes(q) && !(tf === 'direct' && c.room) && !(tf === 'rooms' && !c.room)
+        && !(rf === 'unread' && !c.unread) && !(rf === 'read' && c.unread)).sort((a, b) => lastTs(b) - lastTs(a));
+      $('list').innerHTML = items.length ? items.map(c => {
+        const l = last(c), sel = c.id === activeId;
+        return `<div onclick="openChat('${c.id}')" class="p-3 rounded-xl flex items-center gap-3 cursor-pointer border transition-all ${sel ? 'bg-black border-white/15 shadow-md' : 'border-transparent hover:bg-black/60'}">
+      <div class="av w-10 h-10 rounded-xl text-sm">${esc(c.name[0].toUpperCase())}</div>
+      <div class="flex-1 min-w-0"><div class="flex justify-between items-baseline mb-0.5"><h4 class="text-xs font-semibold text-white truncate">${esc(c.name)}</h4><span class="text-[10px] text-gray-500 shrink-0">${fmt(lastTs(c))}</span></div>
+      <p class="text-xs text-gray-400 truncate">${l ? esc((l.me ? 'You' : l.from) + ': ' + (l.text || '')) : 'No messages yet'}</p></div>
+      ${c.unread ? '<div class="w-2 h-2 rounded-full bg-white shrink-0 shadow-[0_0_6px_rgba(255,255,255,0.8)]"></div>' : ''}</div>`;
+      }).join('') : '<p class="p-8 text-center text-gray-500 text-xs">No conversations match.</p>';
+    }
+    function renderHead() {
+      const c = active();
+      $('chatPane').classList.toggle('hidden', !c); $('emptyPane').classList.toggle('hidden', !!c); $('emptyPane').classList.toggle('flex', !c);
+      if (!c) return;
+      $('hAv').textContent = c.name[0].toUpperCase(); $('hTitle').textContent = c.name; $('hBadge').textContent = c.room ? 'ROOM' : 'DIRECT';
+      $('hMem').textContent = c.members; $('hBlock').classList.toggle('hidden', !!c.room);
+      $('hDis').classList.toggle('hidden', !db.dis); $('hDis').classList.toggle('flex', !!db.dis); $('hDisLbl').textContent = DIS[db.dis] || '';
+    }
+    function renderMsgs() {
+      const c = active(), feed = $('feed');
+      if (!c) return feed.innerHTML = '';
+      feed.innerHTML = c.msgs.map(m => `<div class="flex gap-3 max-w-xl ${m.me ? 'ml-auto flex-row-reverse' : ''}">
+    <div class="av w-8 h-8 rounded-xl text-xs">${esc(ini(m.me ? me.name : m.from))}</div>
+    <div class="space-y-1 min-w-0"><div class="flex items-center gap-2 ${m.me ? 'justify-end' : ''}"><span class="text-xs font-semibold text-gray-300">${esc(m.me ? me.name : m.from)}</span><span class="text-[10px] text-gray-500">${fmt(m.ts)}</span>${m.exp ? '<i data-lucide="timer" class="w-3 h-3 text-gray-500"></i>' : ''}</div>
+    <div class="p-3.5 rounded-2xl text-xs leading-relaxed break-words border ${m.me ? 'bg-[#121212] text-white border-white/[0.18] rounded-tr-none shadow-md' : 'bg-[#121212] text-gray-200 border-white/[0.08] rounded-tl-none'}"><p>${esc(m.text)}</p>${m.att ? attCard(m.att) : ''}</div></div></div>`).join('');
+      feed.scrollTop = feed.scrollHeight; ic();
+    }
+    function attCard(a) {
+      if (a.type === 'image' && a.url) return `<div class="mt-2.5 rounded-xl overflow-hidden border border-white/15 bg-black"><img src="${esc(a.url)}" alt="${esc(a.name)}" class="w-full max-h-48 object-cover"><div class="p-2 text-[10px] text-gray-300 truncate border-t border-white/10">${esc(a.name)}</div></div>`;
+      const icon = { excel: 'file-spreadsheet', pdf: 'file-code' }[a.type] || 'file-text';
+      return `<div class="mt-2.5 p-2.5 rounded-xl border border-white/10 bg-black flex items-center gap-3"><div class="av p-2 rounded-lg"><i data-lucide="${icon}" class="w-4 h-4"></i></div><div class="min-w-0"><p class="font-semibold text-xs truncate">${esc(a.name)}</p><p class="text-[10px] text-gray-500">${esc(a.size || 'Attachment')}</p></div></div>`;
+    }
+    function renderRooms() {
+      const rooms = vis().filter(c => c.room);
+      $('roomGrid').innerHTML = rooms.length ? rooms.map(c => `<div class="bg-[#121212] rounded-2xl p-6 border border-white/[0.08] hover:border-white/25 transition-all flex flex-col justify-between">
+    <div class="space-y-3"><div class="flex justify-between items-start"><span class="av w-10 h-10 rounded-xl text-sm">${esc(c.name[0].toUpperCase())}</span>
+    <span class="text-emerald-400 text-xs bg-emerald-950/60 border border-emerald-500/30 px-2.5 py-1 rounded-full">${c.online || 1} online</span></div>
+    <h3 class="font-bold text-white text-lg">${esc(c.name)}</h3><p class="text-gray-400 text-xs leading-relaxed">${esc(c.desc || 'No description yet.')}</p></div>
+    <button onclick="openChat('${c.id}')" class="btn mt-6 self-start">Enter room</button></div>`).join('') : '<p class="text-gray-500 text-sm">No rooms yet. Create one to get started.</p>';
     }
 
-    function setNewChatType(asRoom) {
-      isCreatingRoom = asRoom;
-      const roomBtn = document.getElementById('type-room-btn');
-      const dmBtn = document.getElementById('type-dm-btn');
-      if (asRoom) {
-        roomBtn.className = "p-2.5 rounded-xl border border-white/20 bg-[#000000] text-white text-xs font-medium flex items-center justify-center gap-2";
-        dmBtn.className = "p-2.5 rounded-xl border border-white/[0.06] bg-white/[0.04] text-gray-400 text-xs font-medium flex items-center justify-center gap-2";
-      } else {
-        roomBtn.className = "p-2.5 rounded-xl border border-white/[0.06] bg-white/[0.04] text-gray-400 text-xs font-medium flex items-center justify-center gap-2";
-        dmBtn.className = "p-2.5 rounded-xl border border-white/20 bg-[#000000] text-white text-xs font-medium flex items-center justify-center gap-2";
-      }
-      lucide.createIcons();
-    }
-
-    function handleCreateNewChat(e) {
+    // ---------- chat logic ----------
+    function openChat(id) { activeId = id; const c = active(); if (c) { c.unread = 0; save(); } show('chats'); renderAll(); }
+    function push(c, m) { const ts = Date.now(); c.msgs.push({ id: rnd(), ts, exp: db.dis ? ts + db.dis : 0, ...m }); c.at = ts; save(); }
+    function send(e) {
       e.preventDefault();
-      const name = document.getElementById('newChatName').value.trim();
-      const members = document.getElementById('newChatMembers').value.trim() || (isCreatingRoom ? 'You' : 'Direct Message');
-      if (!name) return;
-
-      const newId = Date.now();
-      const newChat = {
-        id: newId,
-        name: name,
-        isRoom: isCreatingRoom,
-        unread: false,
-        favourite: false,
-        avatar: name.charAt(0).toUpperCase(),
-        avatarBg: 'rgba(18, 18, 18, 255)',
-        members: members,
-        lastMessage: "Conversation initiated",
-        time: "Just now",
-        messages: [
-          {
-            id: Date.now() + 1,
-            sender: "System",
-            avatar: "SYS",
-            isOutgoing: false,
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            text: isCreatingRoom ? `Secure room "${name}" created. Messages are ephemeral and protected.` : `Direct message session started with ${name}.`
-          }
-        ]
-      };
-
-      conversations.unshift(newChat);
-      closeNewChatModal();
-      switchMainView('chats');
-      selectChat(newId);
+      const c = active(), t = $('msg').value.trim();
+      if (!c || (!t && !att)) return;
+      push(c, { from: me.name, text: t || 'Shared an attachment.', me: true, att });
+      $('msg').value = ''; clearAtt(); renderList(); renderMsgs();
+      if (!c.room) setTimeout(() => {
+        if (!db || blocked(c) || !db.convos.includes(c)) return;
+        push(c, { from: c.name, text: ['Got it, thanks!', 'Sounds good to me.', 'Received. I will take a look.'][Math.floor(Math.random() * 3)], me: false });
+        if (c.id !== activeId) c.unread = 1; save(); renderList(); if (c.id === activeId) renderMsgs();
+      }, 1800);
     }
+    function pickFile(e) {
+      const f = e.target.files[0]; if (!f) return;
+      const x = f.name.split('.').pop().toLowerCase();
+      const type = ['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(x) ? 'image' : ['xls', 'xlsx', 'csv'].includes(x) ? 'excel' : x === 'pdf' ? 'pdf' : 'doc';
+      att = { type, name: f.name, size: (f.size / 1024).toFixed(1) + ' KB', url: type === 'image' ? URL.createObjectURL(f) : null };
+      $('attName').textContent = `${f.name} (${att.size})`; $('attBar').classList.remove('hidden'); $('attBar').classList.add('flex');
+    }
+    function clearAtt() { att = null; $('file').value = ''; $('attBar').classList.add('hidden'); $('attBar').classList.remove('flex'); }
+    function blockContact(name) {
+      name = name.trim(); if (!name) return toast('Enter a contact name.', 1);
+      if (db.blocked.some(b => b.toLowerCase() === name.toLowerCase())) return toast(name + ' is already blocked.', 1);
+      db.blocked.push(name); if (!active()) activeId = vis()[0]?.id || null;
+      save(); renderAll(); toast(name + ' blocked.');
+    }
+    function blockActive() { const c = active(); if (c && confirm(`Block ${c.name}? Their conversation will be hidden until you unblock them in Settings → Privacy.`)) blockContact(c.name); }
+    function unblock(i) { const n = db.blocked.splice(i, 1)[0]; save(); renderAll(); if (tab === 'privacy') setTab('privacy'); toast(n + ' unblocked.'); }
+    function sweep() {
+      if (!db) return; const n = Date.now(); let ch = 0;
+      db.convos.forEach(c => { const k = c.msgs.length; c.msgs = c.msgs.filter(m => !m.exp || m.exp > n); if (c.msgs.length !== k) ch = 1; });
+      if (ch) { save(); renderList(); renderMsgs(); }
+    }
+    setInterval(sweep, 5000);
+    function wipe() {
+      if (!confirm('Remove all attachments from every conversation on this device?')) return;
+      db.convos.forEach(c => c.msgs.forEach(m => { if (m.att?.url?.startsWith('blob:')) URL.revokeObjectURL(m.att.url); m.att = null; }));
+      save(); renderMsgs(); toast('All attachments removed.');
+    }
+
+    // ---------- new chat ----------
+    function setNT(r) { newIsRoom = r; document.querySelectorAll('[data-nt]').forEach(b => b.classList.toggle('on', (b.dataset.nt === '1') === r)); $('ncMemRow').classList.toggle('hidden', !r); }
+    function openNew(r) { setNT(r); $('newChat').classList.remove('hidden'); $('newChat').classList.add('flex'); $('ncName').focus(); ic(); }
+    function createChat(e) {
+      e.preventDefault();
+      const name = $('ncName').value.trim(); if (!name) return;
+      if (!newIsRoom) {
+        if (db.blocked.some(b => b.toLowerCase() === name.toLowerCase())) return toast(`${name} is blocked. Unblock them in Settings → Privacy.`, 1);
+        const ex = db.convos.find(c => !c.room && c.name.toLowerCase() === name.toLowerCase());
+        if (ex) { closeModal('newChat'); return openChat(ex.id); }
+      }
+      const c = { id: 'c' + rnd(), name, room: newIsRoom ? 1 : 0, unread: 0, at: Date.now(), online: 1, members: newIsRoom ? ($('ncMem').value.trim() || 'Just you') : 'Direct message', desc: '', msgs: [] };
+      push(c, { from: 'System', text: newIsRoom ? `Room "${name}" created.` : `Conversation with ${name} started.`, me: false });
+      db.convos.unshift(c); closeModal('newChat'); openChat(c.id);
+    }
+
+    // ---------- settings ----------
+    function openSettings(t) { $('settings').classList.remove('hidden'); $('settings').classList.add('flex'); setTab(t); }
+    function closeModal(id) { $(id).classList.remove('flex'); $(id).classList.add('hidden'); if (id === 'newChat') { $('ncName').value = $('ncMem').value = ''; } }
+    function setTab(t) {
+      tab = t; document.querySelectorAll('.st').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+      const T = {
+        profile: () => `<form onsubmit="saveProfile(event)" class="space-y-4"><h3 class="font-bold text-white">Profile</h3>
+      <div class="flex items-center gap-4"><div class="av w-14 h-14 rounded-xl">${esc(ini(me.name))}</div><p class="text-xs text-gray-400">Your avatar uses your initials.</p></div>
+      <div><label class="lbl" for="pName">Name</label><input id="pName" class="inp" value="${esc(me.name)}" maxlength="40"></div>
+      <div><label class="lbl" for="pUser">Username</label><input id="pUser" class="inp" value="${esc(me.username)}" maxlength="20" autocomplete="username"><p class="text-[11px] text-gray-500 mt-1.5">You sign in with your username. Use 3–20 letters, numbers, . or _</p></div>
+      <button class="btn">Save changes</button></form>`,
+        account: () => `<div class="space-y-5"><h3 class="font-bold text-white">Account</h3>
+      <div class="card divide-y divide-white/[0.06] text-xs">${[['Username', '@' + me.username], ['Account ID', me.id], ['Member since', new Date(me.created).toLocaleDateString([], { dateStyle: 'medium' })], ['Conversations', db.convos.length]].map(r => `<div class="flex justify-between py-2 first:pt-0 last:pb-0"><span class="text-gray-500">${r[0]}</span><span class="text-gray-200">${esc(r[1])}</span></div>`).join('')}</div>
+      <form onsubmit="savePassword(event)" class="space-y-3"><h4 class="text-xs font-semibold text-gray-300">Change password</h4>
+      <input type="text" value="${esc(me.username)}" autocomplete="username" class="hidden" tabindex="-1">
+      <input id="pwOld" type="password" class="inp" placeholder="Current password" autocomplete="current-password">
+      <input id="pwNew" type="password" class="inp" placeholder="New password (8+ characters)" autocomplete="new-password">
+      <input id="pwNew2" type="password" class="inp" placeholder="Confirm new password" autocomplete="new-password">
+      <button class="btn">Update password</button></form></div>`,
+        privacy: () => `<div class="space-y-6"><h3 class="font-bold text-white">Privacy</h3>
+      <div><label class="lbl" for="disSel">Disappearing messages</label>
+      <select id="disSel" onchange="setDis(this.value)" class="inp">${Object.entries(DIS).map(([k, v]) => `<option value="${k}" ${+k === db.dis ? 'selected' : ''}>${v}</option>`).join('')}</select>
+      <p class="text-[11px] text-gray-500 mt-1.5">Applies to new messages you send and receive, in every chat.</p></div>
+      <div><h4 class="lbl">Blocked contacts</h4>
+      <form onsubmit="blockForm(event)" class="flex gap-2 mb-3"><input id="blName" class="inp" placeholder="Contact name" aria-label="Contact name"><button class="btn shrink-0">Block</button></form>
+      <div class="space-y-2">${db.blocked.length ? db.blocked.map((n, i) => `<div class="card !p-3 flex items-center justify-between text-xs"><span class="text-gray-200">${esc(n)}</span><button onclick="unblock(${i})" class="ghost !py-1">Unblock</button></div>`).join('') : '<p class="text-xs text-gray-500">You haven\'t blocked anyone.</p>'}</div></div></div>`,
+        logout: () => `<div class="space-y-4"><h3 class="font-bold text-white">Log out</h3><p class="text-xs text-gray-400 leading-relaxed">You're signed in as <b class="text-gray-200">@${esc(me.username)}</b>. Your conversations stay saved on this device and will be here when you sign back in.</p><button onclick="logout()" class="danger">Log out</button></div>`
+      };
+      $('pane').innerHTML = T[t](); ic();
+    }
+    async function saveProfile(e) {
+      e.preventDefault();
+      const name = $('pName').value.trim(), u = $('pUser').value.trim().toLowerCase(), bad = checkUser(u, me.id);
+      if (!name) return toast('Name can\'t be empty.', 1);
+      if (bad) return toast(bad, 1);
+      Object.assign(me, { name, username: u }); saveUsers(); refreshMe(); renderList(); renderMsgs(); toast('Profile updated.');
+    }
+    async function savePassword(e) {
+      e.preventDefault();
+      const o = $('pwOld').value, n = $('pwNew').value, n2 = $('pwNew2').value;
+      if (await hash(o, me.salt) !== me.hash) return toast('Current password is incorrect.', 1);
+      if (n.length < 8) return toast('Use at least 8 characters for the new password.', 1);
+      if (n !== n2) return toast('New passwords don\'t match.', 1);
+      me.salt = rnd(); me.hash = await hash(n, me.salt); saveUsers(); setTab('account'); toast('Password updated.');
+    }
+    function setDis(v) { db.dis = +v; save(); renderHead(); toast('Disappearing messages: ' + DIS[db.dis]); }
+    function blockForm(e) { e.preventDefault(); blockContact($('blName').value); if (tab === 'privacy') setTab('privacy'); }
+
+    // ---------- toast & keyboard ----------
+    let tt;
+    function toast(msg, isErr) {
+      const t = $('toast'); t.textContent = msg; t.className = `fixed bottom-5 right-5 z-[70] px-4 py-2.5 rounded-xl text-xs font-medium border bg-[#121212] ${isErr ? 'border-rose-500/40 text-rose-300' : 'border-white/20 text-white'}`;
+      clearTimeout(tt); tt = setTimeout(() => t.classList.add('hidden'), 3200);
+    }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') ['settings', 'newChat'].forEach(closeModal); });
+
+    // ---------- boot ----------
+    (async function init() {
+      if (!users.length) {
+        const salt = rnd();
+        users.push({ id: 'u' + rnd(), username: 'alex', name: 'Alex Morgan', salt, hash: await hash('chatlink123', salt), created: Date.now() });
+        saveUsers();
+      }
+      setMode('in');
+      ic();
+      const session = store.get('cl:session');
+      const s = users.find(u => u.id === session) || (session === null ? users[0] : null);
+      if (s) login(s);
+    })();
   </script>
 </body>
 
