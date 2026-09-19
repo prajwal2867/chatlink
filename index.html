@@ -329,14 +329,14 @@
           <div id="chatPane" class="flex-1 flex flex-col overflow-hidden">
             <header
               class="h-16 px-6 bg-[#0C0C0C] border-b border-white/[0.08] flex items-center justify-between shrink-0">
-              <div class="flex items-center gap-3 min-w-0">
-                <div id="hAv" class="av w-10 h-10 rounded-full text-sm"></div>
+              <div class="flex items-center gap-3 min-w-0 cursor-pointer group" onclick="toggleRoomInfo()" title="Click to view group info">
+                <div id="hAv" class="av w-10 h-10 rounded-full text-sm group-hover:ring-2 group-hover:ring-white/20 transition-all"></div>
                 <div class="min-w-0">
                   <div class="flex items-center gap-2">
-                    <h2 id="hTitle" class="font-bold text-white text-sm truncate"></h2>
+                    <h2 id="hTitle" class="font-bold text-white text-sm truncate group-hover:text-gray-200 transition-colors"></h2>
                     <span id="hBadge"
                       class="bg-[#0F0F0F] text-gray-300 text-[10px] font-semibold px-2 py-0.5 rounded-full border border-white/15"></span>
-                    <button id="hCodeBtn" onclick="copyRoomCode()"
+                    <button id="hCodeBtn" onclick="event.stopPropagation(); copyRoomCode()"
                       class="hidden items-center gap-1.5 bg-[#0F0F0F] hover:bg-white/10 text-gray-300 hover:text-white text-[10px] font-semibold px-2.5 py-0.5 rounded-full border border-white/15 transition-all"
                       title="Click to copy Room Code"><span>#</span><span id="hCodeVal"></span><i data-lucide="copy"
                         class="w-2.5 h-2.5 ml-0.5 text-gray-400"></i></button>
@@ -374,6 +374,9 @@
             </div>
           </div>
         </section>
+
+        <!-- GROUP / ROOM INFO SIDE PANEL -->
+        <aside id="roomInfoPane" class="w-80 md:w-96 bg-[#0C0C0C] border-l border-white/[0.08] flex-col h-full hidden shrink-0 overflow-y-auto"></aside>
       </div>
 
       <!-- ROOMS -->
@@ -874,8 +877,374 @@
       ic();
     }
 
+    // ---------- group / room info panel ----------
+    let roomInfoOpen = false;
+
+    function toggleRoomInfo(force) {
+      const c = active();
+      if (!c || !c.room) return;
+      roomInfoOpen = (typeof force === 'boolean') ? force : !roomInfoOpen;
+      const pane = $('roomInfoPane');
+      if (!pane) return;
+      pane.classList.toggle('hidden', !roomInfoOpen);
+      pane.classList.toggle('flex', roomInfoOpen);
+      if (roomInfoOpen) renderRoomInfo();
+    }
+
+    function closeRoomInfo() {
+      roomInfoOpen = false;
+      const pane = $('roomInfoPane');
+      if (pane) {
+        pane.classList.add('hidden');
+        pane.classList.remove('flex');
+      }
+    }
+
+    function renderRoomInfo() {
+      const c = active();
+      const pane = $('roomInfoPane');
+      if (!pane || !c || !c.room) return closeRoomInfo();
+
+      const dir = getUserDirectory();
+      const otherMembers = dir.filter(u => !me || u.username.toLowerCase() !== me.username.toLowerCase());
+      const allMembers = [
+        { name: me ? me.name : 'You', username: me ? me.username : 'you', isYou: true, isAdmin: true },
+        ...otherMembers.map((u, i) => ({ ...u, isYou: false, isAdmin: i < 2 }))
+      ];
+
+      const atts = (c.msgs || []).filter(m => m.att).map(m => m.att);
+      const mediaCount = atts.length || 4;
+
+      pane.innerHTML = `
+        <!-- Header -->
+        <div class="p-4 border-b border-white/[0.08] flex items-center justify-between shrink-0 bg-[#0C0C0C]">
+          <div class="flex items-center gap-3">
+            <button onclick="closeRoomInfo()" class="text-gray-400 hover:text-white p-1 rounded-lg transition-colors" title="Close info">
+              <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <h3 class="font-bold text-white text-sm">Group info</h3>
+          </div>
+        </div>
+
+        <div class="p-5 space-y-6 flex-1 overflow-y-auto">
+          <!-- Identity Hero -->
+          <div class="flex flex-col items-center text-center">
+            <div class="av w-24 h-24 rounded-full text-3xl font-bold border-2 border-white/15 shadow-2xl">
+              ${esc(c.name[0].toUpperCase())}
+            </div>
+            <h2 class="text-lg font-bold text-white mt-3.5 tracking-tight px-2">${esc(c.name)}</h2>
+            <p class="text-xs mt-1">
+              <span class="text-gray-400">Group · </span>
+              <span class="text-emerald-400 font-semibold">${allMembers.length} members</span>
+            </p>
+            ${c.code ? `
+              <button onclick="copyRoomCode()" class="mt-2.5 inline-flex items-center gap-1.5 bg-[#0F0F0F] hover:bg-white/10 text-gray-300 hover:text-white text-xs font-semibold px-3 py-1 rounded-full border border-white/15 transition-all" title="Click to copy room code">
+                <span>Code: #${esc(c.code)}</span>
+                <i data-lucide="copy" class="w-3 h-3 text-gray-400"></i>
+              </button>
+            ` : ''}
+            ${c.desc ? `<p class="text-xs text-gray-400 mt-2.5 px-3 leading-relaxed">${esc(c.desc)}</p>` : ''}
+
+            <!-- Quick Action Round Buttons (Add & Search) -->
+            <div class="flex items-center justify-center gap-8 mt-5 pt-4 border-t border-white/[0.08] w-full">
+              <button onclick="copyRoomCode(); toast('Room invite code copied to clipboard!')" class="flex flex-col items-center gap-1.5 text-gray-300 hover:text-white group">
+                <div class="w-11 h-11 rounded-full bg-[#18181b] border border-white/10 flex items-center justify-center group-hover:bg-white/10 group-hover:border-white/20 transition-all shadow-sm">
+                  <i data-lucide="user-plus" class="w-5 h-5 text-gray-300 group-hover:text-white"></i>
+                </div>
+                <span class="text-xs text-gray-400 group-hover:text-gray-200 font-medium">Add</span>
+              </button>
+
+              <button onclick="toggleRoomMemberSearch()" class="flex flex-col items-center gap-1.5 text-gray-300 hover:text-white group" title="Search members in this group">
+                <div class="w-11 h-11 rounded-full bg-[#18181b] border border-white/10 flex items-center justify-center group-hover:bg-white/10 group-hover:border-white/20 transition-all shadow-sm">
+                  <i data-lucide="search" class="w-5 h-5 text-gray-300 group-hover:text-white"></i>
+                </div>
+                <span class="text-xs text-gray-400 group-hover:text-gray-200 font-medium">Search</span>
+              </button>
+            </div>
+          </div>
+
+          <hr class="border-white/[0.08]">
+
+          <!-- Media, links and docs -->
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2 text-white font-semibold text-xs">
+                <i data-lucide="folder" class="w-4 h-4 text-gray-400"></i>
+                <span>Media, links and docs</span>
+              </div>
+              <span class="text-xs text-gray-400 font-medium">${mediaCount}</span>
+            </div>
+
+            <div class="grid grid-cols-4 gap-2">
+              ${atts.length ? atts.slice(0, 4).map(a => `
+                <div class="aspect-square bg-[#0F0F0F] rounded-xl border border-white/10 flex flex-col items-center justify-center p-2 text-center overflow-hidden hover:border-white/25 transition-all cursor-pointer" title="${esc(a.name)}">
+                  <i data-lucide="${a.type === 'image' ? 'image' : 'file-text'}" class="w-5 h-5 text-gray-400"></i>
+                  <span class="text-[9px] text-gray-400 truncate w-full mt-1">${esc(a.name)}</span>
+                </div>
+              `).join('') : `
+                <div class="aspect-square bg-[#0F0F0F] rounded-xl border border-white/10 flex flex-col items-center justify-center p-2 text-center">
+                  <i data-lucide="file-text" class="w-5 h-5 text-gray-400"></i>
+                  <span class="text-[9px] text-gray-500 mt-1">Specs.pdf</span>
+                </div>
+                <div class="aspect-square bg-[#0F0F0F] rounded-xl border border-white/10 flex flex-col items-center justify-center p-2 text-center">
+                  <i data-lucide="image" class="w-5 h-5 text-gray-400"></i>
+                  <span class="text-[9px] text-gray-500 mt-1">Design.png</span>
+                </div>
+                <div class="aspect-square bg-[#0F0F0F] rounded-xl border border-white/10 flex flex-col items-center justify-center p-2 text-center">
+                  <i data-lucide="file-spreadsheet" class="w-5 h-5 text-gray-400"></i>
+                  <span class="text-[9px] text-gray-500 mt-1">Sheet.xlsx</span>
+                </div>
+                <div class="aspect-square bg-[#0F0F0F] rounded-xl border border-white/10 flex flex-col items-center justify-center p-2 text-center">
+                  <i data-lucide="link" class="w-5 h-5 text-gray-400"></i>
+                  <span class="text-[9px] text-gray-500 mt-1">Link</span>
+                </div>
+              `}
+            </div>
+          </div>
+
+          <hr class="border-white/[0.08]">
+
+          <!-- Settings List -->
+          <div class="space-y-1">
+            <div onclick="toast('No starred messages yet.')" class="flex items-center justify-between p-3 hover:bg-white/[0.04] rounded-xl cursor-pointer text-gray-300 hover:text-white transition-colors">
+              <div class="flex items-center gap-3">
+                <i data-lucide="star" class="w-4 h-4 text-gray-400"></i>
+                <span class="text-xs font-medium">Starred messages</span>
+              </div>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-gray-500"></i>
+            </div>
+
+            <div onclick="toast('Notifications are enabled.')" class="flex items-center justify-between p-3 hover:bg-white/[0.04] rounded-xl cursor-pointer text-gray-300 hover:text-white transition-colors">
+              <div class="flex items-center gap-3">
+                <i data-lucide="bell" class="w-4 h-4 text-gray-400"></i>
+                <span class="text-xs font-medium">Notification settings</span>
+              </div>
+              <span class="text-xs text-gray-500">Default</span>
+            </div>
+
+            <div onclick="toast('End-to-end encrypted workspace.')" class="flex items-start gap-3 p-3 hover:bg-white/[0.04] rounded-xl cursor-pointer text-gray-300 hover:text-white transition-colors">
+              <i data-lucide="lock" class="w-4 h-4 text-gray-400 shrink-0 mt-0.5"></i>
+              <div>
+                <p class="text-xs font-medium text-white">Encryption</p>
+                <p class="text-[11px] text-gray-400 leading-snug">Messages are end-to-end encrypted. Click to learn more.</p>
+              </div>
+            </div>
+
+            <div onclick="openSettings('privacy')" class="flex items-start gap-3 p-3 hover:bg-white/[0.04] rounded-xl cursor-pointer text-gray-300 hover:text-white transition-colors">
+              <i data-lucide="shield" class="w-4 h-4 text-gray-400 shrink-0 mt-0.5"></i>
+              <div>
+                <p class="text-xs font-medium text-white">Advanced chat privacy</p>
+                <p class="text-[11px] text-gray-400">${db.dis ? DIS[db.dis] : 'Off'}</p>
+              </div>
+            </div>
+          </div>
+
+          <hr class="border-white/[0.08]">
+
+          <!-- Members Section with dedicated In-Group Search -->
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span id="riMembersCountSpan" class="text-xs font-semibold text-gray-300">${allMembers.length} members</span>
+              <button onclick="toggleRoomMemberSearch()" class="p-1.5 text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors" title="Search members in this group">
+                <i data-lucide="search" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+            <!-- In-Group Search Input -->
+            <div id="riMemberSearchRow" class="relative flex items-center">
+              <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 text-gray-500"></i>
+              <input id="riMemberSearchInp" oninput="onRoomMemberSearch(this.value)" placeholder="Search members in this group..." class="inp !py-2 !pl-8.5 !pr-7 text-xs flex-1">
+              <button type="button" onclick="clearRoomMemberSearch()" class="text-gray-400 hover:text-white absolute right-2 p-1" title="Clear search">
+                <i data-lucide="x" class="w-3 h-3"></i>
+              </button>
+            </div>
+
+            <div id="riMembersListContainer" class="space-y-2"></div>
+          </div>
+
+          <hr class="border-white/[0.08]">
+
+          <!-- Actions Section -->
+          <div class="space-y-1">
+            <div onclick="toast('No recent member changes.')" class="flex items-center gap-3 p-3 hover:bg-white/[0.04] rounded-xl cursor-pointer text-gray-300 hover:text-white transition-colors">
+              <i data-lucide="list-checks" class="w-4 h-4 text-gray-400"></i>
+              <span class="text-xs font-medium">See member changes</span>
+            </div>
+
+            <div onclick="toggleFavoriteRoom('${c.id}')" class="flex items-center gap-3 p-3 hover:bg-white/[0.04] rounded-xl cursor-pointer text-gray-300 hover:text-white transition-colors">
+              <i data-lucide="heart" class="w-4 h-4 ${c.fav ? 'text-rose-400 fill-rose-400' : 'text-gray-400'}"></i>
+              <span class="text-xs font-medium">${c.fav ? 'Favorited' : 'Add to Favorites'}</span>
+            </div>
+
+            <div onclick="toast('Added to workspace list.')" class="flex items-center gap-3 p-3 hover:bg-white/[0.04] rounded-xl cursor-pointer text-gray-300 hover:text-white transition-colors">
+              <i data-lucide="folder-plus" class="w-4 h-4 text-gray-400"></i>
+              <span class="text-xs font-medium">Add to list</span>
+            </div>
+
+            <div onclick="exportRoomChat('${c.id}')" class="flex items-center gap-3 p-3 hover:bg-white/[0.04] rounded-xl cursor-pointer text-gray-300 hover:text-white transition-colors">
+              <i data-lucide="download" class="w-4 h-4 text-gray-400"></i>
+              <span class="text-xs font-medium">Export chat</span>
+            </div>
+
+            <div onclick="clearRoomChat('${c.id}')" class="flex items-center gap-3 p-3 hover:bg-rose-950/30 rounded-xl cursor-pointer text-rose-400 hover:text-rose-300 transition-colors">
+              <i data-lucide="minus-circle" class="w-4 h-4 text-rose-400"></i>
+              <span class="text-xs font-medium">Clear chat</span>
+            </div>
+
+            <div onclick="leaveRoom('${c.id}')" class="flex items-center gap-3 p-3 hover:bg-rose-950/30 rounded-xl cursor-pointer text-rose-400 hover:text-rose-300 transition-colors">
+              <i data-lucide="log-out" class="w-4 h-4 text-rose-400"></i>
+              <span class="text-xs font-medium">Exit group</span>
+            </div>
+
+            <div onclick="toast('Group reported for review.');" class="flex items-center gap-3 p-3 hover:bg-rose-950/30 rounded-xl cursor-pointer text-rose-400 hover:text-rose-300 transition-colors">
+              <i data-lucide="thumbs-down" class="w-4 h-4 text-rose-400"></i>
+              <span class="text-xs font-medium">Report group</span>
+            </div>
+          </div>
+        </div>
+      `;
+
+      renderRoomMembersList();
+      ic();
+    }
+
+    let roomMemberSearchQuery = '';
+
+    function toggleRoomMemberSearch() {
+      const inp = $('riMemberSearchInp');
+      if (!inp) return;
+      inp.focus();
+      inp.select();
+    }
+
+    function onRoomMemberSearch(val) {
+      roomMemberSearchQuery = (val || '').trim().toLowerCase();
+      renderRoomMembersList();
+    }
+
+    function clearRoomMemberSearch() {
+      const inp = $('riMemberSearchInp');
+      if (inp) inp.value = '';
+      roomMemberSearchQuery = '';
+      renderRoomMembersList();
+    }
+
+    function renderRoomMembersList() {
+      const c = active();
+      const listContainer = $('riMembersListContainer');
+      const countSpan = $('riMembersCountSpan');
+      if (!listContainer || !c || !c.room) return;
+
+      const dir = getUserDirectory();
+      const otherMembers = dir.filter(u => !me || u.username.toLowerCase() !== me.username.toLowerCase());
+      const allMembers = [
+        { name: me ? me.name : 'You', username: me ? me.username : 'you', isYou: true, isAdmin: true },
+        ...otherMembers.map((u, i) => ({ ...u, isYou: false, isAdmin: i < 2 }))
+      ];
+
+      const q = roomMemberSearchQuery.replace(/^@/, '');
+      let filtered = allMembers;
+      if (q) {
+        filtered = allMembers.filter(m => m.name.toLowerCase().includes(q) || m.username.toLowerCase().includes(q));
+      }
+
+      if (countSpan) {
+        countSpan.textContent = q ? `${filtered.length} found` : `${allMembers.length} members`;
+      }
+
+      if (filtered.length === 0) {
+        listContainer.innerHTML = `
+          <div class="p-4 rounded-xl bg-[#0F0F0F] border border-white/5 text-center text-xs text-gray-400">
+            No members in this group match "<b>@${esc(roomMemberSearchQuery)}</b>"
+          </div>
+        `;
+        return;
+      }
+
+      listContainer.innerHTML = filtered.map(m => `
+        <div class="flex items-center justify-between p-2.5 rounded-xl bg-[#0F0F0F] border border-white/5 hover:border-white/15 transition-all">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="av w-9 h-9 rounded-full text-xs font-semibold bg-[#18181b] border border-white/10 shrink-0">
+              ${esc(ini(m.name))}
+            </div>
+            <div class="min-w-0">
+              <div class="flex items-center gap-1.5">
+                <h4 class="text-xs font-semibold text-white truncate">${esc(m.isYou ? 'You' : m.name)}</h4>
+              </div>
+              <p class="text-[11px] text-gray-400 truncate font-medium">@${esc(m.username)}</p>
+            </div>
+          </div>
+          <div class="shrink-0">
+            ${m.isAdmin ? '<span class="bg-emerald-950/70 border border-emerald-500/30 text-emerald-400 text-[10px] px-2 py-0.5 rounded font-medium">Group admin</span>' : '<span class="text-[10px] text-gray-500 px-2 py-0.5">Member</span>'}
+          </div>
+        </div>
+      `).join('');
+
+      ic();
+    }
+
+    function exportRoomChat(id) {
+      const c = db.convos.find(x => x.id === id);
+      if (!c) return;
+      const lines = [`Chat Transcript: ${c.name} (Code: #${c.code || 'N/A'})`, `Exported: ${new Date().toLocaleString()}`, '----------------------------------------'];
+      (c.msgs || []).forEach(m => {
+        lines.push(`[${new Date(m.ts).toLocaleTimeString()}] ${m.me ? (me ? me.name : 'You') : m.from}: ${m.text || ''}`);
+        if (m.att) lines.push(`   [Attachment: ${m.att.name}]`);
+      });
+      const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${c.name.replace(/[^a-z0-9]/gi, '_')}_transcript.txt`;
+      a.click();
+      toast('Chat transcript exported.');
+    }
+
+    function clearRoomChat(id) {
+      const c = db.convos.find(x => x.id === id);
+      if (!c) return;
+      if (!confirm(`Clear all messages in "${c.name}"?`)) return;
+      c.msgs = [];
+      save();
+      renderMsgs();
+      renderList();
+      if (roomInfoOpen) renderRoomInfo();
+      toast('Chat cleared.');
+    }
+
+    function leaveRoom(id) {
+      const idx = db.convos.findIndex(x => x.id === id);
+      if (idx === -1) return;
+      const c = db.convos[idx];
+      if (!confirm(`Are you sure you want to exit and leave "${c.name}"?`)) return;
+      db.convos.splice(idx, 1);
+      closeRoomInfo();
+      activeId = vis()[0]?.id || null;
+      save();
+      renderAll();
+      toast(`Left "${c.name}".`);
+    }
+
+    function toggleFavoriteRoom(id) {
+      const c = db.convos.find(x => x.id === id);
+      if (!c) return;
+      c.fav = !c.fav;
+      save();
+      if (roomInfoOpen) renderRoomInfo();
+      toast(c.fav ? 'Added to favorites!' : 'Removed from favorites.');
+    }
+
     // ---------- chat logic ----------
-    function openChat(id) { activeId = id; const c = active(); if (c) { c.unread = 0; save(); } show('chats'); renderAll(); }
+    function openChat(id) {
+      activeId = id;
+      const c = active();
+      if (c) { c.unread = 0; save(); }
+      show('chats');
+      renderAll();
+      if (roomInfoOpen) {
+        if (c && c.room) renderRoomInfo();
+        else closeRoomInfo();
+      }
+    }
     function push(c, m) { const ts = Date.now(); c.msgs.push({ id: rnd(), ts, exp: db.dis ? ts + db.dis : 0, ...m }); c.at = ts; save(); }
     function send(e) {
       e.preventDefault();
@@ -883,6 +1252,7 @@
       if (!c || (!t && !att)) return;
       push(c, { from: me.name, text: t || 'Shared an attachment.', me: true, att });
       $('msg').value = ''; clearAtt(); renderList(); renderMsgs();
+      if (roomInfoOpen) renderRoomInfo();
       if (!c.room) setTimeout(() => {
         if (!db || blocked(c) || !db.convos.includes(c)) return;
         push(c, { from: c.name, text: ['Got it, thanks!', 'Sounds good to me.', 'Received. I will take a look.'][Math.floor(Math.random() * 3)], me: false });
@@ -1502,7 +1872,7 @@
       const t = $('toast'); t.textContent = msg; t.className = `fixed bottom-5 right-5 z-[70] px-4 py-2.5 rounded-xl text-xs font-medium border bg-[#0C0C0C] ${isErr ? 'border-rose-500/40 text-rose-300' : 'border-white/20 text-white'}`;
       clearTimeout(tt); tt = setTimeout(() => t.classList.add('hidden'), 3200);
     }
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') ['settings', 'newChat'].forEach(closeModal); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') { ['settings', 'newChat'].forEach(closeModal); closeRoomInfo(); } });
 
     // ---------- boot ----------
     (async function init() {
