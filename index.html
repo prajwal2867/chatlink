@@ -329,7 +329,7 @@
           <div id="chatPane" class="flex-1 flex flex-col overflow-hidden">
             <header
               class="h-16 px-6 bg-[#0C0C0C] border-b border-white/[0.08] flex items-center justify-between shrink-0">
-              <div class="flex items-center gap-3 min-w-0 cursor-pointer group" onclick="toggleRoomInfo()" title="Click to view group info">
+              <div class="flex items-center gap-3 min-w-0 cursor-pointer group" onclick="toggleInfoPane()" title="Click to view info">
                 <div id="hAv" class="av w-10 h-10 rounded-full text-sm group-hover:ring-2 group-hover:ring-white/20 transition-all"></div>
                 <div class="min-w-0">
                   <div class="flex items-center gap-2">
@@ -338,7 +338,7 @@
                       class="bg-[#0F0F0F] text-gray-300 text-[10px] font-semibold px-2 py-0.5 rounded-full border border-white/15"></span>
                     <button id="hCodeBtn" onclick="event.stopPropagation(); copyRoomCode()"
                       class="hidden items-center gap-1.5 bg-[#0F0F0F] hover:bg-white/10 text-gray-300 hover:text-white text-[10px] font-semibold px-2.5 py-0.5 rounded-full border border-white/15 transition-all"
-                      title="Click to copy Room Code"><span>#</span><span id="hCodeVal"></span><i data-lucide="copy"
+                      title="Click to copy Room Code"><span class="text-gray-400">Code</span><span id="hCodeVal"></span><i data-lucide="copy"
                         class="w-2.5 h-2.5 ml-0.5 text-gray-400"></i></button>
                   </div>
                   <p id="hMem" class="text-xs text-gray-400 truncate"></p>
@@ -644,7 +644,8 @@
             M('Alice Smith', 'Hey everyone, here is the updated specifications deck for review.', 42 * 6e4, { type: 'pdf', name: 'Q3_Project_Requirements.pdf', size: '2.4 MB' }),
             M('Bob Johnson', "Thanks! I've cross-referenced it with the financials.", 37 * 6e4, { type: 'excel', name: 'Budget_Forecast_2026.xlsx', size: '1.1 MB' }),
             M('', 'Looks good. I also committed the API contract draft.', 34 * 6e4, { type: 'doc', name: 'API_Contract_v2.md', size: '45 KB' }, true),
-            M('Charlie', 'Screenshot of the proposed dashboard view.', 30 * 6e4, { type: 'image', name: 'Dashboard_Snippet.png', size: '1.4 MB', url: 'image_placeholder.png' })]
+            M('Roshan', 'Updated the backend routes and API endpoints. Ready to test.', 20 * 6e4),
+            M('Charlie', 'Screenshot of the proposed dashboard view.', 12 * 6e4, { type: 'image', name: 'Dashboard_Snippet.png', size: '1.4 MB', url: 'image_placeholder.png' })]
         },
         { id: 'c2', name: 'Dev Standup Room', code: '104829', room: 1, unread: 1, at: n, online: 3, members: '', desc: 'Daily engineering checkpoint and blocker resolution.', msgs: [M('Dave', 'Standup starts in 5 minutes. Please bring your blockers.', 90 * 6e4)] },
         { id: 'c3', name: 'Alice Smith', room: 0, unread: 0, at: n, members: 'Direct message', msgs: [M('Alice Smith', "Thanks for sending over the file! I'll review it shortly.", 26 * 36e5)] },
@@ -656,9 +657,12 @@
     const MOCK_USERS = [
       { id: 'u_alex', username: 'alex', name: 'Alex Rivera' },
       { id: 'u_alice', username: 'alice', name: 'Alice Smith' },
+      { id: 'u_roshan', username: 'roshan', name: 'Roshan' },
       { id: 'u_bob', username: 'bob', name: 'Bob Johnson' },
       { id: 'u_sarah', username: 'sarah', name: 'Sarah Jenkins' },
       { id: 'u_david', username: 'david', name: 'David Kim' },
+      { id: 'u_charlie', username: 'charlie', name: 'Charlie' },
+      { id: 'u_dave', username: 'dave', name: 'Dave' },
       { id: 'u_evan', username: 'evan', name: 'Evan Wright' }
     ];
 
@@ -670,6 +674,13 @@
         map.set(u.username.toLowerCase(), { id: u.id || existing.id, username: u.username || existing.username, name: u.name || existing.name });
       });
       return Array.from(map.values());
+    }
+
+    function getRoomMembersPreview(room) {
+      const dir = getUserDirectory();
+      const otherMembers = dir.filter(u => !me || u.username.toLowerCase() !== me.username.toLowerCase());
+      const sample = ['You', ...otherMembers.map(u => u.name.split(' ')[0])];
+      return sample.slice(0, 7).join(', ') + '...';
     }
 
     function genAvailableUsername(name) {
@@ -844,8 +855,8 @@
       const c = active(), feed = $('feed');
       if (!c) return feed.innerHTML = '';
       feed.innerHTML = c.msgs.map(m => `<div class="flex gap-3 max-w-xl ${m.me ? 'ml-auto flex-row-reverse' : ''}">
-    <div class="av w-8 h-8 rounded-full text-xs font-semibold">${esc(ini(m.me ? me.name : m.from))}</div>
-    <div class="space-y-1 min-w-0"><div class="flex items-center gap-2 ${m.me ? 'justify-end' : ''}"><span class="text-xs font-semibold text-gray-300">${esc(m.me ? me.name : m.from)}</span><span class="text-[10px] text-gray-500">${fmt(m.ts)}</span>${m.exp ? '<i data-lucide="timer" class="w-3 h-3 text-gray-500"></i>' : ''}</div>
+    <div onclick="${m.me ? '' : `openUserProfile('${esc(m.from)}', '${c.room ? c.id : ''}')`}" class="av w-8 h-8 rounded-full text-xs font-semibold ${m.me ? '' : 'cursor-pointer hover:ring-2 hover:ring-white/20 transition-all'}" title="${m.me ? 'You' : `View info for ${esc(m.from)}`}">${esc(ini(m.me ? me.name : m.from))}</div>
+    <div class="space-y-1 min-w-0"><div class="flex items-center gap-2 ${m.me ? 'justify-end' : ''}"><span onclick="${m.me ? '' : `openUserProfile('${esc(m.from)}', '${c.room ? c.id : ''}')`}" class="text-xs font-semibold text-gray-300 ${m.me ? '' : 'cursor-pointer hover:text-white hover:underline'}">${esc(m.me ? me.name : m.from)}</span><span class="text-[10px] text-gray-500">${fmt(m.ts)}</span>${m.exp ? '<i data-lucide="timer" class="w-3 h-3 text-gray-500"></i>' : ''}</div>
     <div class="p-3.5 rounded-2xl text-xs leading-relaxed break-words border ${m.me ? 'bg-[#0C0C0C] text-white border-white/[0.18] rounded-tr-none shadow-md' : 'bg-[#0C0C0C] text-gray-200 border-white/[0.08] rounded-tl-none'}"><p>${esc(m.text)}</p>${m.att ? attCard(m.att) : ''}</div></div></div>`).join('');
       feed.scrollTop = feed.scrollHeight; ic();
     }
@@ -866,7 +877,7 @@
       $('roomGrid').innerHTML = rooms.length ? rooms.map(c => `<div class="bg-[#0C0C0C] rounded-2xl p-6 border border-white/[0.08] hover:border-white/25 transition-all flex flex-col justify-between">
     <div class="space-y-3"><div class="flex justify-between items-start"><span class="av w-10 h-10 rounded-full text-sm font-semibold">${esc(c.name[0].toUpperCase())}</span>
     <div class="flex items-center gap-1.5">
-      ${c.code ? `<span class="bg-[#0F0F0F] text-gray-300 border border-white/10 px-2 py-0.5 rounded-md font-medium text-[10px]" title="Room code">#${esc(c.code)}</span>` : ''}
+      ${c.code ? `<span class="bg-[#0F0F0F] text-gray-300 border border-white/10 px-2 py-0.5 rounded-md font-medium text-[10px]" title="Room code">Code ${esc(c.code)}</span>` : ''}
       <span class="text-emerald-400 text-xs bg-emerald-950/60 border border-emerald-500/30 px-2.5 py-1 rounded-full">${c.online || 1} online</span>
     </div></div>
     <h3 class="font-bold text-white text-lg">${esc(c.name)}</h3><p class="text-gray-400 text-xs leading-relaxed">${esc(c.desc || 'No description yet.')}</p></div>
@@ -877,22 +888,28 @@
       ic();
     }
 
-    // ---------- group / room info panel ----------
-    let roomInfoOpen = false;
+    // ---------- info side panel (groups, contacts & unknown room users) ----------
+    let infoPaneOpen = false;
+    let infoTargetUser = null;
+    let infoFromRoomId = null;
 
-    function toggleRoomInfo(force) {
+    function toggleInfoPane(force) {
       const c = active();
-      if (!c || !c.room) return;
-      roomInfoOpen = (typeof force === 'boolean') ? force : !roomInfoOpen;
+      if (!c) return;
+      infoTargetUser = null;
+      infoFromRoomId = null;
+      infoPaneOpen = (typeof force === 'boolean') ? force : !infoPaneOpen;
       const pane = $('roomInfoPane');
       if (!pane) return;
-      pane.classList.toggle('hidden', !roomInfoOpen);
-      pane.classList.toggle('flex', roomInfoOpen);
-      if (roomInfoOpen) renderRoomInfo();
+      pane.classList.toggle('hidden', !infoPaneOpen);
+      pane.classList.toggle('flex', infoPaneOpen);
+      if (infoPaneOpen) renderInfoPane();
     }
 
-    function closeRoomInfo() {
-      roomInfoOpen = false;
+    function closeInfoPane() {
+      infoPaneOpen = false;
+      infoTargetUser = null;
+      infoFromRoomId = null;
       const pane = $('roomInfoPane');
       if (pane) {
         pane.classList.add('hidden');
@@ -900,10 +917,470 @@
       }
     }
 
+    function openRoomInfo(roomId) {
+      if (roomId && activeId !== roomId) {
+        activeId = roomId;
+        renderAll();
+      }
+      infoTargetUser = null;
+      infoFromRoomId = null;
+      infoPaneOpen = true;
+      const pane = $('roomInfoPane');
+      if (pane) {
+        pane.classList.remove('hidden');
+        pane.classList.add('flex');
+        renderRoomInfo();
+      }
+    }
+
+    function openUserProfile(userIdentifier, fromRoomId) {
+      if (!userIdentifier) return;
+      const dir = getUserDirectory();
+      let target = dir.find(u => u.username.toLowerCase() === userIdentifier.toLowerCase() || u.name.toLowerCase() === userIdentifier.toLowerCase());
+      if (!target) {
+        target = {
+          name: userIdentifier,
+          username: userIdentifier.toLowerCase().replace(/[^a-z0-9]/g, '') || 'user'
+        };
+      }
+
+      infoTargetUser = target;
+      infoFromRoomId = fromRoomId || (active()?.room ? active().id : null);
+      infoPaneOpen = true;
+      const pane = $('roomInfoPane');
+      if (pane) {
+        pane.classList.remove('hidden');
+        pane.classList.add('flex');
+        renderUnknownContactInfo(target, infoFromRoomId);
+      }
+    }
+
+    function renderInfoPane() {
+      if (infoTargetUser) {
+        return renderUnknownContactInfo(infoTargetUser, infoFromRoomId);
+      }
+      const c = active();
+      if (!c) return closeInfoPane();
+      if (c.room) renderRoomInfo();
+      else renderContactInfo();
+    }
+
+    function renderUnknownContactInfo(targetUser, fromRoomId) {
+      const pane = $('roomInfoPane');
+      if (!pane || !targetUser) return closeInfoPane();
+
+      const commonRooms = (db?.convos || []).filter(c => c.room);
+
+      pane.innerHTML = `
+        <!-- Header -->
+        <div class="p-4 border-b border-white/[0.08] flex items-center justify-between shrink-0 bg-[#0C0C0C]">
+          <div class="flex items-center gap-3">
+            <button onclick="${fromRoomId ? `openRoomInfo('${fromRoomId}')` : 'closeInfoPane()'}" class="text-gray-400 hover:text-white p-1 rounded-lg transition-colors" title="${fromRoomId ? 'Back to room info' : 'Close'}">
+              <i data-lucide="${fromRoomId ? 'arrow-left' : 'x'}" class="w-5 h-5"></i>
+            </button>
+            <h3 class="font-bold text-white text-sm">Contact info</h3>
+          </div>
+        </div>
+
+        <div class="p-5 space-y-6 flex-1 overflow-y-auto">
+          <!-- Identity Hero -->
+          <div class="flex flex-col items-center text-center">
+            <div class="w-24 h-24 rounded-full flex items-center justify-center text-3xl font-bold bg-[#26273b] text-[#b8bfe6] border border-white/10 shadow-2xl">
+              ${esc(ini(targetUser.name))}
+            </div>
+            <h2 class="text-lg font-bold text-white mt-3.5 tracking-tight px-2">${esc(targetUser.name)}</h2>
+            <p class="text-xs text-gray-400 mt-1 font-medium">@${esc(targetUser.username)}</p>
+
+            <!-- Quick Action Round Buttons (Message, Voice, Video, Add) -->
+            <div class="grid grid-cols-4 gap-2 mt-5 pt-4 border-t border-white/[0.08] w-full">
+              <button onclick="startDirectChat('${esc(targetUser.name)}', '${esc(targetUser.username)}')" class="flex flex-col items-center gap-1.5 text-gray-300 hover:text-white group" title="Message ${esc(targetUser.name)}">
+                <div class="w-11 h-11 rounded-full bg-[#18181b] border border-white/10 flex items-center justify-center group-hover:bg-white/10 group-hover:border-white/20 transition-all shadow-sm">
+                  <i data-lucide="message-square" class="w-5 h-5 text-gray-300 group-hover:text-white"></i>
+                </div>
+                <span class="text-[11px] text-gray-400 group-hover:text-gray-200 font-medium">Message</span>
+              </button>
+
+              <button onclick="startCall('Voice', '${esc(targetUser.name)}')" class="flex flex-col items-center gap-1.5 text-gray-300 hover:text-white group" title="Start voice call">
+                <div class="w-11 h-11 rounded-full bg-[#18181b] border border-white/10 flex items-center justify-center group-hover:bg-white/10 group-hover:border-white/20 transition-all shadow-sm">
+                  <i data-lucide="phone" class="w-5 h-5 text-gray-300 group-hover:text-white"></i>
+                </div>
+                <span class="text-[11px] text-gray-400 group-hover:text-gray-200 font-medium">Voice</span>
+              </button>
+
+              <button onclick="startCall('Video', '${esc(targetUser.name)}')" class="flex flex-col items-center gap-1.5 text-gray-300 hover:text-white group" title="Start video call">
+                <div class="w-11 h-11 rounded-full bg-[#18181b] border border-white/10 flex items-center justify-center group-hover:bg-white/10 group-hover:border-white/20 transition-all shadow-sm">
+                  <i data-lucide="video" class="w-5 h-5 text-gray-300 group-hover:text-white"></i>
+                </div>
+                <span class="text-[11px] text-gray-400 group-hover:text-gray-200 font-medium">Video</span>
+              </button>
+
+              <button onclick="sendFriendRequest('${esc(targetUser.username)}')" class="flex flex-col items-center gap-1.5 text-gray-300 hover:text-white group" title="Add contact">
+                <div class="w-11 h-11 rounded-full bg-[#18181b] border border-white/10 flex items-center justify-center group-hover:bg-white/10 group-hover:border-white/20 transition-all shadow-sm">
+                  <i data-lucide="user-plus" class="w-5 h-5 text-gray-300 group-hover:text-white"></i>
+                </div>
+                <span class="text-[11px] text-gray-400 group-hover:text-gray-200 font-medium">Add</span>
+              </button>
+            </div>
+          </div>
+
+          <hr class="border-white/[0.08]">
+
+          <!-- Media, links and docs -->
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2 text-white font-semibold text-xs">
+                <i data-lucide="folder" class="w-4 h-4 text-gray-400"></i>
+                <span>Media, links and docs</span>
+              </div>
+              <span class="text-xs text-gray-400 font-medium">0</span>
+            </div>
+          </div>
+
+          <hr class="border-white/[0.08]">
+
+          <!-- Settings List -->
+          <div class="space-y-1">
+            <div onclick="toast('No starred messages with this contact.')" class="flex items-center justify-between p-3 hover:bg-white/[0.04] rounded-xl cursor-pointer text-gray-300 hover:text-white transition-colors">
+              <div class="flex items-center gap-3">
+                <i data-lucide="star" class="w-4 h-4 text-gray-400"></i>
+                <span class="text-xs font-medium">Starred messages</span>
+              </div>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-gray-500"></i>
+            </div>
+
+            <div onclick="toast('Notifications muted for this contact.')" class="flex items-center justify-between p-3 hover:bg-white/[0.04] rounded-xl cursor-pointer text-gray-300 hover:text-white transition-colors">
+              <div class="flex items-center gap-3">
+                <i data-lucide="bell" class="w-4 h-4 text-gray-400"></i>
+                <span class="text-xs font-medium">Mute notifications</span>
+              </div>
+              <div class="w-9 h-5 rounded-full transition-colors p-0.5 bg-zinc-700 flex items-center justify-start">
+                <div class="w-4 h-4 rounded-full bg-white shadow-sm"></div>
+              </div>
+            </div>
+
+            <div onclick="openSettings('privacy')" class="flex items-start gap-3 p-3 hover:bg-white/[0.04] rounded-xl cursor-pointer text-gray-300 hover:text-white transition-colors">
+              <i data-lucide="timer" class="w-4 h-4 text-gray-400 shrink-0 mt-0.5"></i>
+              <div>
+                <p class="text-xs font-medium text-white">Disappearing messages</p>
+                <p class="text-[11px] text-gray-400">${db.dis ? DIS[db.dis] : 'Off'}</p>
+              </div>
+            </div>
+
+            <div onclick="openSettings('privacy')" class="flex items-start gap-3 p-3 hover:bg-white/[0.04] rounded-xl cursor-pointer text-gray-300 hover:text-white transition-colors">
+              <i data-lucide="shield" class="w-4 h-4 text-gray-400 shrink-0 mt-0.5"></i>
+              <div>
+                <p class="text-xs font-medium text-white">Advanced chat privacy</p>
+                <p class="text-[11px] text-gray-400">${db.dis ? 'On' : 'Off'}</p>
+              </div>
+            </div>
+
+            <div onclick="toast('End-to-end encrypted direct connection verified.')" class="flex items-start gap-3 p-3 hover:bg-white/[0.04] rounded-xl cursor-pointer text-gray-300 hover:text-white transition-colors">
+              <i data-lucide="lock" class="w-4 h-4 text-gray-400 shrink-0 mt-0.5"></i>
+              <div>
+                <p class="text-xs font-medium text-white">Encryption</p>
+                <p class="text-[11px] text-gray-400 leading-snug">Messages are end-to-end encrypted. Click to verify.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Groups in Common Section -->
+          ${commonRooms.length ? `
+            <hr class="border-white/[0.08]">
+            <div class="space-y-3">
+              <p class="text-xs text-gray-400 font-medium">${commonRooms.length} group${commonRooms.length === 1 ? '' : 's'} in common</p>
+              <div class="space-y-2">
+                ${commonRooms.map(r => `
+                  <div onclick="openChat('${r.id}')" class="flex items-center gap-3 p-3 rounded-xl bg-[#0F0F0F] border border-white/5 hover:border-white/15 cursor-pointer transition-all">
+                    <div class="w-10 h-10 rounded-full bg-[#18181b] border border-amber-500/20 flex items-center justify-center text-amber-300 shrink-0">
+                      <i data-lucide="users" class="w-5 h-5"></i>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                      <h4 class="text-xs font-semibold text-white truncate">${esc(r.name)}</h4>
+                      <p class="text-[10px] text-gray-400 truncate mt-0.5">${esc(getRoomMembersPreview(r))}</p>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+
+          <hr class="border-white/[0.08]">
+
+          <!-- Actions List -->
+          <div class="space-y-1">
+            <div onclick="toast('Added to favorites.')" class="flex items-center gap-3 p-3 hover:bg-white/[0.04] rounded-xl cursor-pointer text-gray-300 hover:text-white transition-colors">
+              <i data-lucide="heart" class="w-4 h-4 text-gray-400"></i>
+              <span class="text-xs font-medium">Add to Favorites</span>
+            </div>
+
+            <div onclick="toast('Added to list.')" class="flex items-center gap-3 p-3 hover:bg-white/[0.04] rounded-xl cursor-pointer text-gray-300 hover:text-white transition-colors">
+              <i data-lucide="folder-plus" class="w-4 h-4 text-gray-400"></i>
+              <span class="text-xs font-medium">Add to list</span>
+            </div>
+
+            <div onclick="toast('No conversation history to export.')" class="flex items-center gap-3 p-3 hover:bg-white/[0.04] rounded-xl cursor-pointer text-gray-300 hover:text-white transition-colors">
+              <i data-lucide="download" class="w-4 h-4 text-gray-400"></i>
+              <span class="text-xs font-medium">Export chat</span>
+            </div>
+
+            <div class="flex items-center gap-3 p-3 rounded-xl text-gray-600 opacity-60 cursor-not-allowed">
+              <i data-lucide="minus-circle" class="w-4 h-4"></i>
+              <span class="text-xs font-medium">Clear chat</span>
+            </div>
+
+            <div onclick="blockContact('${esc(targetUser.name)}')" class="flex items-center gap-3 p-3 hover:bg-rose-950/30 rounded-xl cursor-pointer text-rose-400 hover:text-rose-300 transition-colors">
+              <i data-lucide="ban" class="w-4 h-4 text-rose-400"></i>
+              <span class="text-xs font-medium">Block ${esc(targetUser.name)}</span>
+            </div>
+
+            <div onclick="toast('Report submitted for review.');" class="flex items-center gap-3 p-3 hover:bg-rose-950/30 rounded-xl cursor-pointer text-rose-400 hover:text-rose-300 transition-colors">
+              <i data-lucide="thumbs-down" class="w-4 h-4 text-rose-400"></i>
+              <span class="text-xs font-medium">Report ${esc(targetUser.name)}</span>
+            </div>
+
+            <div onclick="toast('No conversation history to delete.')" class="flex items-center gap-3 p-3 hover:bg-rose-950/30 rounded-xl cursor-pointer text-rose-400 hover:text-rose-300 transition-colors">
+              <i data-lucide="trash-2" class="w-4 h-4 text-rose-400"></i>
+              <span class="text-xs font-medium">Delete chat</span>
+            </div>
+          </div>
+        </div>
+      `;
+
+      ic();
+    }
+
+    function renderContactInfo() {
+      const c = active();
+      const pane = $('roomInfoPane');
+      if (!pane || !c || c.room) return closeInfoPane();
+
+      const dir = getUserDirectory();
+      const contactUser = dir.find(u => u.name.toLowerCase() === c.name.toLowerCase()) || {
+        name: c.name,
+        username: c.name.toLowerCase().replace(/[^a-z0-9]/g, '')
+      };
+
+      const atts = (c.msgs || []).filter(m => m.att).map(m => m.att);
+      const mediaCount = atts.length || 88;
+
+      pane.innerHTML = `
+        <!-- Header -->
+        <div class="p-4 border-b border-white/[0.08] flex items-center justify-between shrink-0 bg-[#0C0C0C]">
+          <div class="flex items-center gap-3">
+            <button onclick="closeInfoPane()" class="text-gray-400 hover:text-white p-1 rounded-lg transition-colors" title="Close info">
+              <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <h3 class="font-bold text-white text-sm">Contact info</h3>
+          </div>
+          <button onclick="toast('Contact details verified.')" class="text-gray-400 hover:text-white p-1 rounded-lg transition-colors" title="Edit contact">
+            <i data-lucide="pencil" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <div class="p-5 space-y-6 flex-1 overflow-y-auto">
+          <!-- Identity Hero -->
+          <div class="flex flex-col items-center text-center">
+            <div class="av w-24 h-24 rounded-full text-3xl font-bold border-2 border-white/15 shadow-2xl">
+              ${esc(ini(c.name))}
+            </div>
+            <h2 class="text-lg font-bold text-white mt-3.5 tracking-tight px-2">${esc(c.name)}</h2>
+            <p class="text-xs text-gray-400 mt-1 font-medium">@${esc(contactUser.username)}</p>
+
+            <!-- Quick Action Round Buttons (Voice, Video, Search) -->
+            <div class="flex items-center justify-center gap-6 mt-5 pt-4 border-t border-white/[0.08] w-full">
+              <button onclick="startCall('Voice', '${esc(c.name)}')" class="flex flex-col items-center gap-1.5 text-gray-300 hover:text-white group" title="Start voice call">
+                <div class="w-11 h-11 rounded-full bg-[#18181b] border border-white/10 flex items-center justify-center group-hover:bg-white/10 group-hover:border-white/20 transition-all shadow-sm">
+                  <i data-lucide="phone" class="w-5 h-5 text-gray-300 group-hover:text-white"></i>
+                </div>
+                <span class="text-xs text-gray-400 group-hover:text-gray-200 font-medium">Voice</span>
+              </button>
+
+              <button onclick="startCall('Video', '${esc(c.name)}')" class="flex flex-col items-center gap-1.5 text-gray-300 hover:text-white group" title="Start video call">
+                <div class="w-11 h-11 rounded-full bg-[#18181b] border border-white/10 flex items-center justify-center group-hover:bg-white/10 group-hover:border-white/20 transition-all shadow-sm">
+                  <i data-lucide="video" class="w-5 h-5 text-gray-300 group-hover:text-white"></i>
+                </div>
+                <span class="text-xs text-gray-400 group-hover:text-gray-200 font-medium">Video</span>
+              </button>
+
+              <button onclick="$('search').focus(); toast('Search messages in conversation list')" class="flex flex-col items-center gap-1.5 text-gray-300 hover:text-white group" title="Search in chat">
+                <div class="w-11 h-11 rounded-full bg-[#18181b] border border-white/10 flex items-center justify-center group-hover:bg-white/10 group-hover:border-white/20 transition-all shadow-sm">
+                  <i data-lucide="search" class="w-5 h-5 text-gray-300 group-hover:text-white"></i>
+                </div>
+                <span class="text-xs text-gray-400 group-hover:text-gray-200 font-medium">Search</span>
+              </button>
+            </div>
+          </div>
+
+          <hr class="border-white/[0.08]">
+
+          <!-- Media, links and docs -->
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2 text-white font-semibold text-xs">
+                <i data-lucide="folder" class="w-4 h-4 text-gray-400"></i>
+                <span>Media, links and docs</span>
+              </div>
+              <span class="text-xs text-gray-400 font-medium">${mediaCount}</span>
+            </div>
+
+            <div class="grid grid-cols-4 gap-2">
+              ${atts.length ? atts.slice(0, 4).map(a => `
+                <div class="aspect-square bg-[#0F0F0F] rounded-xl border border-white/10 flex flex-col items-center justify-center p-2 text-center overflow-hidden hover:border-white/25 transition-all cursor-pointer" title="${esc(a.name)}">
+                  <i data-lucide="${a.type === 'image' ? 'image' : 'file-text'}" class="w-5 h-5 text-gray-400"></i>
+                  <span class="text-[9px] text-gray-400 truncate w-full mt-1">${esc(a.name)}</span>
+                </div>
+              `).join('') : `
+                <div class="aspect-square bg-amber-950/40 rounded-xl border border-amber-500/20 flex flex-col items-center justify-between p-2 text-center relative overflow-hidden">
+                  <div class="flex-1 flex items-center justify-center">
+                    <i data-lucide="headphones" class="w-6 h-6 text-amber-400/80"></i>
+                  </div>
+                  <span class="text-[9px] text-amber-300/90 font-mono font-medium flex items-center gap-0.5"><i data-lucide="headphones" class="w-2.5 h-2.5"></i>1:07</span>
+                </div>
+                <div class="aspect-square bg-amber-950/40 rounded-xl border border-amber-500/20 flex flex-col items-center justify-between p-2 text-center relative overflow-hidden">
+                  <div class="flex-1 flex items-center justify-center">
+                    <i data-lucide="headphones" class="w-6 h-6 text-amber-400/80"></i>
+                  </div>
+                  <span class="text-[9px] text-amber-300/90 font-mono font-medium flex items-center gap-0.5"><i data-lucide="headphones" class="w-2.5 h-2.5"></i>3:26</span>
+                </div>
+                <div class="aspect-square bg-amber-950/40 rounded-xl border border-amber-500/20 flex flex-col items-center justify-between p-2 text-center relative overflow-hidden">
+                  <div class="flex-1 flex items-center justify-center">
+                    <i data-lucide="headphones" class="w-6 h-6 text-amber-400/80"></i>
+                  </div>
+                  <span class="text-[9px] text-amber-300/90 font-mono font-medium flex items-center gap-0.5"><i data-lucide="headphones" class="w-2.5 h-2.5"></i>0:40</span>
+                </div>
+                <div class="aspect-square bg-amber-950/40 rounded-xl border border-amber-500/20 flex flex-col items-center justify-between p-2 text-center relative overflow-hidden">
+                  <div class="flex-1 flex items-center justify-center">
+                    <i data-lucide="headphones" class="w-6 h-6 text-amber-400/80"></i>
+                  </div>
+                  <span class="text-[9px] text-amber-300/90 font-mono font-medium flex items-center gap-0.5"><i data-lucide="headphones" class="w-2.5 h-2.5"></i>0:36</span>
+                </div>
+              `}
+            </div>
+          </div>
+
+          <hr class="border-white/[0.08]">
+
+          <!-- Settings List -->
+          <div class="space-y-1">
+            <div onclick="toast('No starred messages with this contact.')" class="flex items-center justify-between p-3 hover:bg-white/[0.04] rounded-xl cursor-pointer text-gray-300 hover:text-white transition-colors">
+              <div class="flex items-center gap-3">
+                <i data-lucide="star" class="w-4 h-4 text-gray-400"></i>
+                <span class="text-xs font-medium">Starred messages</span>
+              </div>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-gray-500"></i>
+            </div>
+
+            <!-- Mute notifications with toggle switch -->
+            <div onclick="toggleMuteActive()" class="flex items-center justify-between p-3 hover:bg-white/[0.04] rounded-xl cursor-pointer text-gray-300 hover:text-white transition-colors">
+              <div class="flex items-center gap-3">
+                <i data-lucide="bell" class="w-4 h-4 text-gray-400"></i>
+                <span class="text-xs font-medium">Mute notifications</span>
+              </div>
+              <div class="w-9 h-5 rounded-full transition-colors p-0.5 ${c.muted ? 'bg-emerald-500' : 'bg-zinc-700'} flex items-center ${c.muted ? 'justify-end' : 'justify-start'}">
+                <div class="w-4 h-4 rounded-full bg-white shadow-sm"></div>
+              </div>
+            </div>
+
+            <div onclick="openSettings('privacy')" class="flex items-start gap-3 p-3 hover:bg-white/[0.04] rounded-xl cursor-pointer text-gray-300 hover:text-white transition-colors">
+              <i data-lucide="timer" class="w-4 h-4 text-gray-400 shrink-0 mt-0.5"></i>
+              <div>
+                <p class="text-xs font-medium text-white">Disappearing messages</p>
+                <p class="text-[11px] text-gray-400">${db.dis ? DIS[db.dis] : 'Off'}</p>
+              </div>
+            </div>
+
+            <div onclick="openSettings('privacy')" class="flex items-start gap-3 p-3 hover:bg-white/[0.04] rounded-xl cursor-pointer text-gray-300 hover:text-white transition-colors">
+              <i data-lucide="shield" class="w-4 h-4 text-gray-400 shrink-0 mt-0.5"></i>
+              <div>
+                <p class="text-xs font-medium text-white">Advanced chat privacy</p>
+                <p class="text-[11px] text-gray-400">${db.dis ? 'On' : 'Off'}</p>
+              </div>
+            </div>
+
+            <div onclick="toast('End-to-end encrypted direct connection verified.')" class="flex items-start gap-3 p-3 hover:bg-white/[0.04] rounded-xl cursor-pointer text-gray-300 hover:text-white transition-colors">
+              <i data-lucide="lock" class="w-4 h-4 text-gray-400 shrink-0 mt-0.5"></i>
+              <div>
+                <p class="text-xs font-medium text-white">Encryption</p>
+                <p class="text-[11px] text-gray-400 leading-snug">Messages are end-to-end encrypted. Click to verify.</p>
+              </div>
+            </div>
+          </div>
+
+          <hr class="border-white/[0.08]">
+
+          <!-- Actions List -->
+          <div class="space-y-1">
+            <div onclick="toggleFavoriteRoom('${c.id}')" class="flex items-center gap-3 p-3 hover:bg-white/[0.04] rounded-xl cursor-pointer text-gray-300 hover:text-white transition-colors">
+              <i data-lucide="heart" class="w-4 h-4 ${c.fav ? 'text-rose-400 fill-rose-400' : 'text-gray-400'}"></i>
+              <span class="text-xs font-medium">${c.fav ? 'Favorited' : 'Add to Favorites'}</span>
+            </div>
+
+            <div onclick="toast('Added to contact list.')" class="flex items-center gap-3 p-3 hover:bg-white/[0.04] rounded-xl cursor-pointer text-gray-300 hover:text-white transition-colors">
+              <i data-lucide="folder-plus" class="w-4 h-4 text-gray-400"></i>
+              <span class="text-xs font-medium">Add to list</span>
+            </div>
+
+            <div onclick="exportRoomChat('${c.id}')" class="flex items-center gap-3 p-3 hover:bg-white/[0.04] rounded-xl cursor-pointer text-gray-300 hover:text-white transition-colors">
+              <i data-lucide="download" class="w-4 h-4 text-gray-400"></i>
+              <span class="text-xs font-medium">Export chat</span>
+            </div>
+
+            <div onclick="clearRoomChat('${c.id}')" class="flex items-center gap-3 p-3 hover:bg-rose-950/30 rounded-xl cursor-pointer text-rose-400 hover:text-rose-300 transition-colors">
+              <i data-lucide="minus-circle" class="w-4 h-4 text-rose-400"></i>
+              <span class="text-xs font-medium">Clear chat</span>
+            </div>
+
+            <div onclick="blockActive()" class="flex items-center gap-3 p-3 hover:bg-rose-950/30 rounded-xl cursor-pointer text-rose-400 hover:text-rose-300 transition-colors">
+              <i data-lucide="ban" class="w-4 h-4 text-rose-400"></i>
+              <span class="text-xs font-medium">Block ${esc(c.name)}</span>
+            </div>
+
+            <div onclick="toast('Report submitted for review.');" class="flex items-center gap-3 p-3 hover:bg-rose-950/30 rounded-xl cursor-pointer text-rose-400 hover:text-rose-300 transition-colors">
+              <i data-lucide="thumbs-down" class="w-4 h-4 text-rose-400"></i>
+              <span class="text-xs font-medium">Report ${esc(c.name)}</span>
+            </div>
+
+            <div onclick="deleteDirectChat('${c.id}')" class="flex items-center gap-3 p-3 hover:bg-rose-950/30 rounded-xl cursor-pointer text-rose-400 hover:text-rose-300 transition-colors">
+              <i data-lucide="trash-2" class="w-4 h-4 text-rose-400"></i>
+              <span class="text-xs font-medium">Delete chat</span>
+            </div>
+          </div>
+        </div>
+      `;
+
+      ic();
+    }
+
+    function toggleMuteActive() {
+      const c = active();
+      if (!c) return;
+      c.muted = !c.muted;
+      save();
+      if (infoPaneOpen) renderInfoPane();
+      toast(c.muted ? 'Notifications muted for this chat.' : 'Notifications unmuted.');
+    }
+
+    function startCall(type, name) {
+      toast(`Starting ${type} call with ${name}...`);
+    }
+
+    function deleteDirectChat(id) {
+      const idx = db.convos.findIndex(x => x.id === id);
+      if (idx === -1) return;
+      const c = db.convos[idx];
+      if (!confirm(`Delete conversation with ${c.name}?`)) return;
+      db.convos.splice(idx, 1);
+      closeInfoPane();
+      activeId = vis()[0]?.id || null;
+      save();
+      renderAll();
+      toast(`Conversation with ${c.name} deleted.`);
+    }
+
     function renderRoomInfo() {
       const c = active();
       const pane = $('roomInfoPane');
-      if (!pane || !c || !c.room) return closeRoomInfo();
+      if (!pane || !c || !c.room) return closeInfoPane();
 
       const dir = getUserDirectory();
       const otherMembers = dir.filter(u => !me || u.username.toLowerCase() !== me.username.toLowerCase());
@@ -919,7 +1396,7 @@
         <!-- Header -->
         <div class="p-4 border-b border-white/[0.08] flex items-center justify-between shrink-0 bg-[#0C0C0C]">
           <div class="flex items-center gap-3">
-            <button onclick="closeRoomInfo()" class="text-gray-400 hover:text-white p-1 rounded-lg transition-colors" title="Close info">
+            <button onclick="closeInfoPane()" class="text-gray-400 hover:text-white p-1 rounded-lg transition-colors" title="Close info">
               <i data-lucide="x" class="w-5 h-5"></i>
             </button>
             <h3 class="font-bold text-white text-sm">Group info</h3>
@@ -939,7 +1416,7 @@
             </p>
             ${c.code ? `
               <button onclick="copyRoomCode()" class="mt-2.5 inline-flex items-center gap-1.5 bg-[#0F0F0F] hover:bg-white/10 text-gray-300 hover:text-white text-xs font-semibold px-3 py-1 rounded-full border border-white/15 transition-all" title="Click to copy room code">
-                <span>Code: #${esc(c.code)}</span>
+                <span>Code: ${esc(c.code)}</span>
                 <i data-lucide="copy" class="w-3 h-3 text-gray-400"></i>
               </button>
             ` : ''}
@@ -1162,7 +1639,7 @@
       }
 
       listContainer.innerHTML = filtered.map(m => `
-        <div class="flex items-center justify-between p-2.5 rounded-xl bg-[#0F0F0F] border border-white/5 hover:border-white/15 transition-all">
+        <div onclick="${m.isYou ? '' : `openUserProfile('${esc(m.username)}', '${c.id}')`}" class="flex items-center justify-between p-2.5 rounded-xl bg-[#0F0F0F] border border-white/5 hover:border-white/15 transition-all ${m.isYou ? '' : 'cursor-pointer hover:bg-white/[0.04]'}" title="${m.isYou ? 'You' : `View info for @${esc(m.username)}`}">
           <div class="flex items-center gap-3 min-w-0">
             <div class="av w-9 h-9 rounded-full text-xs font-semibold bg-[#18181b] border border-white/10 shrink-0">
               ${esc(ini(m.name))}
@@ -1186,7 +1663,7 @@
     function exportRoomChat(id) {
       const c = db.convos.find(x => x.id === id);
       if (!c) return;
-      const lines = [`Chat Transcript: ${c.name} (Code: #${c.code || 'N/A'})`, `Exported: ${new Date().toLocaleString()}`, '----------------------------------------'];
+      const lines = [`Chat Transcript: ${c.name} (Code: ${c.code || 'N/A'})`, `Exported: ${new Date().toLocaleString()}`, '----------------------------------------'];
       (c.msgs || []).forEach(m => {
         lines.push(`[${new Date(m.ts).toLocaleTimeString()}] ${m.me ? (me ? me.name : 'You') : m.from}: ${m.text || ''}`);
         if (m.att) lines.push(`   [Attachment: ${m.att.name}]`);
@@ -1207,7 +1684,7 @@
       save();
       renderMsgs();
       renderList();
-      if (roomInfoOpen) renderRoomInfo();
+      if (infoPaneOpen) renderInfoPane();
       toast('Chat cleared.');
     }
 
@@ -1217,7 +1694,7 @@
       const c = db.convos[idx];
       if (!confirm(`Are you sure you want to exit and leave "${c.name}"?`)) return;
       db.convos.splice(idx, 1);
-      closeRoomInfo();
+      closeInfoPane();
       activeId = vis()[0]?.id || null;
       save();
       renderAll();
@@ -1229,7 +1706,7 @@
       if (!c) return;
       c.fav = !c.fav;
       save();
-      if (roomInfoOpen) renderRoomInfo();
+      if (infoPaneOpen) renderInfoPane();
       toast(c.fav ? 'Added to favorites!' : 'Removed from favorites.');
     }
 
@@ -1240,10 +1717,7 @@
       if (c) { c.unread = 0; save(); }
       show('chats');
       renderAll();
-      if (roomInfoOpen) {
-        if (c && c.room) renderRoomInfo();
-        else closeRoomInfo();
-      }
+      if (infoPaneOpen) renderInfoPane();
     }
     function push(c, m) { const ts = Date.now(); c.msgs.push({ id: rnd(), ts, exp: db.dis ? ts + db.dis : 0, ...m }); c.at = ts; save(); }
     function send(e) {
@@ -1252,7 +1726,7 @@
       if (!c || (!t && !att)) return;
       push(c, { from: me.name, text: t || 'Shared an attachment.', me: true, att });
       $('msg').value = ''; clearAtt(); renderList(); renderMsgs();
-      if (roomInfoOpen) renderRoomInfo();
+      if (infoPaneOpen) renderInfoPane();
       if (!c.room) setTimeout(() => {
         if (!db || blocked(c) || !db.convos.includes(c)) return;
         push(c, { from: c.name, text: ['Got it, thanks!', 'Sounds good to me.', 'Received. I will take a look.'][Math.floor(Math.random() * 3)], me: false });
@@ -1646,7 +2120,7 @@
         if (targetRoom) {
           const cloned = JSON.parse(JSON.stringify(targetRoom));
           cloned.id = 'c' + rnd();
-          push(cloned, { from: 'System', text: `You joined "${cloned.name}" using room code #${code}.`, me: false });
+          push(cloned, { from: 'System', text: `You joined "${cloned.name}" using room code ${code}.`, me: false });
           db.convos.unshift(cloned);
           save();
           closeModal('newChat');
@@ -1655,7 +2129,7 @@
           return;
         }
 
-        return err.textContent = `No room found with code #${code}. Please check the 6-digit code and try again.`;
+        return err.textContent = `No room found with code ${code}. Please check the 6-digit code and try again.`;
       }
 
       const name = $('ncName').value.trim();
@@ -1679,7 +2153,7 @@
         if (code.length !== 6) return err.textContent = 'Room code must be exactly 6 digits.';
         // Ensure uniqueness among existing rooms in workspace
         if (db.convos.some(c => c.room && c.code && c.code === code)) {
-          return err.textContent = `A room with code #${code} already exists. Please choose a different code.`;
+          return err.textContent = `A room with code ${code} already exists. Please choose a different code.`;
         }
       }
 
@@ -1692,20 +2166,20 @@
         at: Date.now(),
         online: 1,
         members: newIsRoom ? '' : 'Direct message',
-        desc: newIsRoom ? `Room created with code #${code}. Share this code with teammates.` : '',
+        desc: newIsRoom ? `Room created with code ${code}. Share this code with teammates.` : '',
         msgs: []
       };
 
       push(c, {
         from: 'System',
-        text: newIsRoom ? `Room "${name}" created with code #${code}. Share code #${code} so colleagues can join!` : `Conversation with ${name} started.`,
+        text: newIsRoom ? `Room "${name}" created with code ${code}. Share code ${code} so colleagues can join!` : `Conversation with ${name} started.`,
         me: false
       });
       db.convos.unshift(c);
       save();
       closeModal('newChat');
       openChat(c.id);
-      toast(newIsRoom ? `Room "${name}" created with code #${code}.` : `Conversation with ${name} started.`);
+      toast(newIsRoom ? `Room "${name}" created with code ${code}.` : `Conversation with ${name} started.`);
     }
 
     function copyText(str, msg) {
@@ -1724,7 +2198,7 @@
 
     function copyCode(code) {
       if (!code) return;
-      copyText(code, `Room code #${code} copied to clipboard!`);
+      copyText(code, `Room code ${code} copied to clipboard!`);
     }
 
     // ---------- settings ----------
@@ -1872,7 +2346,7 @@
       const t = $('toast'); t.textContent = msg; t.className = `fixed bottom-5 right-5 z-[70] px-4 py-2.5 rounded-xl text-xs font-medium border bg-[#0C0C0C] ${isErr ? 'border-rose-500/40 text-rose-300' : 'border-white/20 text-white'}`;
       clearTimeout(tt); tt = setTimeout(() => t.classList.add('hidden'), 3200);
     }
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') { ['settings', 'newChat'].forEach(closeModal); closeRoomInfo(); } });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') { ['settings', 'newChat'].forEach(closeModal); closeInfoPane(); } });
 
     // ---------- boot ----------
     (async function init() {
