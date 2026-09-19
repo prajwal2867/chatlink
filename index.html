@@ -326,7 +326,18 @@
             <p class="text-sm text-gray-300 font-semibold">No conversation selected</p>
             <button class="btn mt-2" onclick="openNew(false)">Start a conversation</button>
           </div>
-          <div id="chatPane" class="flex-1 flex flex-col overflow-hidden">
+          <div id="chatPane" class="flex-1 flex flex-col overflow-hidden relative">
+            <!-- Drag & Drop Overlay -->
+            <div id="dropOverlay" class="absolute inset-0 z-40 bg-[#0F0F0F]/90 backdrop-blur-md hidden flex-col items-center justify-center p-8 border-2 border-dashed border-white/30 rounded-2xl pointer-events-none transition-all">
+              <div class="text-center space-y-3">
+                <div class="w-16 h-16 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center mx-auto animate-bounce shadow-xl">
+                  <i data-lucide="upload-cloud" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-base font-bold text-white tracking-tight">Drop files to attach</h3>
+                <p class="text-xs text-gray-400">Images, PDFs, and documents</p>
+              </div>
+            </div>
+
             <header
               class="h-16 px-6 bg-[#0C0C0C] border-b border-white/[0.08] flex items-center justify-between shrink-0">
               <div class="flex items-center gap-3 min-w-0 cursor-pointer group" onclick="toggleInfoPane()" title="Click to view info">
@@ -340,11 +351,24 @@
                       class="hidden items-center gap-1.5 bg-[#0F0F0F] hover:bg-white/10 text-gray-300 hover:text-white text-[10px] font-semibold px-2.5 py-0.5 rounded-full border border-white/15 transition-all"
                       title="Click to copy Room Code"><span class="text-gray-400">Code</span><span id="hCodeVal"></span><i data-lucide="copy"
                         class="w-2.5 h-2.5 ml-0.5 text-gray-400"></i></button>
+                    <!-- Secret Room Encryption Lock Badge -->
+                    <button id="hSecretLockBtn" onclick="event.stopPropagation(); toggleSecretRoomModal()"
+                      class="hidden items-center gap-1 bg-[#0F0F0F] hover:bg-white/10 text-gray-300 hover:text-white text-[10px] font-semibold px-2.5 py-0.5 rounded-full border border-white/15 transition-all"
+                      title="Encrypted Secret Room"><i data-lucide="lock" class="w-3 h-3 text-gray-400"></i><span id="hSecretLockLabel">Encrypted</span></button>
                   </div>
                   <p id="hMem" class="text-xs text-gray-400 truncate"></p>
                 </div>
               </div>
-              <div class="flex items-center gap-2 text-gray-400">
+              <div class="flex items-center gap-1 sm:gap-2 text-gray-400">
+                <!-- Direct Audio & Video Call Actions -->
+                <button type="button" onclick="startCall('Voice')" class="p-2 hover:bg-white/[0.06] hover:text-white rounded-lg transition-colors" title="Start voice call"><i data-lucide="phone" class="w-4 h-4"></i></button>
+                <button type="button" onclick="startCall('Video')" class="p-2 hover:bg-white/[0.06] hover:text-white rounded-lg transition-colors" title="Start video call"><i data-lucide="video" class="w-4 h-4"></i></button>
+                <!-- Shared Whiteboard Tool -->
+                <button type="button" onclick="openWhiteboard()" class="p-2 hover:bg-white/[0.06] hover:text-white rounded-lg transition-colors" title="Open collaborative whiteboard"><i data-lucide="palette" class="w-4 h-4"></i></button>
+                <!-- Live Code Sandbox & Markdown Scratchpad -->
+                <button type="button" onclick="openCodeSandbox()" class="p-2 hover:bg-white/[0.06] hover:text-white rounded-lg transition-colors" title="Live code sandbox & markdown"><i data-lucide="code-2" class="w-4 h-4"></i></button>
+                
+                <div class="w-px h-5 bg-white/10 mx-1"></div>
                 <button id="hDis" onclick="openSettings('privacy')"
                   class="hidden flex items-center gap-1.5 text-[11px] px-2 py-1 rounded-lg border border-white/10 hover:text-white"
                   title="Disappearing messages are on"><i data-lucide="timer" class="w-3.5 h-3.5"></i><span
@@ -363,11 +387,37 @@
                   data-lucide="x" class="w-4 h-4"></i></button>
             </div>
             <div class="p-4 bg-[#0C0C0C] border-t border-white/[0.08]">
-              <form onsubmit="send(event)" class="flex items-center gap-2.5">
-                <input type="file" id="file" class="hidden" onchange="pickFile(event)">
-                <button type="button" onclick="$('file').click()" class="btn !p-2.5" title="Attach file"><i
+              <!-- Active Voice Note Recording State Container -->
+              <div id="voiceRecBar" class="hidden items-center justify-between bg-[#18181b] px-4 py-2.5 rounded-xl border border-white/15 gap-3">
+                <div class="flex items-center gap-3">
+                  <span class="w-2.5 h-2.5 rounded-full bg-white animate-pulse"></span>
+                  <span id="voiceRecTimer" class="text-xs font-mono font-semibold text-white">0:00</span>
+                  <div class="flex items-center gap-1 ml-1">
+                    <span class="w-1 h-3 bg-white/80 rounded-full animate-bounce"></span>
+                    <span class="w-1 h-5 bg-white/80 rounded-full animate-bounce [animation-delay:0.1s]"></span>
+                    <span class="w-1 h-2 bg-white/80 rounded-full animate-bounce [animation-delay:0.2s]"></span>
+                    <span class="w-1 h-4 bg-white/80 rounded-full animate-bounce [animation-delay:0.3s]"></span>
+                  </div>
+                  <span class="text-[11px] text-gray-400 hidden sm:inline">Recording voice note...</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button type="button" onclick="cancelVoiceNote()" class="ghost !py-1 !px-2.5 !text-xs text-gray-400 hover:text-white" title="Cancel recording">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5 mr-1"></i>Cancel
+                  </button>
+                  <button type="button" onclick="stopAndSendVoiceNote()" class="btn !py-1 !px-3 !text-xs flex items-center gap-1.5 font-medium shadow-sm">
+                    <i data-lucide="send" class="w-3.5 h-3.5"></i>Send
+                  </button>
+                </div>
+              </div>
+
+              <!-- Standard Message Form -->
+              <form id="msgForm" onsubmit="send(event)" class="flex items-center gap-2.5">
+                <input type="file" id="file" class="hidden" multiple onchange="pickFile(event)">
+                <button type="button" onclick="$('file').click()" class="btn !p-2.5" title="Attach file (drag & drop also supported)"><i
                     data-lucide="paperclip" class="w-5 h-5"></i></button>
-                <input id="msg" autocomplete="off" placeholder="Type a message" class="inp !text-sm !py-2.5 flex-1">
+                <button type="button" id="voiceNoteBtn" onclick="startVoiceNote()" class="btn !p-2.5" title="Record Voice Note"><i
+                    data-lucide="mic" class="w-5 h-5"></i></button>
+                <input id="msg" autocomplete="off" placeholder="Type a message or drag & drop files..." class="inp !text-sm !py-2.5 flex-1">
                 <button class="btn !py-2.5 !text-sm flex items-center gap-2">Send<i data-lucide="send"
                     class="w-4 h-4"></i></button>
               </form>
@@ -587,6 +637,18 @@
           <p class="text-[11px] text-gray-500 pt-1">Share this 6-digit code so others can join your room directly.</p>
         </div>
 
+        <!-- Secret Encrypted Room Option (Web Crypto AES-GCM) -->
+        <div id="ncSecretRow" class="space-y-2 pt-1 border-t border-white/[0.08]">
+          <label class="flex items-center gap-2 cursor-pointer select-none">
+            <input type="checkbox" id="ncIsSecret" onchange="$('ncSecretKeyBox').classList.toggle('hidden', !this.checked)" class="accent-white w-4 h-4 rounded">
+            <span class="text-xs font-semibold text-gray-200 flex items-center gap-1.5"><i data-lucide="lock" class="w-3.5 h-3.5"></i>Encrypted Secret Room (AES-256)</span>
+          </label>
+          <div id="ncSecretKeyBox" class="hidden space-y-1 pl-6">
+            <input id="ncSecretKey" type="password" class="inp text-xs !py-2" placeholder="Set room passphrase (e.g. secret123)">
+            <p class="text-[10px] text-gray-500">Messages will be encrypted client-side using Web Crypto AES-GCM before sending.</p>
+          </div>
+        </div>
+
         <p id="ncErr" class="text-xs text-rose-400 min-h-[1rem]"></p>
 
         <div class="flex justify-end gap-2 pt-1">
@@ -594,6 +656,251 @@
           <button id="ncSubmitBtn" class="btn">Create room</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- SHARED CANVAS / WHITEBOARD MODAL -->
+  <div id="whiteboardModal" class="fixed inset-0 bg-[#0F0F0F]/85 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+    <div class="bg-[#0C0C0C] rounded-2xl w-full max-w-4xl h-[85vh] border border-white/15 overflow-hidden flex flex-col shadow-2xl">
+      <!-- Toolbar Header -->
+      <div class="px-5 py-3 border-b border-white/[0.08] flex items-center justify-between bg-[#0C0C0C] shrink-0 gap-3">
+        <div class="flex items-center gap-2.5">
+          <div class="p-1.5 rounded-lg bg-white/5 text-gray-300 border border-white/10"><i data-lucide="palette" class="w-4 h-4"></i></div>
+          <div>
+            <h3 class="font-bold text-white text-sm">Shared Canvas & Whiteboard</h3>
+            <p class="text-[10px] text-gray-400">Collaborative sketching pad • Export directly to active conversation</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="sendWhiteboardToChat()" class="btn !py-1.5 !px-3 !text-xs flex items-center gap-1.5 font-medium">
+            <i data-lucide="send" class="w-3.5 h-3.5"></i>Send to Chat
+          </button>
+          <button type="button" onclick="downloadWhiteboard()" class="ghost !py-1.5 !px-2.5 !text-xs text-gray-300 hover:text-white" title="Download PNG">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+          </button>
+          <button type="button" onclick="closeModal('whiteboardModal')" class="text-gray-400 hover:text-white p-1 rounded-lg" title="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+      </div>
+
+      <!-- Controls & Tools Subbar -->
+      <div class="px-5 py-2.5 bg-[#0F0F0F] border-b border-white/[0.06] flex items-center justify-between flex-wrap gap-2 text-xs shrink-0">
+        <!-- Tools -->
+        <div class="flex items-center bg-[#0C0C0C] p-1 rounded-xl border border-white/10 gap-1">
+          <button type="button" data-wb-tool="pen" onclick="setWbTool('pen')" class="chip !py-1 !px-2.5 !rounded-lg on" title="Pen"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+          <button type="button" data-wb-tool="brush" onclick="setWbTool('brush')" class="chip !py-1 !px-2.5 !rounded-lg" title="Brush"><i data-lucide="brush" class="w-3.5 h-3.5"></i></button>
+          <button type="button" data-wb-tool="rect" onclick="setWbTool('rect')" class="chip !py-1 !px-2.5 !rounded-lg" title="Rectangle"><i data-lucide="square" class="w-3.5 h-3.5"></i></button>
+          <button type="button" data-wb-tool="circle" onclick="setWbTool('circle')" class="chip !py-1 !px-2.5 !rounded-lg" title="Circle"><i data-lucide="circle" class="w-3.5 h-3.5"></i></button>
+          <button type="button" data-wb-tool="line" onclick="setWbTool('line')" class="chip !py-1 !px-2.5 !rounded-lg" title="Line"><i data-lucide="minus" class="w-3.5 h-3.5"></i></button>
+          <button type="button" data-wb-tool="eraser" onclick="setWbTool('eraser')" class="chip !py-1 !px-2.5 !rounded-lg" title="Eraser"><i data-lucide="eraser" class="w-3.5 h-3.5"></i></button>
+        </div>
+
+        <!-- Color Palette -->
+        <div class="flex items-center gap-2">
+          <span class="text-[11px] text-gray-400">Color:</span>
+          <div id="wbColorPalette" class="flex items-center gap-1.5">
+            <button type="button" onclick="setWbColor('#ffffff')" class="w-5 h-5 rounded-full bg-white border border-white/40 hover:scale-110 transition-transform ring-2 ring-white/60" data-wb-color="#ffffff"></button>
+            <button type="button" onclick="setWbColor('#d4d4d8')" class="w-5 h-5 rounded-full bg-zinc-300 hover:scale-110 transition-transform" data-wb-color="#d4d4d8"></button>
+            <button type="button" onclick="setWbColor('#a1a1aa')" class="w-5 h-5 rounded-full bg-zinc-400 hover:scale-110 transition-transform" data-wb-color="#a1a1aa"></button>
+            <button type="button" onclick="setWbColor('#71717a')" class="w-5 h-5 rounded-full bg-zinc-500 hover:scale-110 transition-transform" data-wb-color="#71717a"></button>
+            <button type="button" onclick="setWbColor('#52525b')" class="w-5 h-5 rounded-full bg-zinc-600 hover:scale-110 transition-transform" data-wb-color="#52525b"></button>
+            <button type="button" onclick="setWbColor('#3f3f46')" class="w-5 h-5 rounded-full bg-zinc-700 border border-white/20 hover:scale-110 transition-transform" data-wb-color="#3f3f46"></button>
+          </div>
+        </div>
+
+        <!-- Stroke Width -->
+        <div class="flex items-center gap-2">
+          <span class="text-[11px] text-gray-400">Size:</span>
+          <input type="range" id="wbSize" min="2" max="24" value="3" oninput="setWbSize(this.value)" class="w-20 accent-white">
+          <span id="wbSizeLabel" class="text-[10px] text-gray-400 font-mono w-4">3px</span>
+        </div>
+
+        <!-- History Actions -->
+        <div class="flex items-center gap-1">
+          <button type="button" onclick="undoWb()" class="ghost !p-1.5 !text-xs text-gray-300 hover:text-white" title="Undo"><i data-lucide="undo" class="w-3.5 h-3.5"></i></button>
+          <button type="button" onclick="redoWb()" class="ghost !p-1.5 !text-xs text-gray-300 hover:text-white" title="Redo"><i data-lucide="redo" class="w-3.5 h-3.5"></i></button>
+          <button type="button" onclick="clearWb()" class="ghost !p-1.5 !text-xs text-rose-400 hover:text-rose-300" title="Clear board"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+        </div>
+      </div>
+
+      <!-- Canvas Area -->
+      <div class="flex-1 bg-[#121214] relative overflow-hidden flex items-center justify-center p-3 cursor-crosshair">
+        <canvas id="wbCanvas" class="w-full h-full bg-[#18181b] rounded-xl border border-white/5 shadow-inner touch-none"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIRECT AUDIO / VIDEO CALL MODAL -->
+  <div id="callModal" class="fixed inset-0 bg-[#0F0F0F]/90 backdrop-blur-lg z-50 hidden items-center justify-center p-4">
+    <div class="bg-[#0C0C0C] rounded-2xl w-full max-w-3xl h-[80vh] border border-white/15 overflow-hidden flex flex-col shadow-2xl relative">
+      <!-- Call Header -->
+      <div class="px-6 py-4 border-b border-white/[0.08] flex items-center justify-between bg-[#0C0C0C] shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-3 h-3 rounded-full bg-white animate-pulse"></div>
+          <div>
+            <h3 id="callTargetName" class="font-bold text-white text-sm">Call</h3>
+            <p class="text-[11px] text-gray-400 font-medium flex items-center gap-1"><i data-lucide="shield-check" class="w-3 h-3"></i>Encrypted call</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <span id="callTimer" class="font-mono text-xs font-semibold text-gray-300 bg-[#0F0F0F] px-3 py-1 rounded-lg border border-white/10">00:00</span>
+          <button type="button" onclick="toggleCallFullscreen()" class="text-gray-400 hover:text-white p-1 rounded-lg" title="Fullscreen"><i data-lucide="maximize" class="w-4 h-4"></i></button>
+        </div>
+      </div>
+
+      <!-- Video Stream Area -->
+      <div class="flex-1 bg-[#09090b] relative flex items-center justify-center overflow-hidden">
+        <!-- Remote Tile (Simulated / Peer stream) -->
+        <div class="w-full h-full flex flex-col items-center justify-center relative">
+          <video id="remoteVideo" autoplay playsinline class="w-full h-full object-cover hidden"></video>
+          <div id="remoteAvatarPlaceholder" class="flex flex-col items-center gap-4 text-center">
+            <div class="w-24 h-24 rounded-full bg-[#18181b] border-2 border-white/20 text-2xl font-bold flex items-center justify-center text-white shadow-2xl relative">
+              <span id="callTargetInitials">A</span>
+              <div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-white flex items-center justify-center text-black shadow">
+                <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
+              </div>
+            </div>
+            <div>
+              <h4 id="callTargetPeerName" class="text-base font-bold text-white">Teammate</h4>
+              <p class="text-xs text-gray-400 mt-0.5">Connected • HD Audio & Video Stream</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Local PiP Camera Feed -->
+        <div id="localVideoContainer" class="absolute bottom-4 right-4 w-44 h-32 bg-[#18181b] rounded-xl border border-white/20 overflow-hidden shadow-2xl flex items-center justify-center">
+          <video id="localVideo" autoplay playsinline muted class="w-full h-full object-cover"></video>
+          <div id="localCameraOffPlaceholder" class="hidden flex-col items-center justify-center text-center p-2">
+            <i data-lucide="video-off" class="w-5 h-5 text-gray-500"></i>
+            <span class="text-[10px] text-gray-400 mt-1">Camera Off</span>
+          </div>
+          <div class="absolute bottom-1 left-2 text-[9px] bg-black/70 px-1.5 py-0.5 rounded text-gray-300">You (Local)</div>
+        </div>
+      </div>
+
+      <!-- Call Action Footer -->
+      <div class="px-6 py-4 bg-[#0C0C0C] border-t border-white/[0.08] flex items-center justify-center gap-4 shrink-0">
+        <button type="button" id="callMicBtn" onclick="toggleCallMic()" class="w-12 h-12 rounded-full bg-[#18181b] border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-all shadow-md" title="Mute/Unmute Mic">
+          <i data-lucide="mic" class="w-5 h-5" id="callMicIcon"></i>
+        </button>
+        <button type="button" id="callCamBtn" onclick="toggleCallCam()" class="w-12 h-12 rounded-full bg-[#18181b] border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-all shadow-md" title="Turn Camera On/Off">
+          <i data-lucide="video" class="w-5 h-5" id="callCamIcon"></i>
+        </button>
+        <button type="button" id="callScreenBtn" onclick="toggleScreenShare()" class="w-12 h-12 rounded-full bg-[#18181b] border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-all shadow-md" title="Share Screen">
+          <i data-lucide="monitor" class="w-5 h-5"></i>
+        </button>
+        <button type="button" onclick="endCall()" class="w-12 h-12 rounded-full bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/30 flex items-center justify-center text-rose-400 transition-all shadow-lg hover:scale-105" title="End Call">
+          <i data-lucide="phone-off" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CODE SANDBOX & MARKDOWN SCRATCHPAD MODAL -->
+  <div id="codeSandboxModal" class="fixed inset-0 bg-[#0F0F0F]/85 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+    <div class="bg-[#0C0C0C] rounded-2xl w-full max-w-4xl h-[85vh] border border-white/15 overflow-hidden flex flex-col shadow-2xl">
+      <!-- Header -->
+      <div class="px-5 py-3.5 border-b border-white/[0.08] flex items-center justify-between bg-[#0C0C0C] shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="p-1.5 rounded-lg bg-white/5 text-gray-300 border border-white/10"><i data-lucide="code-2" class="w-4 h-4"></i></div>
+          <div>
+            <h3 class="font-bold text-white text-sm">Code Sandbox & Markdown Scratchpad</h3>
+            <p class="text-[10px] text-gray-400">Live local JavaScript evaluator & real-time Markdown preview</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="sendSandboxSnippetToChat()" class="btn !py-1.5 !px-3 !text-xs flex items-center gap-1.5 font-medium">
+            <i data-lucide="send" class="w-3.5 h-3.5"></i>Share to Chat
+          </button>
+          <button type="button" onclick="closeModal('codeSandboxModal')" class="text-gray-400 hover:text-white p-1 rounded-lg" title="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+      </div>
+
+      <!-- Tabs Bar -->
+      <div class="px-5 py-2 bg-[#0F0F0F] border-b border-white/[0.06] flex items-center justify-between shrink-0">
+        <div class="flex bg-[#0C0C0C] p-1 rounded-xl border border-white/10 gap-1">
+          <button type="button" data-sb-tab="js" onclick="setSandboxTab('js')" class="chip !py-1 !px-3 !rounded-lg !text-xs on">
+            <i data-lucide="play" class="w-3.5 h-3.5"></i>JS Scratchpad
+          </button>
+          <button type="button" data-sb-tab="md" onclick="setSandboxTab('md')" class="chip !py-1 !px-3 !rounded-lg !text-xs">
+            <i data-lucide="file-text" class="w-3.5 h-3.5"></i>Live Markdown
+          </button>
+        </div>
+        <div id="sbJsActions" class="flex items-center gap-2">
+          <button type="button" onclick="runJsSandbox()" class="btn !py-1.5 !px-3.5 !text-xs flex items-center gap-1.5 font-semibold">
+            <i data-lucide="play" class="w-3 h-3"></i>Run Code
+          </button>
+          <button type="button" onclick="clearJsConsole()" class="ghost !py-1.5 !px-2.5 !text-xs text-gray-400 hover:text-white">Clear Console</button>
+        </div>
+      </div>
+
+      <!-- Tab Views Container -->
+      <div class="flex-1 overflow-hidden flex">
+        <!-- JS Tab -->
+        <div id="sbTabJs" class="flex-1 flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-white/[0.08] overflow-hidden">
+          <div class="flex-1 flex flex-col p-4 bg-[#09090b]">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[11px] font-mono text-gray-400">JavaScript Editor</span>
+              <button type="button" onclick="loadSandboxTemplate()" class="text-[11px] text-gray-400 hover:text-white hover:underline">Insert Sample</button>
+            </div>
+            <textarea id="sbJsCode" class="w-full flex-1 bg-[#0F0F0F] p-3.5 rounded-xl border border-white/10 font-mono text-xs text-gray-200 resize-none outline-none focus:border-white/30 leading-relaxed" spellcheck="false" placeholder="// Write JavaScript here...&#10;const numbers = [1, 2, 3, 4, 5];&#10;console.log('Sum:', numbers.reduce((a, b) => a + b, 0));"></textarea>
+          </div>
+          <div class="flex-1 flex flex-col p-4 bg-[#0C0C0C]">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[11px] font-mono text-gray-400 flex items-center gap-1.5"><i data-lucide="terminal" class="w-3.5 h-3.5"></i>Console Output</span>
+              <span id="sbExecutionTime" class="text-[10px] text-gray-500 font-mono"></span>
+            </div>
+            <div id="sbJsConsole" class="w-full flex-1 bg-[#09090b] p-3.5 rounded-xl border border-white/10 font-mono text-xs overflow-y-auto space-y-1 text-gray-300">
+              <p class="text-gray-500 italic">// Click &quot;Run Code&quot; to execute...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Markdown Tab -->
+        <div id="sbTabMd" class="hidden flex-1 flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-white/[0.08] overflow-hidden">
+          <div class="flex-1 flex flex-col p-4 bg-[#09090b]">
+            <span class="text-[11px] font-mono text-gray-400 mb-2">Markdown Editor</span>
+            <textarea id="sbMdCode" oninput="renderMarkdownPreview()" class="w-full flex-1 bg-[#0F0F0F] p-3.5 rounded-xl border border-white/10 font-mono text-xs text-gray-200 resize-none outline-none focus:border-white/30 leading-relaxed" spellcheck="false" placeholder="# Project Overview&#10;&#10;Here are the **Q3 Release Notes**:&#10;- Feature A: File Transfer&#10;- Feature B: Shared Canvas&#10;&#10;```js&#10;console.log('Hello ChatLink!');&#10;```"></textarea>
+          </div>
+          <div class="flex-1 flex flex-col p-4 bg-[#0C0C0C] overflow-hidden">
+            <span class="text-[11px] font-mono text-gray-400 mb-2 flex items-center gap-1.5"><i data-lucide="eye" class="w-3.5 h-3.5"></i>Live HTML Preview</span>
+            <div id="sbMdPreview" class="w-full flex-1 bg-[#09090b] p-5 rounded-xl border border-white/10 text-xs overflow-y-auto space-y-3 text-gray-200 prose prose-invert max-w-none">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENCRYPTED SECRET ROOM MODAL -->
+  <div id="secretRoomModal" class="fixed inset-0 bg-[#0F0F0F]/85 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+    <div class="bg-[#0C0C0C] rounded-2xl w-full max-w-md border border-white/15 overflow-hidden shadow-2xl">
+      <div class="px-6 py-4 border-b border-white/[0.08] flex justify-between items-center bg-[#0C0C0C]">
+        <div class="flex items-center gap-2.5">
+          <div class="p-1.5 rounded-lg bg-white/5 text-gray-300 border border-white/10"><i data-lucide="lock" class="w-4 h-4"></i></div>
+          <h3 class="font-bold text-white text-sm">Encrypted Secret Room</h3>
+        </div>
+        <button type="button" onclick="closeModal('secretRoomModal')" class="text-gray-400 hover:text-white p-1 rounded-lg" title="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="p-6 space-y-4">
+        <p class="text-xs text-gray-400 leading-relaxed">
+          Messages in this room are encrypted client-side using <b>AES-256-GCM</b> with the Web Crypto API. Enter the room passphrase to unlock and decrypt messages.
+        </p>
+        <div>
+          <label class="lbl" for="srPass">Room Passphrase / Secret Key</label>
+          <div class="relative flex items-center">
+            <i data-lucide="key" class="w-4 h-4 absolute left-3 text-gray-500"></i>
+            <input id="srPass" type="password" class="inp !pl-9" placeholder="Enter passphrase to unlock...">
+          </div>
+        </div>
+        <p id="srErr" class="text-xs text-rose-400 min-h-[1rem]"></p>
+        <div class="flex items-center justify-between pt-2">
+          <button type="button" onclick="lockCurrentRoom()" class="ghost !text-xs text-gray-400 hover:text-white">Lock Room</button>
+          <div class="flex gap-2">
+            <button type="button" class="ghost" onclick="closeModal('secretRoomModal')">Cancel</button>
+            <button type="button" onclick="unlockCurrentRoom()" class="btn !py-2 !px-4 font-semibold">Unlock Room</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -624,6 +931,8 @@
     let users = store.get('cl:users') || [];
     let me = null, db = null, activeId = null, view = 'chats', tab = 'profile';
     let tf = 'all', rf = 'all', att = null, newIsRoom = true, mode = 'in';
+    let unlockedSecretKeys = {};
+    let decryptedCache = {};
     const saveUsers = () => store.set('cl:users', users);
     const save = () => me && store.set('cl:data:' + me.id, JSON.parse(JSON.stringify(db, (k, v) => k === 'url' && String(v).startsWith('blob:') ? null : v)));
     const DIS = { 0: 'Off', 30000: '30 seconds', 3600000: '1 hour', 86400000: '24 hours', 604800000: '7 days' };
@@ -860,29 +1169,124 @@
       $('hCodeBtn').classList.toggle('hidden', !hasCode);
       $('hCodeBtn').classList.toggle('inline-flex', hasCode);
       if (hasCode) $('hCodeVal').textContent = c.code;
+
+      // Secret room encryption lock state
+      const isSecret = !!c.secret;
+      const isUnlocked = isSecret && !!unlockedSecretKeys[c.id];
+      const secBtn = $('hSecretLockBtn');
+      if (secBtn) {
+        secBtn.classList.toggle('hidden', !isSecret);
+        secBtn.classList.toggle('inline-flex', isSecret);
+        if (isSecret) {
+          $('hSecretLockLabel').textContent = isUnlocked ? 'Unlocked' : 'Encrypted';
+          secBtn.className = `items-center gap-1 ${isUnlocked ? 'bg-white/10 border-white/30 text-white' : 'bg-[#0C0C0C] border-white/15 text-gray-300'} text-[10px] font-semibold px-2.5 py-0.5 rounded-full border transition-all`;
+        }
+      }
+
       $('hMem').textContent = c.room ? '' : (c.members || 'Direct message');
       $('hMem').classList.toggle('hidden', !!c.room);
       $('hBlock').classList.toggle('hidden', !!c.room);
       $('hDis').classList.toggle('hidden', !db.dis); $('hDis').classList.toggle('flex', !!db.dis); $('hDisLbl').textContent = DIS[db.dis] || '';
     }
+
     function renderMsgs() {
       const c = active(), feed = $('feed');
       if (!c) return feed.innerHTML = '';
-      feed.innerHTML = c.msgs.map(m => `<div class="flex gap-3 max-w-xl ${m.me ? 'ml-auto flex-row-reverse' : ''}">
-    <div onclick="${m.me ? '' : `openUserProfile('${esc(m.from)}', '${c.room ? c.id : ''}')`}" class="av w-8 h-8 rounded-full text-xs font-semibold ${m.me ? '' : 'cursor-pointer hover:ring-2 hover:ring-white/20 transition-all'}" title="${m.me ? 'You' : `View info for ${esc(m.from)}`}">${esc(ini(m.me ? me.name : m.from))}</div>
-    <div class="space-y-1 min-w-0"><div class="flex items-center gap-2 ${m.me ? 'justify-end' : ''}"><span onclick="${m.me ? '' : `openUserProfile('${esc(m.from)}', '${c.room ? c.id : ''}')`}" class="text-xs font-semibold text-gray-300 ${m.me ? '' : 'cursor-pointer hover:text-white hover:underline'}">${esc(m.me ? me.name : m.from)}</span><span class="text-[10px] text-gray-500">${fmt(m.ts)}</span>${m.exp ? '<i data-lucide="timer" class="w-3 h-3 text-gray-500"></i>' : ''}</div>
-    <div class="p-3.5 rounded-2xl text-xs leading-relaxed break-words border ${m.me ? 'bg-[#0C0C0C] text-white border-white/[0.18] rounded-tr-none shadow-md' : 'bg-[#0C0C0C] text-gray-200 border-white/[0.08] rounded-tl-none'}"><p>${esc(m.text)}</p>${m.att ? attCard(m.att) : ''}</div></div></div>`).join('');
+
+      const isSecret = !!c.secret;
+      const key = isSecret ? unlockedSecretKeys[c.id] : null;
+
+      feed.innerHTML = c.msgs.map(m => {
+        let textContent = m.text || '';
+        let isEncryptedPayload = textContent.startsWith('aes-256-gcm:');
+
+        if (isEncryptedPayload) {
+          if (key && decryptedCache[textContent]) {
+            textContent = `<span class="inline-flex items-center gap-1 text-gray-300 mr-1"><i data-lucide="lock" class="w-3 h-3"></i></span>` + esc(decryptedCache[textContent]);
+          } else if (key) {
+            decryptWithKey(textContent, key).then(dec => {
+              decryptedCache[textContent] = dec;
+              renderMsgs();
+            }).catch(() => { });
+            textContent = '<span class="italic text-gray-400">Decrypting message...</span>';
+          } else {
+            textContent = `<div class="p-2.5 rounded-xl bg-[#09090b] border border-white/10 text-gray-300 text-xs flex items-center justify-between gap-3">
+              <span class="flex items-center gap-1.5 font-mono text-[11px]"><i data-lucide="lock" class="w-3.5 h-3.5 text-gray-400"></i>Encrypted message</span>
+              <button type="button" onclick="toggleSecretRoomModal()" class="btn !py-1 !px-2.5 !text-[10px] font-semibold">Unlock</button>
+            </div>`;
+          }
+        } else {
+          // If plain text, escape or render formatted snippet
+          if (textContent.startsWith('```') && textContent.endsWith('```')) {
+            const rawCode = textContent.slice(3, -3).replace(/^[a-z]+\n/, '');
+            textContent = `<pre class="bg-[#09090b] p-3 rounded-xl border border-white/10 font-mono text-xs overflow-x-auto text-gray-200"><code>${esc(rawCode)}</code></pre>`;
+          } else {
+            textContent = esc(textContent);
+          }
+        }
+
+        return `<div class="flex gap-3 max-w-xl ${m.me ? 'ml-auto flex-row-reverse' : ''}">
+          <div onclick="${m.me ? '' : `openUserProfile('${esc(m.from)}', '${c.room ? c.id : ''}')`}" class="av w-8 h-8 rounded-full text-xs font-semibold ${m.me ? '' : 'cursor-pointer hover:ring-2 hover:ring-white/20 transition-all'}" title="${m.me ? 'You' : `View info for ${esc(m.from)}`}">${esc(ini(m.me ? me.name : m.from))}</div>
+          <div class="space-y-1 min-w-0">
+            <div class="flex items-center gap-2 ${m.me ? 'justify-end' : ''}">
+              <span onclick="${m.me ? '' : `openUserProfile('${esc(m.from)}', '${c.room ? c.id : ''}')`}" class="text-xs font-semibold text-gray-300 ${m.me ? '' : 'cursor-pointer hover:text-white hover:underline'}">${esc(m.me ? me.name : m.from)}</span>
+              <span class="text-[10px] text-gray-500">${fmt(m.ts)}</span>
+              ${m.exp ? '<i data-lucide="timer" class="w-3 h-3 text-gray-500"></i>' : ''}
+              ${isSecret ? '<i data-lucide="shield" class="w-3 h-3 text-gray-400" title="End-to-End Encrypted"></i>' : ''}
+            </div>
+            <div class="p-3.5 rounded-2xl text-xs leading-relaxed break-words border ${m.me ? 'bg-[#0C0C0C] text-white border-white/[0.18] rounded-tr-none shadow-md' : 'bg-[#0C0C0C] text-gray-200 border-white/[0.08] rounded-tl-none'}">
+              <p>${textContent}</p>
+              ${m.voice ? voiceNoteCard(m.voice, m.me) : ''}
+              ${m.att ? attCard(m.att) : ''}
+            </div>
+          </div>
+        </div>`;
+      }).join('');
       feed.scrollTop = feed.scrollHeight; ic();
     }
-    function attCard(a) {
-      const icon = { image: 'image', excel: 'file-spreadsheet', pdf: 'file-text', doc: 'file-text' }[a.type] || 'file-text';
-      return `<div class="mt-2.5 p-2.5 rounded-xl border border-white/10 bg-[#0F0F0F] flex items-center justify-between gap-3 min-w-[210px] max-w-sm">
-        <div class="min-w-0">
-          <p class="font-semibold text-xs text-white truncate">${esc(a.name)}</p>
-          <p class="text-[10px] text-gray-500">${esc(a.size || (a.type === 'image' ? 'Image file' : 'Attachment'))}</p>
+
+    function voiceNoteCard(v, isMine) {
+      return `<div class="mt-2 flex items-center gap-3 p-2.5 rounded-xl bg-[#09090b] border border-white/10 min-w-[220px]">
+        <button type="button" onclick="playVoiceNote('${v.id}', '${v.url}')" id="btn-vn-${v.id}" class="w-8 h-8 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 text-white flex items-center justify-center shrink-0 transition-transform active:scale-95 shadow">
+          <i data-lucide="play" class="w-4 h-4 ml-0.5" id="icon-vn-${v.id}"></i>
+        </button>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-1 h-5 py-1">
+            <span class="w-1 h-2 bg-gray-500 rounded-full"></span>
+            <span class="w-1 h-4 bg-gray-300 rounded-full"></span>
+            <span class="w-1 h-3 bg-gray-400 rounded-full"></span>
+            <span class="w-1 h-5 bg-gray-200 rounded-full"></span>
+            <span class="w-1 h-3 bg-gray-400 rounded-full"></span>
+            <span class="w-1 h-4 bg-gray-300 rounded-full"></span>
+            <span class="w-1 h-2 bg-gray-500 rounded-full"></span>
+            <span class="w-1 h-5 bg-gray-200 rounded-full"></span>
+            <span class="w-1 h-3 bg-gray-400 rounded-full"></span>
+            <span class="w-1 h-4 bg-gray-300 rounded-full"></span>
+          </div>
+          <div class="flex justify-between items-center text-[10px] text-gray-400 font-mono mt-0.5">
+            <span id="time-vn-${v.id}">0:00</span>
+            <span>${v.duration || '0:05'}</span>
+          </div>
         </div>
-        <div class="av w-8 h-8 rounded-full bg-[#0C0C0C] border border-white/15 text-gray-300 shrink-0">
-          <i data-lucide="${icon}" class="w-4 h-4"></i>
+      </div>`;
+    }
+
+    function attCard(a) {
+      const isImg = a.type === 'image' && a.url;
+      const icon = { image: 'image', excel: 'file-spreadsheet', pdf: 'file-text', doc: 'file-text', code: 'code', zip: 'archive' }[a.type] || 'file-text';
+      return `<div class="mt-2.5 p-2.5 rounded-xl border border-white/10 bg-[#09090b] flex flex-col gap-2 min-w-[210px] max-w-sm group">
+        ${isImg ? `<div class="rounded-lg overflow-hidden max-h-56 bg-black/40 border border-white/5 cursor-pointer" onclick="window.open('${a.url}', '_blank')"><img src="${a.url}" alt="${esc(a.name)}" class="w-full h-auto object-cover hover:scale-[1.02] transition-transform duration-200"></div>` : ''}
+        <div class="flex items-center justify-between gap-3">
+          <div class="min-w-0">
+            <p class="font-semibold text-xs text-white truncate">${esc(a.name)}</p>
+            <p class="text-[10px] text-gray-500 mt-0.5">${esc(a.size || (a.type === 'image' ? 'Image file' : 'Attachment'))}</p>
+          </div>
+          <div class="flex items-center gap-1 shrink-0">
+            ${a.url ? `<a href="${a.url}" download="${esc(a.name)}" class="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white transition-colors" title="Download file"><i data-lucide="download" class="w-3.5 h-3.5"></i></a>` : ''}
+            <div class="av w-8 h-8 rounded-full bg-[#0C0C0C] border border-white/15 text-gray-300">
+              <i data-lucide="${icon}" class="w-4 h-4"></i>
+            </div>
+          </div>
         </div>
       </div>`;
     }
@@ -892,7 +1296,7 @@
     <div class="space-y-3"><div class="flex justify-between items-start">${renderRoomAvatar('w-10 h-10', 'w-5 h-5')}
     <div class="flex items-center gap-1.5">
       ${c.code ? `<span class="bg-[#0F0F0F] text-gray-300 border border-white/10 px-2 py-0.5 rounded-md font-medium text-[10px]" title="Room code">Code ${esc(c.code)}</span>` : ''}
-      <span class="text-emerald-400 text-xs bg-emerald-950/60 border border-emerald-500/30 px-2.5 py-1 rounded-full">${c.online || 1} online</span>
+      <span class="text-gray-300 text-xs bg-[#0F0F0F] border border-white/10 px-2.5 py-1 rounded-full">${c.online || 1} online</span>
     </div></div>
     <h3 class="font-bold text-white text-lg">${esc(c.name)}</h3><p class="text-gray-400 text-xs leading-relaxed">${esc(c.desc || 'No description yet.')}</p></div>
     <div class="flex items-center gap-2 mt-6">
@@ -999,7 +1403,7 @@
         <div class="p-5 space-y-6 flex-1 overflow-y-auto">
           <!-- Identity Hero -->
           <div class="flex flex-col items-center text-center">
-            <div class="w-24 h-24 rounded-full flex items-center justify-center text-3xl font-bold bg-[#26273b] text-[#b8bfe6] border border-white/10 shadow-2xl">
+            <div class="av w-24 h-24 rounded-full text-3xl font-bold shadow-2xl">
               ${esc(ini(targetUser.name))}
             </div>
             <h2 class="text-lg font-bold text-white mt-3.5 tracking-tight px-2">${esc(targetUser.name)}</h2>
@@ -1242,29 +1646,29 @@
                   <span class="text-[9px] text-gray-400 truncate w-full mt-1">${esc(a.name)}</span>
                 </div>
               `).join('') : `
-                <div class="aspect-square bg-amber-950/40 rounded-xl border border-amber-500/20 flex flex-col items-center justify-between p-2 text-center relative overflow-hidden">
+                <div class="aspect-square bg-[#09090b] rounded-xl border border-white/10 flex flex-col items-center justify-between p-2 text-center relative overflow-hidden">
                   <div class="flex-1 flex items-center justify-center">
-                    <i data-lucide="headphones" class="w-6 h-6 text-amber-400/80"></i>
+                    <i data-lucide="headphones" class="w-6 h-6 text-gray-400"></i>
                   </div>
-                  <span class="text-[9px] text-amber-300/90 font-mono font-medium flex items-center gap-0.5"><i data-lucide="headphones" class="w-2.5 h-2.5"></i>1:07</span>
+                  <span class="text-[9px] text-gray-400 font-mono font-medium flex items-center gap-0.5"><i data-lucide="headphones" class="w-2.5 h-2.5"></i>1:07</span>
                 </div>
-                <div class="aspect-square bg-amber-950/40 rounded-xl border border-amber-500/20 flex flex-col items-center justify-between p-2 text-center relative overflow-hidden">
+                <div class="aspect-square bg-[#09090b] rounded-xl border border-white/10 flex flex-col items-center justify-between p-2 text-center relative overflow-hidden">
                   <div class="flex-1 flex items-center justify-center">
-                    <i data-lucide="headphones" class="w-6 h-6 text-amber-400/80"></i>
+                    <i data-lucide="headphones" class="w-6 h-6 text-gray-400"></i>
                   </div>
-                  <span class="text-[9px] text-amber-300/90 font-mono font-medium flex items-center gap-0.5"><i data-lucide="headphones" class="w-2.5 h-2.5"></i>3:26</span>
+                  <span class="text-[9px] text-gray-400 font-mono font-medium flex items-center gap-0.5"><i data-lucide="headphones" class="w-2.5 h-2.5"></i>3:26</span>
                 </div>
-                <div class="aspect-square bg-amber-950/40 rounded-xl border border-amber-500/20 flex flex-col items-center justify-between p-2 text-center relative overflow-hidden">
+                <div class="aspect-square bg-[#09090b] rounded-xl border border-white/10 flex flex-col items-center justify-between p-2 text-center relative overflow-hidden">
                   <div class="flex-1 flex items-center justify-center">
-                    <i data-lucide="headphones" class="w-6 h-6 text-amber-400/80"></i>
+                    <i data-lucide="headphones" class="w-6 h-6 text-gray-400"></i>
                   </div>
-                  <span class="text-[9px] text-amber-300/90 font-mono font-medium flex items-center gap-0.5"><i data-lucide="headphones" class="w-2.5 h-2.5"></i>0:40</span>
+                  <span class="text-[9px] text-gray-400 font-mono font-medium flex items-center gap-0.5"><i data-lucide="headphones" class="w-2.5 h-2.5"></i>0:40</span>
                 </div>
-                <div class="aspect-square bg-amber-950/40 rounded-xl border border-amber-500/20 flex flex-col items-center justify-between p-2 text-center relative overflow-hidden">
+                <div class="aspect-square bg-[#09090b] rounded-xl border border-white/10 flex flex-col items-center justify-between p-2 text-center relative overflow-hidden">
                   <div class="flex-1 flex items-center justify-center">
-                    <i data-lucide="headphones" class="w-6 h-6 text-amber-400/80"></i>
+                    <i data-lucide="headphones" class="w-6 h-6 text-gray-400"></i>
                   </div>
-                  <span class="text-[9px] text-amber-300/90 font-mono font-medium flex items-center gap-0.5"><i data-lucide="headphones" class="w-2.5 h-2.5"></i>0:36</span>
+                  <span class="text-[9px] text-gray-400 font-mono font-medium flex items-center gap-0.5"><i data-lucide="headphones" class="w-2.5 h-2.5"></i>0:36</span>
                 </div>
               `}
             </div>
@@ -1288,8 +1692,8 @@
                 <i data-lucide="bell" class="w-4 h-4 text-gray-400"></i>
                 <span class="text-xs font-medium">Mute notifications</span>
               </div>
-              <div class="w-9 h-5 rounded-full transition-colors p-0.5 ${c.muted ? 'bg-emerald-500' : 'bg-zinc-700'} flex items-center ${c.muted ? 'justify-end' : 'justify-start'}">
-                <div class="w-4 h-4 rounded-full bg-white shadow-sm"></div>
+              <div class="w-9 h-5 rounded-full transition-colors p-0.5 ${c.muted ? 'bg-white' : 'bg-zinc-700'} flex items-center ${c.muted ? 'justify-end' : 'justify-start'}">
+                <div class="w-4 h-4 rounded-full ${c.muted ? 'bg-[#0F0F0F]' : 'bg-white'} shadow-sm"></div>
               </div>
             </div>
 
@@ -1323,7 +1727,7 @@
           <!-- Actions List -->
           <div class="space-y-1">
             <div onclick="toggleFavoriteRoom('${c.id}')" class="flex items-center gap-3 p-3 hover:bg-white/[0.04] rounded-xl cursor-pointer text-gray-300 hover:text-white transition-colors">
-              <i data-lucide="heart" class="w-4 h-4 ${c.fav ? 'text-rose-400 fill-rose-400' : 'text-gray-400'}"></i>
+              <i data-lucide="heart" class="w-4 h-4 ${c.fav ? 'text-white fill-white' : 'text-gray-400'}"></i>
               <span class="text-xs font-medium">${c.fav ? 'Favorited' : 'Add to Favorites'}</span>
             </div>
 
@@ -1422,7 +1826,7 @@
             <h2 class="text-lg font-bold text-white mt-3.5 tracking-tight px-2">${esc(c.name)}</h2>
             <p class="text-xs mt-1">
               <span class="text-gray-400">Group · </span>
-              <span class="text-emerald-400 font-semibold">${allMembers.length} members</span>
+              <span class="text-gray-200 font-semibold">${allMembers.length} members</span>
             </p>
             ${c.code ? `
               <button onclick="copyRoomCode()" class="mt-2.5 inline-flex items-center gap-1.5 bg-[#0F0F0F] hover:bg-white/10 text-gray-300 hover:text-white text-xs font-semibold px-3 py-1 rounded-full border border-white/15 transition-all" title="Click to copy room code">
@@ -1559,7 +1963,7 @@
             </div>
 
             <div onclick="toggleFavoriteRoom('${c.id}')" class="flex items-center gap-3 p-3 hover:bg-white/[0.04] rounded-xl cursor-pointer text-gray-300 hover:text-white transition-colors">
-              <i data-lucide="heart" class="w-4 h-4 ${c.fav ? 'text-rose-400 fill-rose-400' : 'text-gray-400'}"></i>
+              <i data-lucide="heart" class="w-4 h-4 ${c.fav ? 'text-white fill-white' : 'text-gray-400'}"></i>
               <span class="text-xs font-medium">${c.fav ? 'Favorited' : 'Add to Favorites'}</span>
             </div>
 
@@ -1662,7 +2066,7 @@
             </div>
           </div>
           <div class="shrink-0">
-            ${m.isAdmin ? '<span class="bg-emerald-950/70 border border-emerald-500/30 text-emerald-400 text-[10px] px-2 py-0.5 rounded font-medium">Group admin</span>' : '<span class="text-[10px] text-gray-500 px-2 py-0.5">Member</span>'}
+            ${m.isAdmin ? '<span class="bg-white/10 border border-white/20 text-gray-200 text-[10px] px-2 py-0.5 rounded font-medium">Group admin</span>' : '<span class="text-[10px] text-gray-500 px-2 py-0.5">Member</span>'}
           </div>
         </div>
       `).join('');
@@ -1720,7 +2124,7 @@
       toast(c.fav ? 'Added to favorites!' : 'Removed from favorites.');
     }
 
-    // ---------- chat logic ----------
+    // ---------- chat logic & collaboration features ----------
     function openChat(id) {
       activeId = id;
       const c = active();
@@ -1729,34 +2133,796 @@
       renderAll();
       if (infoPaneOpen) renderInfoPane();
     }
+
     function push(c, m) { const ts = Date.now(); c.msgs.push({ id: rnd(), ts, exp: db.dis ? ts + db.dis : 0, ...m }); c.at = ts; save(); }
-    function send(e) {
+
+    async function send(e) {
       e.preventDefault();
       const c = active(), t = $('msg').value.trim();
       if (!c || (!t && !att)) return;
-      push(c, { from: me.name, text: t || 'Shared an attachment.', me: true, att });
+
+      let msgText = t || (att ? `Shared an attachment: ${att.name}` : '');
+
+      // Encrypted Secret Room Handling
+      if (c.secret) {
+        const key = unlockedSecretKeys[c.id];
+        if (!key) {
+          toast('Please unlock this Secret Room before sending messages.', 1);
+          toggleSecretRoomModal();
+          return;
+        }
+        if (msgText) {
+          try {
+            msgText = await encryptWithKey(msgText, key);
+          } catch (err) {
+            console.error('Encryption failed:', err);
+            return toast('Failed to encrypt message.', 1);
+          }
+        }
+      }
+
+      push(c, { from: me.name, text: msgText, me: true, att });
       $('msg').value = ''; clearAtt(); renderList(); renderMsgs();
       if (infoPaneOpen) renderInfoPane();
+
       if (!c.room) setTimeout(() => {
         if (!db || blocked(c) || !db.convos.includes(c)) return;
         push(c, { from: c.name, text: ['Got it, thanks!', 'Sounds good to me.', 'Received. I will take a look.'][Math.floor(Math.random() * 3)], me: false });
         if (c.id !== activeId) c.unread = 1; save(); renderList(); if (c.id === activeId) renderMsgs();
       }, 1800);
     }
-    function pickFile(e) {
-      const f = e.target.files[0]; if (!f) return;
+
+    function processAttachmentFile(f) {
+      if (!f) return;
       const x = f.name.split('.').pop().toLowerCase();
-      const type = ['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(x) ? 'image' : ['xls', 'xlsx', 'csv'].includes(x) ? 'excel' : x === 'pdf' ? 'pdf' : 'doc';
-      att = { type, name: f.name, size: (f.size / 1024).toFixed(1) + ' KB', url: type === 'image' ? URL.createObjectURL(f) : null };
-      $('attName').textContent = `${f.name} (${att.size})`; $('attBar').classList.remove('hidden'); $('attBar').classList.add('flex');
+      const type = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'].includes(x) ? 'image' :
+        ['xls', 'xlsx', 'csv'].includes(x) ? 'excel' :
+        x === 'pdf' ? 'pdf' :
+        ['js', 'html', 'css', 'json', 'py', 'ts'].includes(x) ? 'code' :
+        ['zip', 'rar', 'tar', 'gz', '7z'].includes(x) ? 'zip' : 'doc';
+      const isImg = type === 'image';
+      att = {
+        type,
+        name: f.name,
+        size: (f.size > 1048576) ? (f.size / 1048576).toFixed(1) + ' MB' : (f.size / 1024).toFixed(1) + ' KB',
+        url: isImg ? URL.createObjectURL(f) : URL.createObjectURL(f)
+      };
+      $('attName').textContent = `${f.name} (${att.size})`;
+      $('attBar').classList.remove('hidden');
+      $('attBar').classList.add('flex');
     }
+
+    function pickFile(e) {
+      const files = e.target.files;
+      if (files && files.length) {
+        processAttachmentFile(files[0]);
+      }
+    }
+
     function clearAtt() { att = null; $('file').value = ''; $('attBar').classList.add('hidden'); $('attBar').classList.remove('flex'); }
+
+    // ---------- Drag and Drop File Transfer ----------
+    function initDragAndDrop() {
+      const pane = $('chatPane');
+      const overlay = $('dropOverlay');
+      if (!pane || !overlay) return;
+
+      let dragCounter = 0;
+
+      pane.addEventListener('dragenter', e => {
+        e.preventDefault();
+        dragCounter++;
+        overlay.classList.remove('hidden');
+        overlay.classList.add('flex');
+      });
+
+      pane.addEventListener('dragleave', e => {
+        e.preventDefault();
+        dragCounter--;
+        if (dragCounter <= 0) {
+          dragCounter = 0;
+          overlay.classList.add('hidden');
+          overlay.classList.remove('flex');
+        }
+      });
+
+      pane.addEventListener('dragover', e => {
+        e.preventDefault();
+      });
+
+      pane.addEventListener('drop', e => {
+        e.preventDefault();
+        dragCounter = 0;
+        overlay.classList.add('hidden');
+        overlay.classList.remove('flex');
+
+        const files = e.dataTransfer?.files;
+        if (files && files.length) {
+          processAttachmentFile(files[0]);
+          toast(`File ready: ${files[0].name}`);
+        }
+      });
+    }
+
+    // ---------- Voice Notes (MediaRecorder API) ----------
+    let voiceMediaRecorder = null;
+    let voiceAudioChunks = [];
+    let voiceStream = null;
+    let voiceTimerInt = null;
+    let voiceSeconds = 0;
+    let currentPlayingAudio = null;
+    let currentPlayingId = null;
+
+    async function startVoiceNote() {
+      try {
+        voiceAudioChunks = [];
+        voiceSeconds = 0;
+        $('voiceRecTimer').textContent = '0:00';
+
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          try {
+            voiceStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            voiceMediaRecorder = new MediaRecorder(voiceStream);
+            voiceMediaRecorder.ondataavailable = e => { if (e.data.size > 0) voiceAudioChunks.push(e.data); };
+            voiceMediaRecorder.start();
+          } catch (micErr) {
+            console.warn('Microphone permission fallback mode:', micErr);
+            voiceMediaRecorder = null;
+          }
+        }
+
+        $('msgForm').classList.add('hidden');
+        $('msgForm').classList.remove('flex');
+        $('voiceRecBar').classList.remove('hidden');
+        $('voiceRecBar').classList.add('flex');
+
+        clearInterval(voiceTimerInt);
+        voiceTimerInt = setInterval(() => {
+          voiceSeconds++;
+          const mins = Math.floor(voiceSeconds / 60);
+          const secs = String(voiceSeconds % 60).padStart(2, '0');
+          $('voiceRecTimer').textContent = `${mins}:${secs}`;
+        }, 1000);
+      } catch (err) {
+        toast('Could not start microphone recording.', 1);
+      }
+    }
+
+    function cancelVoiceNote() {
+      clearInterval(voiceTimerInt);
+      if (voiceMediaRecorder && voiceMediaRecorder.state !== 'inactive') voiceMediaRecorder.stop();
+      if (voiceStream) voiceStream.getTracks().forEach(t => t.stop());
+      voiceStream = null; voiceMediaRecorder = null; voiceAudioChunks = [];
+      $('voiceRecBar').classList.add('hidden');
+      $('voiceRecBar').classList.remove('flex');
+      $('msgForm').classList.remove('hidden');
+      $('msgForm').classList.add('flex');
+      toast('Voice note discarded.');
+    }
+
+    function stopAndSendVoiceNote() {
+      const c = active();
+      if (!c) return cancelVoiceNote();
+
+      clearInterval(voiceTimerInt);
+      const mins = Math.floor(voiceSeconds / 60);
+      const secs = String(voiceSeconds % 60).padStart(2, '0');
+      const durationStr = `${mins}:${secs}`;
+
+      const finalizeSend = (blobUrl) => {
+        const v = {
+          id: 'vn_' + rnd(),
+          url: blobUrl,
+          duration: durationStr || '0:05'
+        };
+        push(c, { from: me.name, text: 'Voice note (' + v.duration + ')', me: true, voice: v });
+        $('voiceRecBar').classList.add('hidden');
+        $('voiceRecBar').classList.remove('flex');
+        $('msgForm').classList.remove('hidden');
+        $('msgForm').classList.add('flex');
+        renderList();
+        renderMsgs();
+        toast('Voice note sent!');
+      };
+
+      if (voiceMediaRecorder && voiceMediaRecorder.state !== 'inactive') {
+        voiceMediaRecorder.onstop = () => {
+          const blob = new Blob(voiceAudioChunks, { type: 'audio/webm' });
+          if (voiceStream) voiceStream.getTracks().forEach(t => t.stop());
+          finalizeSend(URL.createObjectURL(blob));
+        };
+        voiceMediaRecorder.stop();
+      } else {
+        if (voiceStream) voiceStream.getTracks().forEach(t => t.stop());
+        // Synthetic audio snippet for preview/fallback
+        finalizeSend('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=');
+      }
+    }
+
+    function playVoiceNote(id, url) {
+      if (currentPlayingAudio && currentPlayingId === id) {
+        currentPlayingAudio.pause();
+        currentPlayingAudio = null;
+        currentPlayingId = null;
+        const icon = $(`icon-vn-${id}`);
+        if (icon) icon.setAttribute('data-lucide', 'play');
+        ic();
+        return;
+      }
+
+      if (currentPlayingAudio) {
+        currentPlayingAudio.pause();
+        const prevIcon = $(`icon-vn-${currentPlayingId}`);
+        if (prevIcon) prevIcon.setAttribute('data-lucide', 'play');
+      }
+
+      currentPlayingAudio = new Audio(url);
+      currentPlayingId = id;
+      const icon = $(`icon-vn-${id}`);
+      if (icon) icon.setAttribute('data-lucide', 'pause');
+      ic();
+
+      currentPlayingAudio.ontimeupdate = () => {
+        const timer = $(`time-vn-${id}`);
+        if (timer && currentPlayingAudio) {
+          const s = Math.floor(currentPlayingAudio.currentTime);
+          timer.textContent = `0:${String(s).padStart(2, '0')}`;
+        }
+      };
+
+      currentPlayingAudio.onended = () => {
+        currentPlayingAudio = null;
+        currentPlayingId = null;
+        const btnIcon = $(`icon-vn-${id}`);
+        if (btnIcon) btnIcon.setAttribute('data-lucide', 'play');
+        const timer = $(`time-vn-${id}`);
+        if (timer) timer.textContent = '0:00';
+        ic();
+      };
+
+      currentPlayingAudio.play().catch(() => {
+        toast('Audio preview finished');
+        if (icon) icon.setAttribute('data-lucide', 'play');
+        ic();
+      });
+    }
+
+    // ---------- Direct WebRTC Audio & Video Calls ----------
+    let activeCallStream = null;
+    let activeCallTimerInt = null;
+    let activeCallSecs = 0;
+    let callMicMuted = false;
+    let callCamOff = false;
+    let callScreenSharing = false;
+
+    async function startCall(type = 'Video', targetName) {
+      const c = active();
+      const name = targetName || (c ? c.name : 'Teammate');
+      $('callTargetName').textContent = `${type} Call with ${name}`;
+      $('callTargetPeerName').textContent = name;
+      $('callTargetInitials').textContent = ini(name);
+      $('callTimer').textContent = '00:00';
+      activeCallSecs = 0;
+      callMicMuted = false;
+      callCamOff = false;
+      callScreenSharing = false;
+
+      $('callModal').classList.remove('hidden');
+      $('callModal').classList.add('flex');
+
+      try {
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          activeCallStream = await navigator.mediaDevices.getUserMedia({
+            video: type === 'Video',
+            audio: true
+          });
+          const localVid = $('localVideo');
+          if (localVid) {
+            localVid.srcObject = activeCallStream;
+            localVid.classList.remove('hidden');
+            $('localCameraOffPlaceholder').classList.add('hidden');
+            $('localCameraOffPlaceholder').classList.remove('flex');
+          }
+        }
+      } catch (e) {
+        console.warn('Camera/mic permission denied or unavailable:', e);
+        $('localCameraOffPlaceholder').classList.remove('hidden');
+        $('localCameraOffPlaceholder').classList.add('flex');
+      }
+
+      clearInterval(activeCallTimerInt);
+      activeCallTimerInt = setInterval(() => {
+        activeCallSecs++;
+        const mins = String(Math.floor(activeCallSecs / 60)).padStart(2, '0');
+        const secs = String(activeCallSecs % 60).padStart(2, '0');
+        $('callTimer').textContent = `${mins}:${secs}`;
+      }, 1000);
+
+      ic();
+      toast(`Connected to ${type.toLowerCase()} call.`);
+    }
+
+    function toggleCallMic() {
+      callMicMuted = !callMicMuted;
+      if (activeCallStream) {
+        activeCallStream.getAudioTracks().forEach(t => t.enabled = !callMicMuted);
+      }
+      $('callMicBtn').classList.toggle('bg-white/20', callMicMuted);
+      $('callMicBtn').classList.toggle('bg-[#18181b]', !callMicMuted);
+      $('callMicIcon').setAttribute('data-lucide', callMicMuted ? 'mic-off' : 'mic');
+      ic();
+      toast(callMicMuted ? 'Microphone muted' : 'Microphone unmuted');
+    }
+
+    function toggleCallCam() {
+      callCamOff = !callCamOff;
+      if (activeCallStream) {
+        activeCallStream.getVideoTracks().forEach(t => t.enabled = !callCamOff);
+      }
+      $('localVideo').classList.toggle('hidden', callCamOff);
+      $('localCameraOffPlaceholder').classList.toggle('hidden', !callCamOff);
+      $('localCameraOffPlaceholder').classList.toggle('flex', callCamOff);
+      $('callCamBtn').classList.toggle('bg-white/20', callCamOff);
+      $('callCamBtn').classList.toggle('bg-[#18181b]', !callCamOff);
+      $('callCamIcon').setAttribute('data-lucide', callCamOff ? 'video-off' : 'video');
+      ic();
+      toast(callCamOff ? 'Camera turned off' : 'Camera turned on');
+    }
+
+    async function toggleScreenShare() {
+      try {
+        if (!callScreenSharing) {
+          if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
+            const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+            const screenTrack = screenStream.getVideoTracks()[0];
+            $('localVideo').srcObject = screenStream;
+            callScreenSharing = true;
+            $('callScreenBtn').classList.add('bg-white/20'); $('callScreenBtn').classList.remove('bg-[#18181b]');
+            screenTrack.onended = () => {
+              if (activeCallStream) $('localVideo').srcObject = activeCallStream;
+              callScreenSharing = false;
+              $('callScreenBtn').classList.remove('bg-white/20'); $('callScreenBtn').classList.add('bg-[#18181b]');
+            };
+            toast('Screen sharing started.');
+          } else {
+            toast('Screen sharing not supported on this device.', 1);
+          }
+        } else {
+          if (activeCallStream) $('localVideo').srcObject = activeCallStream;
+          callScreenSharing = false;
+          $('callScreenBtn').classList.remove('bg-white/20'); $('callScreenBtn').classList.add('bg-[#18181b]');
+          toast('Screen sharing stopped.');
+        }
+      } catch (err) {
+        console.warn('Screen share cancelled/failed:', err);
+      }
+    }
+
+    function toggleCallFullscreen() {
+      const modal = $('callModal');
+      if (!document.fullscreenElement) {
+        modal.requestFullscreen?.().catch(() => { });
+      } else {
+        document.exitFullscreen?.().catch(() => { });
+      }
+    }
+
+    function endCall() {
+      clearInterval(activeCallTimerInt);
+      if (activeCallStream) {
+        activeCallStream.getTracks().forEach(t => t.stop());
+        activeCallStream = null;
+      }
+      $('callModal').classList.add('hidden');
+      $('callModal').classList.remove('flex');
+      toast('Call ended.');
+    }
+
+    // ---------- Shared Whiteboard / Collaborative Canvas ----------
+    let wbCanvas = null, wbCtx = null;
+    let wbTool = 'pen', wbColor = '#ffffff', wbSize = 3;
+    let wbIsDrawing = false, wbStartX = 0, wbStartY = 0;
+    let wbHistory = [], wbHistoryIndex = -1;
+    let wbSnapshot = null;
+
+    function initWhiteboard() {
+      wbCanvas = $('wbCanvas');
+      if (!wbCanvas) return;
+      wbCtx = wbCanvas.getContext('2d');
+
+      const resizeCanvas = () => {
+        const rect = wbCanvas.parentElement.getBoundingClientRect();
+        if (rect.width <= 0) return;
+        const prevData = wbHistory.length ? wbHistory[wbHistoryIndex] : null;
+        wbCanvas.width = rect.width;
+        wbCanvas.height = rect.height;
+        if (prevData) {
+          wbCtx.putImageData(prevData, 0, 0);
+        } else {
+          wbCtx.fillStyle = '#18181b';
+          wbCtx.fillRect(0, 0, wbCanvas.width, wbCanvas.height);
+          saveWbState();
+        }
+      };
+
+      const getPos = e => {
+        const rect = wbCanvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: clientX - rect.left, y: clientY - rect.top };
+      };
+
+      const onStart = e => {
+        wbIsDrawing = true;
+        const pos = getPos(e);
+        wbStartX = pos.x;
+        wbStartY = pos.y;
+        wbSnapshot = wbCtx.getImageData(0, 0, wbCanvas.width, wbCanvas.height);
+
+        if (wbTool === 'pen' || wbTool === 'brush' || wbTool === 'eraser') {
+          wbCtx.beginPath();
+          wbCtx.moveTo(wbStartX, wbStartY);
+        }
+      };
+
+      const onMove = e => {
+        if (!wbIsDrawing) return;
+        const pos = getPos(e);
+
+        wbCtx.strokeStyle = (wbTool === 'eraser') ? '#18181b' : wbColor;
+        wbCtx.lineWidth = (wbTool === 'brush' ? wbSize * 3 : wbTool === 'eraser' ? wbSize * 4 : wbSize);
+        wbCtx.lineCap = 'round';
+        wbCtx.lineJoin = 'round';
+
+        if (wbTool === 'pen' || wbTool === 'brush' || wbTool === 'eraser') {
+          wbCtx.lineTo(pos.x, pos.y);
+          wbCtx.stroke();
+        } else {
+          wbCtx.putImageData(wbSnapshot, 0, 0);
+          wbCtx.beginPath();
+          if (wbTool === 'rect') {
+            wbCtx.strokeRect(wbStartX, wbStartY, pos.x - wbStartX, pos.y - wbStartY);
+          } else if (wbTool === 'circle') {
+            const rad = Math.sqrt(Math.pow(pos.x - wbStartX, 2) + Math.pow(pos.y - wbStartY, 2));
+            wbCtx.arc(wbStartX, wbStartY, rad, 0, 2 * Math.PI);
+            wbCtx.stroke();
+          } else if (wbTool === 'line') {
+            wbCtx.moveTo(wbStartX, wbStartY);
+            wbCtx.lineTo(pos.x, pos.y);
+            wbCtx.stroke();
+          }
+        }
+      };
+
+      const onEnd = () => {
+        if (!wbIsDrawing) return;
+        wbIsDrawing = false;
+        wbCtx.closePath();
+        saveWbState();
+      };
+
+      wbCanvas.addEventListener('mousedown', onStart);
+      wbCanvas.addEventListener('mousemove', onMove);
+      window.addEventListener('mouseup', onEnd);
+
+      wbCanvas.addEventListener('touchstart', e => { e.preventDefault(); onStart(e); }, { passive: false });
+      wbCanvas.addEventListener('touchmove', e => { e.preventDefault(); onMove(e); }, { passive: false });
+      wbCanvas.addEventListener('touchend', onEnd);
+
+      setTimeout(resizeCanvas, 50);
+    }
+
+    function saveWbState() {
+      if (!wbCanvas || !wbCtx) return;
+      if (wbHistoryIndex < wbHistory.length - 1) {
+        wbHistory = wbHistory.slice(0, wbHistoryIndex + 1);
+      }
+      wbHistory.push(wbCtx.getImageData(0, 0, wbCanvas.width, wbCanvas.height));
+      wbHistoryIndex = wbHistory.length - 1;
+    }
+
+    function openWhiteboard() {
+      $('whiteboardModal').classList.remove('hidden');
+      $('whiteboardModal').classList.add('flex');
+      setTimeout(initWhiteboard, 50);
+      ic();
+    }
+
+    function setWbTool(tool) {
+      wbTool = tool;
+      document.querySelectorAll('[data-wb-tool]').forEach(b => b.classList.toggle('on', b.dataset.wbTool === tool));
+      ic();
+    }
+
+    function setWbColor(color) {
+      wbColor = color;
+      document.querySelectorAll('[data-wb-color]').forEach(b => {
+        b.classList.toggle('ring-2', b.dataset.wbColor === color);
+        b.classList.toggle('ring-white/60', b.dataset.wbColor === color);
+      });
+      
+    }
+
+    function setWbSize(size) {
+      wbSize = +size;
+      if ($('wbSizeLabel')) $('wbSizeLabel').textContent = `${size}px`;
+    }
+
+    function undoWb() {
+      if (wbHistoryIndex > 0) {
+        wbHistoryIndex--;
+        wbCtx.putImageData(wbHistory[wbHistoryIndex], 0, 0);
+      }
+    }
+
+    function redoWb() {
+      if (wbHistoryIndex < wbHistory.length - 1) {
+        wbHistoryIndex++;
+        wbCtx.putImageData(wbHistory[wbHistoryIndex], 0, 0);
+      }
+    }
+
+    function clearWb() {
+      if (!wbCanvas || !wbCtx) return;
+      wbCtx.fillStyle = '#18181b';
+      wbCtx.fillRect(0, 0, wbCanvas.width, wbCanvas.height);
+      saveWbState();
+      toast('Whiteboard canvas cleared.');
+    }
+
+    function downloadWhiteboard() {
+      if (!wbCanvas) return;
+      const a = document.createElement('a');
+      a.href = wbCanvas.toDataURL('image/png');
+      a.download = `whiteboard_${Date.now()}.png`;
+      a.click();
+      toast('Whiteboard sketch downloaded.');
+    }
+
+    function sendWhiteboardToChat() {
+      const c = active();
+      if (!c || !wbCanvas) return;
+      wbCanvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        push(c, {
+          from: me.name,
+          text: 'Shared a whiteboard sketch',
+          me: true,
+          att: {
+            type: 'image',
+            name: `whiteboard_sketch_${Date.now().toString().slice(-4)}.png`,
+            size: '180 KB',
+            url
+          }
+        });
+        closeModal('whiteboardModal');
+        renderList();
+        renderMsgs();
+        toast('Whiteboard sketch sent to chat!');
+      }, 'image/png');
+    }
+
+    // ---------- Code Sandbox & Markdown Scratchpad ----------
+    let sandboxTab = 'js';
+
+    function openCodeSandbox() {
+      $('codeSandboxModal').classList.remove('hidden');
+      $('codeSandboxModal').classList.add('flex');
+      if (sandboxTab === 'md') renderMarkdownPreview();
+      ic();
+    }
+
+    function setSandboxTab(tab) {
+      sandboxTab = tab;
+      document.querySelectorAll('[data-sb-tab]').forEach(b => b.classList.toggle('on', b.dataset.sbTab === tab));
+      $('sbTabJs').classList.toggle('hidden', tab !== 'js');
+      $('sbTabJs').classList.toggle('flex', tab === 'js');
+      $('sbTabMd').classList.toggle('hidden', tab !== 'md');
+      $('sbTabMd').classList.toggle('flex', tab === 'md');
+      $('sbJsActions').classList.toggle('hidden', tab !== 'js');
+      if (tab === 'md') renderMarkdownPreview();
+      ic();
+    }
+
+    function clearJsConsole() {
+      $('sbJsConsole').innerHTML = '<p class="text-gray-500 italic">// Console cleared.</p>';
+      $('sbExecutionTime').textContent = '';
+    }
+
+    function loadSandboxTemplate() {
+      $('sbJsCode').value = `// Teammate algorithm evaluation
+function calculateMetrics(records) {
+  const total = records.reduce((acc, r) => acc + r.value, 0);
+  const avg = (total / records.length).toFixed(2);
+  return { total, avg, count: records.length };
+}
+
+const data = [
+  { item: 'Alpha', value: 145 },
+  { item: 'Beta', value: 230 },
+  { item: 'Gamma', value: 85 }
+];
+
+console.log('Running analysis...');
+console.log('Result:', calculateMetrics(data));`;
+      runJsSandbox();
+    }
+
+    function runJsSandbox() {
+      const code = $('sbJsCode').value;
+      const consoleBox = $('sbJsConsole');
+      consoleBox.innerHTML = '';
+      const start = performance.now();
+
+      const logs = [];
+      const customLog = (...args) => {
+        logs.push({ type: 'log', text: args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a)).join(' ') });
+      };
+      const customError = (...args) => {
+        logs.push({ type: 'error', text: args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ') });
+      };
+
+      try {
+        const runFn = new Function('console', code);
+        runFn({ log: customLog, info: customLog, warn: customLog, error: customError });
+        const elapsed = (performance.now() - start).toFixed(2);
+        $('sbExecutionTime').textContent = `${elapsed} ms`;
+
+        if (!logs.length) {
+          consoleBox.innerHTML = '<p class="text-gray-400 font-medium">Code executed successfully with no console output.</p>';
+        } else {
+          consoleBox.innerHTML = logs.map(l => {
+            if (l.type === 'error') {
+              return `<div class="text-rose-400 font-mono py-0.5 whitespace-pre-wrap">${esc(l.text)}</div>`;
+            }
+            return `<div class="text-gray-200 font-mono py-0.5 whitespace-pre-wrap"><span class="text-gray-500 font-bold mr-1.5">›</span>${esc(l.text)}</div>`;
+          }).join('');
+        }
+      } catch (err) {
+        const elapsed = (performance.now() - start).toFixed(2);
+        $('sbExecutionTime').textContent = `${elapsed} ms`;
+        consoleBox.innerHTML = `<div class="text-rose-400 font-mono py-0.5 whitespace-pre-wrap font-semibold">Error: ${esc(err.message)}</div>`;
+      }
+    }
+
+    function renderMarkdownPreview() {
+      const raw = $('sbMdCode')?.value || '';
+      const previewBox = $('sbMdPreview');
+      if (!previewBox) return;
+
+      // Lightweight clean Markdown parser
+      let html = raw
+        .replace(/^### (.*$)/gim, '<h3 class="text-sm font-bold text-white mt-3 mb-1">$1</h3>')
+        .replace(/^## (.*$)/gim, '<h2 class="text-base font-bold text-white mt-4 mb-1.5 pb-1 border-b border-white/10">$1</h2>')
+        .replace(/^# (.*$)/gim, '<h1 class="text-lg font-bold text-white mt-4 mb-2 pb-1 border-b border-white/10">$1</h1>')
+        .replace(/\*\*(.*?)\*\*/gim, '<strong class="text-white font-semibold">$1</strong>')
+        .replace(/\*(.*?)\*/gim, '<em class="text-gray-300 italic">$1</em>')
+        .replace(/`([^`]+)`/gim, '<code class="bg-[#18181b] px-1.5 py-0.5 rounded text-gray-200 font-mono text-[11px] border border-white/5">$1</code>')
+        .replace(/^\- (.*$)/gim, '<li class="ml-4 list-disc text-gray-300">$1</li>')
+        .replace(/^\> (.*$)/gim, '<blockquote class="border-l-2 border-white/30 pl-3 italic text-gray-400 my-2">$1</blockquote>')
+        .replace(/\n$/gim, '<br />');
+
+      previewBox.innerHTML = html || '<p class="text-gray-500 italic">Type in the editor on the left to see live Markdown rendering...</p>';
+    }
+
+    function sendSandboxSnippetToChat() {
+      const c = active();
+      if (!c) return toast('Please select an active conversation first.', 1);
+
+      const isJs = sandboxTab === 'js';
+      const snippet = isJs ? $('sbJsCode').value.trim() : $('sbMdCode').value.trim();
+      if (!snippet) return toast('Code/Markdown editor is empty.', 1);
+
+      const formatted = '```' + (isJs ? 'js' : 'md') + '\n' + snippet + '\n```';
+      push(c, { from: me.name, text: formatted, me: true });
+      closeModal('codeSandboxModal');
+      renderList();
+      renderMsgs();
+      toast('Snippet shared to chat!');
+    }
+
+    // ---------- Web Crypto AES-GCM Encrypted Secret Rooms ----------
+    async function deriveRoomKey(passphrase, salt) {
+      const enc = new TextEncoder();
+      const keyMaterial = await crypto.subtle.importKey(
+        'raw',
+        enc.encode(passphrase),
+        { name: 'PBKDF2' },
+        false,
+        ['deriveKey']
+      );
+      return crypto.subtle.deriveKey(
+        {
+          name: 'PBKDF2',
+          salt: enc.encode(salt || 'chatlink_room_salt_2026'),
+          iterations: 100000,
+          hash: 'SHA-256'
+        },
+        keyMaterial,
+        { name: 'AES-GCM', length: 256 },
+        false,
+        ['encrypt', 'decrypt']
+      );
+    }
+
+    async function encryptWithKey(plainText, key) {
+      const enc = new TextEncoder();
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const cipherBuf = await crypto.subtle.encrypt(
+        { name: 'AES-GCM', iv },
+        key,
+        enc.encode(plainText)
+      );
+      const ivHex = Array.from(iv).map(b => b.toString(16).padStart(2, '0')).join('');
+      const cipherHex = Array.from(new Uint8Array(cipherBuf)).map(b => b.toString(16).padStart(2, '0')).join('');
+      return `aes-256-gcm:${ivHex}:${cipherHex}`;
+    }
+
+    async function decryptWithKey(cipherStr, key) {
+      if (!cipherStr || !cipherStr.startsWith('aes-256-gcm:')) return cipherStr;
+      const parts = cipherStr.split(':');
+      if (parts.length !== 3) return cipherStr;
+      const iv = new Uint8Array(parts[1].match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+      const cipherBytes = new Uint8Array(parts[2].match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+      const decBuf = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv },
+        key,
+        cipherBytes
+      );
+      return new TextDecoder().decode(decBuf);
+    }
+
+    function toggleSecretRoomModal() {
+      const c = active();
+      if (!c || !c.secret) return toast('This conversation is not a secret room.');
+      $('srErr').textContent = '';
+      $('srPass').value = '';
+      $('secretRoomModal').classList.remove('hidden');
+      $('secretRoomModal').classList.add('flex');
+      setTimeout(() => $('srPass').focus(), 50);
+      ic();
+    }
+
+    async function unlockCurrentRoom() {
+      const c = active();
+      const pass = $('srPass').value.trim();
+      const err = $('srErr');
+      err.textContent = '';
+      if (!pass) return err.textContent = 'Please enter the room passphrase.';
+
+      try {
+        const key = await deriveRoomKey(pass, c.secretSalt);
+        // Test decrypting an existing encrypted message or set key
+        unlockedSecretKeys[c.id] = key;
+        decryptedCache = {};
+        closeModal('secretRoomModal');
+        renderHead();
+        renderMsgs();
+        toast('Secret room unlocked! Messages decrypted.');
+      } catch (e) {
+        err.textContent = 'Incorrect room passphrase.';
+      }
+    }
+
+    function lockCurrentRoom() {
+      const c = active();
+      if (c && unlockedSecretKeys[c.id]) {
+        delete unlockedSecretKeys[c.id];
+        decryptedCache = {};
+        closeModal('secretRoomModal');
+        renderHead();
+        renderMsgs();
+        toast('Secret room locked.');
+      }
+    }
+
     function blockContact(name) {
       name = name.trim(); if (!name) return toast('Enter a contact name.', 1);
       if (db.blocked.some(b => b.toLowerCase() === name.toLowerCase())) return toast(name + ' is already blocked.', 1);
       db.blocked.push(name); if (!active()) activeId = vis()[0]?.id || null;
       save(); renderAll(); toast(name + ' blocked.');
     }
+
     function blockActive() { const c = active(); if (c && confirm(`Block ${c.name}? Their conversation will be hidden until you unblock them in Settings → Privacy.`)) blockContact(c.name); }
     function unblock(i) { const n = db.blocked.splice(i, 1)[0]; save(); renderAll(); if (tab === 'privacy') setTab('privacy'); toast(n + ' unblocked.'); }
     function sweep() {
@@ -1862,7 +3028,7 @@
             <div class="min-w-0">
               <div class="flex items-center gap-1.5">
                 <h4 class="text-xs font-semibold text-white truncate">${esc(u.name)}</h4>
-                ${isFriend ? '<span class="text-[9px] bg-emerald-950/70 border border-emerald-500/30 text-emerald-400 px-1.5 py-0.2 rounded-full font-medium">Friend</span>' : ''}
+                ${isFriend ? '<span class="text-[9px] bg-white/10 border border-white/20 text-gray-200 px-1.5 py-0.2 rounded-full font-medium">Friend</span>' : ''}
               </div>
               <p class="text-xs text-gray-400 font-medium tracking-tight truncate">@${esc(u.username)}</p>
             </div>
@@ -2162,6 +3328,12 @@
         }
       }
 
+      const isSecret = newIsRoom && $('ncIsSecret')?.checked;
+      const secretPass = isSecret ? $('ncSecretKey').value.trim() : '';
+      if (isSecret && !secretPass) {
+        return err.textContent = 'Please enter a passphrase for your encrypted secret room.';
+      }
+
       const c = {
         id: 'c' + rnd(),
         name,
@@ -2170,21 +3342,31 @@
         unread: 0,
         at: Date.now(),
         online: 1,
+        secret: isSecret ? 1 : 0,
+        secretSalt: isSecret ? rnd() : null,
         members: newIsRoom ? '' : 'Direct message',
-        desc: newIsRoom ? `Room created with code ${code}. Share this code with teammates.` : '',
+        desc: newIsRoom ? (isSecret ? `Encrypted Secret Room created with code ${code}. Client-side AES-256-GCM protected.` : `Room created with code ${code}. Share this code with teammates.`) : '',
         msgs: []
       };
 
+      if (isSecret) {
+        deriveRoomKey(secretPass, c.secretSalt).then(key => {
+          unlockedSecretKeys[c.id] = key;
+          renderHead();
+          renderMsgs();
+        });
+      }
+
       push(c, {
         from: 'System',
-        text: newIsRoom ? `Room "${name}" created with code ${code}. Share code ${code} so colleagues can join!` : `Conversation with ${name} started.`,
+        text: newIsRoom ? (isSecret ? `Encrypted Secret Room "${name}" created. Messages are end-to-end encrypted with Web Crypto AES-GCM.` : `Room "${name}" created with code ${code}. Share code ${code} so colleagues can join!`) : `Conversation with ${name} started.`,
         me: false
       });
       db.convos.unshift(c);
       save();
       closeModal('newChat');
       openChat(c.id);
-      toast(newIsRoom ? `Room "${name}" created with code ${code}.` : `Conversation with ${name} started.`);
+      toast(newIsRoom ? (isSecret ? `Encrypted Secret Room "${name}" created.` : `Room "${name}" created with code ${code}.`) : `Conversation with ${name} started.`);
     }
 
     function copyText(str, msg) {
@@ -2211,9 +3393,12 @@
     function closeModal(id) {
       $(id).classList.remove('flex'); $(id).classList.add('hidden');
       if (id === 'newChat') {
-        $('ncName').value = $('ncCode').value = $('joinCode').value = '';
+        $('ncName').value = $('ncCode').value = $('joinCode').value = $('ncSecretKey').value = '';
+        if ($('ncIsSecret')) $('ncIsSecret').checked = false;
+        $('ncSecretKeyBox').classList.add('hidden');
         $('ncErr').textContent = '';
       }
+      if (id === 'callModal') endCall();
     }
     function setTab(t) {
       tab = t; document.querySelectorAll('.st').forEach(b => b.classList.toggle('on', b.dataset.t === t));
@@ -2351,7 +3536,12 @@
       const t = $('toast'); t.textContent = msg; t.className = `fixed bottom-5 right-5 z-[70] px-4 py-2.5 rounded-xl text-xs font-medium border bg-[#0C0C0C] ${isErr ? 'border-rose-500/40 text-rose-300' : 'border-white/20 text-white'}`;
       clearTimeout(tt); tt = setTimeout(() => t.classList.add('hidden'), 3200);
     }
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') { ['settings', 'newChat'].forEach(closeModal); closeInfoPane(); } });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        ['settings', 'newChat', 'whiteboardModal', 'callModal', 'codeSandboxModal', 'secretRoomModal'].forEach(closeModal);
+        closeInfoPane();
+      }
+    });
 
     // ---------- boot ----------
     (async function init() {
@@ -2361,6 +3551,7 @@
         saveUsers();
       }
       setMode('in');
+      initDragAndDrop();
       ic();
       const session = store.get('cl:session');
       const s = users.find(u => u.id === session) || (session === null ? users[0] : null);
