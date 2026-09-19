@@ -821,6 +821,21 @@
     }
     function renderAll() { renderList(); renderHead(); renderMsgs(); renderRooms(); renderUserSearch(); renderFriendRequests(); updateReqBadges(); ic(); }
     function setF(k, v) { if (k === 'tf') tf = tf === v ? 'all' : v; else rf = rf === v ? 'all' : v; renderList(); }
+    function getRoomSvgIcon(cls = "w-5 h-5") {
+      return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${cls}">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>`;
+    }
+
+    function renderRoomAvatar(sizeCls = "w-10 h-10", iconCls = "w-4 h-4", extraCls = "") {
+      return `<div class="av ${sizeCls} rounded-full bg-[#18181b] border border-white/15 text-gray-200 flex items-center justify-center shrink-0 ${extraCls}">
+        ${getRoomSvgIcon(iconCls)}
+      </div>`;
+    }
+
     function renderList() {
       const q = $('search').value.toLowerCase();
       document.querySelectorAll('[data-tf]').forEach(b => b.classList.toggle('on', b.dataset.tf === tf));
@@ -831,7 +846,7 @@
       $('list').innerHTML = items.length ? items.map(c => {
         const l = last(c), sel = c.id === activeId;
         return `<div onclick="openChat('${c.id}')" class="p-3 rounded-xl flex items-center gap-3 cursor-pointer border transition-all ${sel ? 'bg-[#0F0F0F] border-white/15 shadow-md' : 'border-transparent hover:bg-[#0F0F0F]/60'}">
-      <div class="av w-10 h-10 rounded-full text-sm font-semibold">${esc(c.name[0].toUpperCase())}</div>
+      ${c.room ? renderRoomAvatar('w-10 h-10', 'w-4 h-4') : `<div class="av w-10 h-10 rounded-full text-sm font-semibold">${esc(c.name[0].toUpperCase())}</div>`}
       <div class="flex-1 min-w-0"><div class="flex justify-between items-baseline mb-0.5"><h4 class="text-xs font-semibold text-white truncate">${esc(c.name)}</h4><span class="text-[10px] text-gray-500 shrink-0">${fmt(lastTs(c))}</span></div>
       <p class="text-xs text-gray-400 truncate">${l ? esc((l.me ? 'You' : l.from) + ': ' + (l.text || '')) : 'No messages yet'}</p></div>
       ${c.unread ? '<div class="w-2 h-2 rounded-full bg-white shrink-0 shadow-[0_0_6px_rgba(255,255,255,0.8)]"></div>' : ''}</div>`;
@@ -841,7 +856,14 @@
       const c = active();
       $('chatPane').classList.toggle('hidden', !c); $('emptyPane').classList.toggle('hidden', !!c); $('emptyPane').classList.toggle('flex', !c);
       if (!c) return;
-      $('hAv').textContent = c.name[0].toUpperCase(); $('hTitle').textContent = c.name; $('hBadge').textContent = c.room ? 'ROOM' : 'DIRECT';
+      if (c.room) {
+        $('hAv').innerHTML = getRoomSvgIcon('w-5 h-5');
+        $('hAv').className = 'av w-10 h-10 rounded-full bg-[#18181b] border border-white/15 text-gray-200 flex items-center justify-center group-hover:ring-2 group-hover:ring-white/20 transition-all';
+      } else {
+        $('hAv').textContent = c.name[0].toUpperCase();
+        $('hAv').className = 'av w-10 h-10 rounded-full text-sm group-hover:ring-2 group-hover:ring-white/20 transition-all';
+      }
+      $('hTitle').textContent = c.name; $('hBadge').textContent = c.room ? 'ROOM' : 'DIRECT';
       const hasCode = !!(c.room && c.code);
       $('hCodeBtn').classList.toggle('hidden', !hasCode);
       $('hCodeBtn').classList.toggle('inline-flex', hasCode);
@@ -875,7 +897,7 @@
     function renderRooms() {
       const rooms = vis().filter(c => c.room);
       $('roomGrid').innerHTML = rooms.length ? rooms.map(c => `<div class="bg-[#0C0C0C] rounded-2xl p-6 border border-white/[0.08] hover:border-white/25 transition-all flex flex-col justify-between">
-    <div class="space-y-3"><div class="flex justify-between items-start"><span class="av w-10 h-10 rounded-full text-sm font-semibold">${esc(c.name[0].toUpperCase())}</span>
+    <div class="space-y-3"><div class="flex justify-between items-start">${renderRoomAvatar('w-10 h-10', 'w-5 h-5')}
     <div class="flex items-center gap-1.5">
       ${c.code ? `<span class="bg-[#0F0F0F] text-gray-300 border border-white/10 px-2 py-0.5 rounded-md font-medium text-[10px]" title="Room code">Code ${esc(c.code)}</span>` : ''}
       <span class="text-emerald-400 text-xs bg-emerald-950/60 border border-emerald-500/30 px-2.5 py-1 rounded-full">${c.online || 1} online</span>
@@ -1091,9 +1113,7 @@
               <div class="space-y-2">
                 ${commonRooms.map(r => `
                   <div onclick="openChat('${r.id}')" class="flex items-center gap-3 p-3 rounded-xl bg-[#0F0F0F] border border-white/5 hover:border-white/15 cursor-pointer transition-all">
-                    <div class="w-10 h-10 rounded-full bg-[#18181b] border border-amber-500/20 flex items-center justify-center text-amber-300 shrink-0">
-                      <i data-lucide="users" class="w-5 h-5"></i>
-                    </div>
+                    ${renderRoomAvatar('w-10 h-10', 'w-5 h-5')}
                     <div class="min-w-0 flex-1">
                       <h4 class="text-xs font-semibold text-white truncate">${esc(r.name)}</h4>
                       <p class="text-[10px] text-gray-400 truncate mt-0.5">${esc(getRoomMembersPreview(r))}</p>
@@ -1406,9 +1426,7 @@
         <div class="p-5 space-y-6 flex-1 overflow-y-auto">
           <!-- Identity Hero -->
           <div class="flex flex-col items-center text-center">
-            <div class="av w-24 h-24 rounded-full text-3xl font-bold border-2 border-white/15 shadow-2xl">
-              ${esc(c.name[0].toUpperCase())}
-            </div>
+            ${renderRoomAvatar('w-24 h-24', 'w-10 h-10', 'border-2 border-white/15 shadow-2xl')}
             <h2 class="text-lg font-bold text-white mt-3.5 tracking-tight px-2">${esc(c.name)}</h2>
             <p class="text-xs mt-1">
               <span class="text-gray-400">Group · </span>
