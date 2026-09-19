@@ -536,7 +536,7 @@
             M('Alice Smith', 'Hey everyone, here is the updated specifications deck for review.', 42 * 6e4, { type: 'pdf', name: 'Q3_Project_Requirements.pdf', size: '2.4 MB' }),
             M('Bob Johnson', "Thanks! I've cross-referenced it with the financials.", 37 * 6e4, { type: 'excel', name: 'Budget_Forecast_2026.xlsx', size: '1.1 MB' }),
             M('', 'Looks good. I also committed the API contract draft.', 34 * 6e4, { type: 'doc', name: 'API_Contract_v2.md', size: '45 KB' }, true),
-            M('Charlie', 'Screenshot of the proposed dashboard view.', 30 * 6e4, { type: 'image', name: 'Dashboard_Snippet.png', url: 'image_placeholder.png' })]
+            M('Charlie', 'Screenshot of the proposed dashboard view.', 30 * 6e4, { type: 'image', name: 'Dashboard_Snippet.png', size: '1.4 MB', url: 'image_placeholder.png' })]
         },
         { id: 'c2', name: 'Dev Standup Room', code: 'DEV101', room: 1, unread: 1, at: n, online: 3, members: 'Dave, Evan', desc: 'Daily engineering checkpoint and blocker resolution.', msgs: [M('Dave', 'Standup starts in 5 minutes. Please bring your blockers.', 90 * 6e4)] },
         { id: 'c3', name: 'Alice Smith', room: 0, unread: 0, at: n, members: 'Direct message', msgs: [M('Alice Smith', "Thanks for sending over the file! I'll review it shortly.", 26 * 36e5)] },
@@ -663,9 +663,16 @@
       feed.scrollTop = feed.scrollHeight; ic();
     }
     function attCard(a) {
-      if (a.type === 'image' && a.url) return `<div class="mt-2.5 rounded-xl overflow-hidden border border-white/15 bg-[#0F0F0F]"><img src="${esc(a.url)}" alt="${esc(a.name)}" class="w-full max-h-48 object-cover"><div class="p-2 text-[10px] text-gray-300 truncate border-t border-white/10">${esc(a.name)}</div></div>`;
-      const icon = { excel: 'file-spreadsheet', pdf: 'file-code' }[a.type] || 'file-text';
-      return `<div class="mt-2.5 p-2.5 rounded-xl border border-white/10 bg-[#0F0F0F] flex items-center gap-3"><div class="av p-2 rounded-lg"><i data-lucide="${icon}" class="w-4 h-4"></i></div><div class="min-w-0"><p class="font-semibold text-xs truncate">${esc(a.name)}</p><p class="text-[10px] text-gray-500">${esc(a.size || 'Attachment')}</p></div></div>`;
+      const icon = { image: 'image', excel: 'file-spreadsheet', pdf: 'file-text', doc: 'file-text' }[a.type] || 'file-text';
+      return `<div class="mt-2.5 p-2.5 rounded-xl border border-white/10 bg-[#0F0F0F] flex items-center justify-between gap-3 min-w-[210px] max-w-sm">
+        <div class="min-w-0">
+          <p class="font-semibold text-xs text-white truncate">${esc(a.name)}</p>
+          <p class="text-[10px] text-gray-500">${esc(a.size || (a.type === 'image' ? 'Image file' : 'Attachment'))}</p>
+        </div>
+        <div class="av w-8 h-8 rounded-lg bg-[#0C0C0C] border border-white/15 text-gray-300 shrink-0">
+          <i data-lucide="${icon}" class="w-4 h-4"></i>
+        </div>
+      </div>`;
     }
     function renderRooms() {
       const rooms = vis().filter(c => c.room);
