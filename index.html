@@ -123,35 +123,42 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 700;
+      font-weight: 600;
       color: #ffffff;
-      background: #0C0C0C;
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: linear-gradient(135deg, #242429 0%, #121215 100%);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 9999px;
       flex-shrink: 0;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.35);
+      user-select: none;
+      letter-spacing: -0.02em;
     }
 
     .chip {
       font-size: 0.75rem;
       font-weight: 500;
-      padding: 0.375rem 0.75rem;
-      border-radius: 0.5rem;
+      padding: 0.45rem 0.85rem;
+      border-radius: 0.65rem;
       color: #9ca3af;
       border: 1px solid transparent;
       display: flex;
       align-items: center;
       gap: 0.375rem;
-      transition: all 0.15s ease;
+      transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
       cursor: pointer;
     }
 
     .chip:hover {
-      color: #e5e7eb;
+      color: #f3f4f6;
+      background: rgba(255, 255, 255, 0.04);
     }
 
     .chip.on {
-      background: #0F0F0F;
+      background: #18181b;
       color: #ffffff;
-      border-color: rgba(255, 255, 255, 0.25);
+      border-color: rgba(255, 255, 255, 0.20);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+      font-weight: 600;
     }
 
     .st {
@@ -222,15 +229,16 @@
   <div id="auth" class="fixed inset-0 z-[60] bg-[#0F0F0F] hidden items-center justify-center p-4">
     <div class="w-full max-w-sm">
       <div class="flex items-center gap-3 mb-8">
-        <div class="av w-11 h-11 rounded-xl"><i data-lucide="shield-check" class="w-5 h-5"></i></div>
+        <div class="av w-11 h-11 rounded-full"><i data-lucide="shield-check" class="w-5 h-5"></i></div>
         <div>
           <h1 class="text-xl font-bold text-white leading-tight">ChatLink</h1>
           <p class="text-xs text-gray-500">Sign in to your workspace</p>
         </div>
       </div>
-      <div class="flex bg-[#0C0C0C] p-1 rounded-xl border border-white/10 mb-5">
-        <button type="button" data-m="in" onclick="setMode('in')" class="chip flex-1 justify-center">Sign in</button>
-        <button type="button" data-m="up" onclick="setMode('up')" class="chip flex-1 justify-center">Create
+      <div class="flex bg-[#0C0C0C] p-1 rounded-xl border border-white/10 mb-5 gap-1">
+        <button type="button" data-m="in" onclick="setMode('in')" class="chip flex-1 justify-center !rounded-lg">Sign
+          in</button>
+        <button type="button" data-m="up" onclick="setMode('up')" class="chip flex-1 justify-center !rounded-lg">Create
           account</button>
       </div>
       <form id="authForm" onsubmit="submitAuth(event)" class="space-y-4" novalidate>
@@ -239,7 +247,8 @@
         <div>
           <div class="flex justify-between items-center mb-1">
             <label class="lbl !mb-0" for="aUser">Username</label>
-            <button id="genUserBtn" type="button" onclick="genUsernameAuth()" class="text-[11px] text-gray-400 hover:text-white flex items-center gap-1 transition-colors hidden">
+            <button id="genUserBtn" type="button" onclick="genUsernameAuth()"
+              class="text-[11px] text-gray-400 hover:text-white flex items-center gap-1 transition-colors hidden">
               <i data-lucide="sparkles" class="w-3 h-3"></i>Generate username
             </button>
           </div>
@@ -260,14 +269,14 @@
     <aside
       class="w-16 border-r border-white/[0.08] flex flex-col items-center py-4 justify-between shrink-0 bg-[#0F0F0F]">
       <div class="flex flex-col items-center gap-6">
-        <div class="av w-10 h-10 rounded-xl bg-[#0C0C0C]"><i data-lucide="shield-check" class="w-5 h-5"></i></div>
+        <div class="av w-10 h-10 rounded-full bg-[#0C0C0C]"><i data-lucide="shield-check" class="w-5 h-5"></i></div>
         <nav class="flex flex-col gap-2">
           <button class="nav on" data-v="chats" onclick="show('chats')" title="Messages"><i data-lucide="message-square"
               class="w-5 h-5"></i></button>
           <button class="nav" data-v="rooms" onclick="show('rooms')" title="Rooms"><i data-lucide="layout-grid"
               class="w-5 h-5"></i></button>
-          <button class="nav relative" data-v="users" onclick="show('users')" title="Search Users"><i data-lucide="user-search"
-              class="w-5 h-5"></i><span id="reqBadge"
+          <button class="nav relative" data-v="users" onclick="show('users')" title="Search Users"><i
+              data-lucide="user-search" class="w-5 h-5"></i><span id="reqBadge"
               class="hidden absolute top-2 right-2 w-2 h-2 rounded-full bg-white shadow-[0_0_6px_rgba(255,255,255,0.9)]"></span></button>
         </nav>
       </div>
@@ -321,15 +330,16 @@
             <header
               class="h-16 px-6 bg-[#0C0C0C] border-b border-white/[0.08] flex items-center justify-between shrink-0">
               <div class="flex items-center gap-3 min-w-0">
-                <div id="hAv" class="av w-10 h-10 rounded-xl text-sm"></div>
+                <div id="hAv" class="av w-10 h-10 rounded-full text-sm"></div>
                 <div class="min-w-0">
                   <div class="flex items-center gap-2">
                     <h2 id="hTitle" class="font-bold text-white text-sm truncate"></h2>
                     <span id="hBadge"
                       class="bg-[#0F0F0F] text-gray-300 text-[10px] font-semibold px-2 py-0.5 rounded-full border border-white/15"></span>
                     <button id="hCodeBtn" onclick="copyRoomCode()"
-                      class="hidden items-center gap-1 bg-[#0F0F0F] hover:bg-white/10 text-gray-300 hover:text-white text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full border border-white/15 transition-all"
-                      title="Click to copy Room Code"><i data-lucide="hash" class="w-3 h-3"></i><span id="hCodeVal"></span><i data-lucide="copy" class="w-2.5 h-2.5 ml-0.5 text-gray-400"></i></button>
+                      class="hidden items-center gap-1.5 bg-[#0F0F0F] hover:bg-white/10 text-gray-300 hover:text-white text-[10px] font-semibold px-2.5 py-0.5 rounded-full border border-white/15 transition-all"
+                      title="Click to copy Room Code"><span>#</span><span id="hCodeVal"></span><i data-lucide="copy"
+                        class="w-2.5 h-2.5 ml-0.5 text-gray-400"></i></button>
                   </div>
                   <p id="hMem" class="text-xs text-gray-400 truncate"></p>
                 </div>
@@ -375,7 +385,8 @@
               <p class="text-gray-400 text-sm mt-1">Join a room with a code or create your own.</p>
             </div>
             <div class="flex items-center gap-2">
-              <button onclick="openNew(true, 'join')" class="btn flex items-center gap-2 bg-[#0F0F0F] hover:bg-white/10 text-white"><i data-lucide="log-in"
+              <button onclick="openNew(true, 'join')"
+                class="btn flex items-center gap-2 bg-[#0F0F0F] hover:bg-white/10 text-white"><i data-lucide="log-in"
                   class="w-4 h-4"></i>Join with code</button>
               <button onclick="openNew(true, 'create')" class="btn flex items-center gap-2"><i data-lucide="plus-circle"
                   class="w-4 h-4"></i>Create room</button>
@@ -389,18 +400,23 @@
       <div id="view-users" class="hidden flex-1 p-8 overflow-y-auto bg-[#0F0F0F]">
         <div class="max-w-4xl mx-auto space-y-6">
           <!-- Header & Navigation -->
-          <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-white/[0.08] pb-6">
+          <div
+            class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-white/[0.08] pb-6">
             <div>
               <h1 class="text-2xl font-bold text-white">Search Users</h1>
-              <p class="text-gray-400 text-sm mt-1">Look up colleagues by their @username, send friend requests, and connect.</p>
+              <p class="text-gray-400 text-sm mt-1">Look for people by their @username, send friend requests, and
+                connect.</p>
             </div>
-            <div class="flex bg-[#0C0C0C] p-1 rounded-xl border border-white/10 shrink-0">
-              <button type="button" data-uv="search" onclick="setUserSubView('search')" class="chip !py-1.5 !px-3.5 !text-xs on">
+            <div class="flex bg-[#0C0C0C] p-1 rounded-xl border border-white/10 shrink-0 gap-1">
+              <button type="button" data-uv="search" onclick="setUserSubView('search')"
+                class="chip !py-1.5 !px-3.5 !rounded-lg !text-xs on">
                 <i data-lucide="search" class="w-3.5 h-3.5"></i>Search & Directory
               </button>
-              <button type="button" data-uv="requests" onclick="setUserSubView('requests')" class="chip !py-1.5 !px-3.5 !text-xs relative">
+              <button type="button" data-uv="requests" onclick="setUserSubView('requests')"
+                class="chip !py-1.5 !px-3.5 !rounded-lg !text-xs relative">
                 <i data-lucide="bell" class="w-3.5 h-3.5"></i>Friend Requests
-                <span id="reqTabBadge" class="hidden ml-1.5 px-1.5 py-0.2 bg-white text-black font-bold text-[10px] rounded-full"></span>
+                <span id="reqTabBadge"
+                  class="hidden ml-1.5 px-1.5 py-0.2 bg-white text-black font-bold text-[10px] rounded-full"></span>
               </button>
             </div>
           </div>
@@ -412,23 +428,31 @@
               <label class="lbl !mb-0 font-semibold text-gray-200" for="uSearchInp">Search by @username or name</label>
               <div class="relative flex items-center">
                 <i data-lucide="at-sign" class="w-4 h-4 absolute left-3.5 text-gray-500"></i>
-                <input id="uSearchInp" oninput="renderUserSearch()" placeholder="Type @username to search (e.g. @sarah, @alice, @bob)..." class="inp !pl-10 !py-3 text-sm flex-1">
-                <button type="button" onclick="renderUserSearch()" class="btn absolute right-2 !py-1.5 !px-3 text-xs">Search</button>
+                <input id="uSearchInp" oninput="renderUserSearch()"
+                  placeholder="Type @username to search (e.g. @sarah, @alice, @bob)..."
+                  class="inp !pl-10 !py-3 text-sm flex-1">
+                <button type="button" onclick="renderUserSearch()"
+                  class="btn absolute right-2 !py-1.5 !px-3 text-xs">Search</button>
               </div>
-              <div class="flex justify-between items-center text-[11px] text-gray-500">
+              <div class="text-[11px] text-gray-500">
                 <span>Search across registered accounts & directory</span>
-                <span id="uCountHint" class="text-gray-400 font-mono"></span>
               </div>
             </div>
 
             <!-- Error message when no matches found -->
-            <div id="uSearchErr" class="hidden p-4 rounded-xl bg-rose-950/40 border border-rose-500/30 text-rose-200 text-xs flex items-center gap-3">
+            <div id="uSearchErr"
+              class="hidden p-4 rounded-xl bg-rose-950/40 border border-rose-500/30 text-rose-200 text-xs flex items-center gap-3">
               <i data-lucide="alert-circle" class="w-4 h-4 shrink-0 text-rose-400"></i>
               <span id="uSearchErrMsg">No user found matching this search.</span>
             </div>
 
-            <!-- Results Grid -->
-            <div id="uSearchResults" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            <!-- Suggested / Search Results Section -->
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <h3 id="uResultsHeading" class="text-sm font-semibold text-gray-300">Suggested Users</h3>
+              </div>
+              <div id="uSearchResults" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </div>
           </div>
 
           <!-- Friend Requests Tab -->
@@ -464,7 +488,7 @@
       <div id="view-profile" class="hidden flex-1 p-8 overflow-y-auto bg-[#0F0F0F]">
         <div class="max-w-2xl mx-auto bg-[#0C0C0C] rounded-2xl p-8 border border-white/[0.08] space-y-6">
           <div class="flex items-center gap-6">
-            <div id="pvAv" class="av w-20 h-20 rounded-2xl text-2xl"></div>
+            <div id="pvAv" class="av w-20 h-20 rounded-full text-2xl font-bold"></div>
             <div class="min-w-0">
               <h2 id="pvName" class="text-2xl font-bold text-white truncate"></h2>
               <p id="pvUser" class="text-gray-400 text-sm mt-0.5"></p>
@@ -518,19 +542,21 @@
             data-lucide="x" class="w-5 h-5"></i></button>
       </div>
       <form onsubmit="createChat(event)" class="p-6 space-y-4">
-        <div class="grid grid-cols-2 gap-2">
-          <button type="button" class="chip justify-center !py-2.5" data-nt="1" onclick="setNT(true)"><i
+        <div class="grid grid-cols-2 p-1 bg-[#0F0F0F] rounded-xl border border-white/10 gap-1">
+          <button type="button" class="chip justify-center !py-2.5 !rounded-lg" data-nt="1" onclick="setNT(true)"><i
               data-lucide="layout-grid" class="w-4 h-4"></i>Room</button>
-          <button type="button" class="chip justify-center !py-2.5" data-nt="0" onclick="setNT(false)"><i
+          <button type="button" class="chip justify-center !py-2.5 !rounded-lg" data-nt="0" onclick="setNT(false)"><i
               data-lucide="user" class="w-4 h-4"></i>Direct message</button>
         </div>
 
         <!-- Room Action Selector: Create or Join -->
-        <div id="roomActionRow" class="flex bg-[#0F0F0F] p-1 rounded-xl border border-white/10">
-          <button type="button" data-ra="create" onclick="setRoomAction('create')" class="chip flex-1 justify-center !py-1.5 !text-xs on">
+        <div id="roomActionRow" class="flex bg-[#0F0F0F] p-1 rounded-xl border border-white/10 gap-1">
+          <button type="button" data-ra="create" onclick="setRoomAction('create')"
+            class="chip flex-1 justify-center !py-1.5 !rounded-lg !text-xs on">
             <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>Create room
           </button>
-          <button type="button" data-ra="join" onclick="setRoomAction('join')" class="chip flex-1 justify-center !py-1.5 !text-xs">
+          <button type="button" data-ra="join" onclick="setRoomAction('join')"
+            class="chip flex-1 justify-center !py-1.5 !rounded-lg !text-xs">
             <i data-lucide="log-in" class="w-3.5 h-3.5"></i>Join with code
           </button>
         </div>
@@ -538,11 +564,11 @@
         <!-- Join with room code field -->
         <div id="joinCodeRow" class="hidden space-y-1">
           <label class="lbl" for="joinCode">Room code (6 digits)</label>
-          <div class="relative">
-            <input id="joinCode" class="inp tracking-widest font-mono !pl-9" maxlength="6" inputmode="numeric" oninput="this.value = this.value.replace(/\D/g, '').slice(0, 6)" placeholder="e.g. 482910" autocomplete="off">
-            <i data-lucide="hash" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></i>
-          </div>
-          <p class="text-[11px] text-gray-500 pt-1">Enter the 6-digit room code shared by your teammate or colleague.</p>
+          <input id="joinCode" class="inp tracking-widest font-semibold text-center text-sm" maxlength="6"
+            inputmode="numeric" oninput="this.value = this.value.replace(/\D/g, '').slice(0, 6)"
+            placeholder="e.g. 482910" autocomplete="off">
+          <p class="text-[11px] text-gray-500 pt-1">Enter the 6-digit room code shared by your teammate or colleague.
+          </p>
         </div>
 
         <!-- Name field (for Create Room or Direct Message) -->
@@ -555,21 +581,15 @@
         <div id="ncCodeRow" class="space-y-1">
           <div class="flex justify-between items-center">
             <label class="lbl !mb-0" for="ncCode">Room code (6 digits)</label>
-            <button type="button" onclick="genRoomCode()" class="text-[11px] text-gray-400 hover:text-white flex items-center gap-1 transition-colors">
+            <button type="button" onclick="genRoomCode()"
+              class="text-[11px] text-gray-400 hover:text-white flex items-center gap-1 transition-colors">
               <i data-lucide="sparkles" class="w-3 h-3"></i>Generate code
             </button>
           </div>
-          <div class="relative">
-            <input id="ncCode" class="inp tracking-widest font-mono !pl-9" maxlength="6" inputmode="numeric" oninput="this.value = this.value.replace(/\D/g, '').slice(0, 6)" placeholder="e.g. 683921">
-            <i data-lucide="hash" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></i>
-          </div>
+          <input id="ncCode" class="inp tracking-widest font-semibold text-center text-sm" maxlength="6"
+            inputmode="numeric" oninput="this.value = this.value.replace(/\D/g, '').slice(0, 6)"
+            placeholder="e.g. 683921">
           <p class="text-[11px] text-gray-500 pt-1">Share this 6-digit code so others can join your room directly.</p>
-        </div>
-
-        <!-- Optional members field -->
-        <div id="ncMemRow">
-          <label class="lbl" for="ncMem">Members (optional)</label>
-          <input id="ncMem" class="inp" placeholder="Dave, Sarah">
         </div>
 
         <p id="ncErr" class="text-xs text-rose-400 min-h-[1rem]"></p>
@@ -617,34 +637,34 @@
       const n = Date.now(), M = (from, text, ago, a, mine) => ({ id: rnd(), from, text, ts: n - ago, me: !!mine, att: a || null });
       return [
         {
-          id: 'c1', name: 'Project Alpha Team', code: '482910', room: 1, unread: 1, at: n, online: 8, members: 'Alice, Bob, Charlie, David, +3 others', desc: 'Central hub for Q3 specifications, system designs and sprint updates.', msgs: [
+          id: 'c1', name: 'Project Alpha Team', code: '482910', room: 1, unread: 1, at: n, online: 8, members: '', desc: 'Central hub for Q3 specifications, system designs and sprint updates.', msgs: [
             M('Alice Smith', 'Hey everyone, here is the updated specifications deck for review.', 42 * 6e4, { type: 'pdf', name: 'Q3_Project_Requirements.pdf', size: '2.4 MB' }),
             M('Bob Johnson', "Thanks! I've cross-referenced it with the financials.", 37 * 6e4, { type: 'excel', name: 'Budget_Forecast_2026.xlsx', size: '1.1 MB' }),
             M('', 'Looks good. I also committed the API contract draft.', 34 * 6e4, { type: 'doc', name: 'API_Contract_v2.md', size: '45 KB' }, true),
             M('Charlie', 'Screenshot of the proposed dashboard view.', 30 * 6e4, { type: 'image', name: 'Dashboard_Snippet.png', size: '1.4 MB', url: 'image_placeholder.png' })]
         },
-        { id: 'c2', name: 'Dev Standup Room', code: '104829', room: 1, unread: 1, at: n, online: 3, members: 'Dave, Evan', desc: 'Daily engineering checkpoint and blocker resolution.', msgs: [M('Dave', 'Standup starts in 5 minutes. Please bring your blockers.', 90 * 6e4)] },
+        { id: 'c2', name: 'Dev Standup Room', code: '104829', room: 1, unread: 1, at: n, online: 3, members: '', desc: 'Daily engineering checkpoint and blocker resolution.', msgs: [M('Dave', 'Standup starts in 5 minutes. Please bring your blockers.', 90 * 6e4)] },
         { id: 'c3', name: 'Alice Smith', room: 0, unread: 0, at: n, members: 'Direct message', msgs: [M('Alice Smith', "Thanks for sending over the file! I'll review it shortly.", 26 * 36e5)] },
-        { id: 'c4', name: 'Design Systems', code: '739201', room: 1, unread: 0, at: n, online: 4, members: 'Charlie, Figma Bot', desc: 'Token syncs, UI kit revisions and prototype feedback.', msgs: [M('Charlie', 'Check out this icon snippet before we push to production.', 50 * 36e5)] }
+        { id: 'c4', name: 'Design Systems', code: '739201', room: 1, unread: 0, at: n, online: 4, members: '', desc: 'Token syncs, UI kit revisions and prototype feedback.', msgs: [M('Charlie', 'Check out this icon snippet before we push to production.', 50 * 36e5)] }
       ];
     }
 
     // ---------- auth flow & directory ----------
     const MOCK_USERS = [
-      { id: 'u_alex', username: 'alex', name: 'Alex Rivera', role: 'Product Lead' },
-      { id: 'u_alice', username: 'alice', name: 'Alice Smith', role: 'UI/UX Designer' },
-      { id: 'u_bob', username: 'bob', name: 'Bob Johnson', role: 'Backend Engineer' },
-      { id: 'u_sarah', username: 'sarah', name: 'Sarah Jenkins', role: 'Frontend Developer' },
-      { id: 'u_david', username: 'david', name: 'David Kim', role: 'DevOps Specialist' },
-      { id: 'u_evan', username: 'evan', name: 'Evan Wright', role: 'QA Lead' }
+      { id: 'u_alex', username: 'alex', name: 'Alex Rivera' },
+      { id: 'u_alice', username: 'alice', name: 'Alice Smith' },
+      { id: 'u_bob', username: 'bob', name: 'Bob Johnson' },
+      { id: 'u_sarah', username: 'sarah', name: 'Sarah Jenkins' },
+      { id: 'u_david', username: 'david', name: 'David Kim' },
+      { id: 'u_evan', username: 'evan', name: 'Evan Wright' }
     ];
 
     function getUserDirectory() {
       const map = new Map();
-      MOCK_USERS.forEach(u => map.set(u.username.toLowerCase(), { ...u }));
+      MOCK_USERS.forEach(u => map.set(u.username.toLowerCase(), { id: u.id, username: u.username, name: u.name }));
       (users || []).forEach(u => {
         const existing = map.get(u.username.toLowerCase()) || {};
-        map.set(u.username.toLowerCase(), { ...existing, ...u });
+        map.set(u.username.toLowerCase(), { id: u.id || existing.id, username: u.username || existing.username, name: u.name || existing.name });
       });
       return Array.from(map.values());
     }
@@ -727,6 +747,7 @@
       db = store.get('cl:data:' + me.id) || { convos: seed(), blocked: [], dis: 0 };
       const defaultCodes = { c1: '482910', c2: '104829', c4: '739201' };
       db.convos?.forEach(c => {
+        if (c.room) c.members = '';
         if (c.room && (!c.code || !/^\d{6}$/.test(c.code))) c.code = defaultCodes[c.id] || String(Math.floor(100000 + Math.random() * 900000));
         c.msgs?.forEach(m => {
           if (m.att?.name === 'Dashboard_Snippet.png' && m.att?.url !== 'image_placeholder.png') m.att.url = 'image_placeholder.png';
@@ -734,7 +755,7 @@
       });
       if (!db.incomingRequests) {
         db.incomingRequests = [
-          { id: 'req_sarah', username: 'sarah', name: 'Sarah Jenkins', role: 'Frontend Developer', ts: Date.now() - 35 * 6e4 }
+          { id: 'req_sarah', username: 'sarah', name: 'Sarah Jenkins', ts: Date.now() - 35 * 6e4 }
         ];
       }
       if (!db.outgoingRequests) db.outgoingRequests = [];
@@ -796,7 +817,7 @@
       $('list').innerHTML = items.length ? items.map(c => {
         const l = last(c), sel = c.id === activeId;
         return `<div onclick="openChat('${c.id}')" class="p-3 rounded-xl flex items-center gap-3 cursor-pointer border transition-all ${sel ? 'bg-[#0F0F0F] border-white/15 shadow-md' : 'border-transparent hover:bg-[#0F0F0F]/60'}">
-      <div class="av w-10 h-10 rounded-xl text-sm">${esc(c.name[0].toUpperCase())}</div>
+      <div class="av w-10 h-10 rounded-full text-sm font-semibold">${esc(c.name[0].toUpperCase())}</div>
       <div class="flex-1 min-w-0"><div class="flex justify-between items-baseline mb-0.5"><h4 class="text-xs font-semibold text-white truncate">${esc(c.name)}</h4><span class="text-[10px] text-gray-500 shrink-0">${fmt(lastTs(c))}</span></div>
       <p class="text-xs text-gray-400 truncate">${l ? esc((l.me ? 'You' : l.from) + ': ' + (l.text || '')) : 'No messages yet'}</p></div>
       ${c.unread ? '<div class="w-2 h-2 rounded-full bg-white shrink-0 shadow-[0_0_6px_rgba(255,255,255,0.8)]"></div>' : ''}</div>`;
@@ -811,14 +832,16 @@
       $('hCodeBtn').classList.toggle('hidden', !hasCode);
       $('hCodeBtn').classList.toggle('inline-flex', hasCode);
       if (hasCode) $('hCodeVal').textContent = c.code;
-      $('hMem').textContent = c.members; $('hBlock').classList.toggle('hidden', !!c.room);
+      $('hMem').textContent = c.room ? '' : (c.members || 'Direct message');
+      $('hMem').classList.toggle('hidden', !!c.room);
+      $('hBlock').classList.toggle('hidden', !!c.room);
       $('hDis').classList.toggle('hidden', !db.dis); $('hDis').classList.toggle('flex', !!db.dis); $('hDisLbl').textContent = DIS[db.dis] || '';
     }
     function renderMsgs() {
       const c = active(), feed = $('feed');
       if (!c) return feed.innerHTML = '';
       feed.innerHTML = c.msgs.map(m => `<div class="flex gap-3 max-w-xl ${m.me ? 'ml-auto flex-row-reverse' : ''}">
-    <div class="av w-8 h-8 rounded-xl text-xs">${esc(ini(m.me ? me.name : m.from))}</div>
+    <div class="av w-8 h-8 rounded-full text-xs font-semibold">${esc(ini(m.me ? me.name : m.from))}</div>
     <div class="space-y-1 min-w-0"><div class="flex items-center gap-2 ${m.me ? 'justify-end' : ''}"><span class="text-xs font-semibold text-gray-300">${esc(m.me ? me.name : m.from)}</span><span class="text-[10px] text-gray-500">${fmt(m.ts)}</span>${m.exp ? '<i data-lucide="timer" class="w-3 h-3 text-gray-500"></i>' : ''}</div>
     <div class="p-3.5 rounded-2xl text-xs leading-relaxed break-words border ${m.me ? 'bg-[#0C0C0C] text-white border-white/[0.18] rounded-tr-none shadow-md' : 'bg-[#0C0C0C] text-gray-200 border-white/[0.08] rounded-tl-none'}"><p>${esc(m.text)}</p>${m.att ? attCard(m.att) : ''}</div></div></div>`).join('');
       feed.scrollTop = feed.scrollHeight; ic();
@@ -830,7 +853,7 @@
           <p class="font-semibold text-xs text-white truncate">${esc(a.name)}</p>
           <p class="text-[10px] text-gray-500">${esc(a.size || (a.type === 'image' ? 'Image file' : 'Attachment'))}</p>
         </div>
-        <div class="av w-8 h-8 rounded-lg bg-[#0C0C0C] border border-white/15 text-gray-300 shrink-0">
+        <div class="av w-8 h-8 rounded-full bg-[#0C0C0C] border border-white/15 text-gray-300 shrink-0">
           <i data-lucide="${icon}" class="w-4 h-4"></i>
         </div>
       </div>`;
@@ -838,9 +861,9 @@
     function renderRooms() {
       const rooms = vis().filter(c => c.room);
       $('roomGrid').innerHTML = rooms.length ? rooms.map(c => `<div class="bg-[#0C0C0C] rounded-2xl p-6 border border-white/[0.08] hover:border-white/25 transition-all flex flex-col justify-between">
-    <div class="space-y-3"><div class="flex justify-between items-start"><span class="av w-10 h-10 rounded-xl text-sm">${esc(c.name[0].toUpperCase())}</span>
+    <div class="space-y-3"><div class="flex justify-between items-start"><span class="av w-10 h-10 rounded-full text-sm font-semibold">${esc(c.name[0].toUpperCase())}</span>
     <div class="flex items-center gap-1.5">
-      ${c.code ? `<span class="bg-[#0F0F0F] text-gray-300 border border-white/10 px-2 py-0.5 rounded-md font-mono text-[10px]" title="Room code">#${esc(c.code)}</span>` : ''}
+      ${c.code ? `<span class="bg-[#0F0F0F] text-gray-300 border border-white/10 px-2 py-0.5 rounded-md font-medium text-[10px]" title="Room code">#${esc(c.code)}</span>` : ''}
       <span class="text-emerald-400 text-xs bg-emerald-950/60 border border-emerald-500/30 px-2.5 py-1 rounded-full">${c.online || 1} online</span>
     </div></div>
     <h3 class="font-bold text-white text-lg">${esc(c.name)}</h3><p class="text-gray-400 text-xs leading-relaxed">${esc(c.desc || 'No description yet.')}</p></div>
@@ -922,8 +945,9 @@
       const raw = ($('uSearchInp')?.value || '').trim();
       const q = raw.replace(/^@/, '').toLowerCase();
       const all = getUserDirectory();
-      const hint = $('uCountHint');
-      if (hint) hint.textContent = `${all.length} registered members`;
+
+      const heading = $('uResultsHeading');
+      if (heading) heading.textContent = q ? 'Search Results' : 'Suggested Users';
 
       let list = all;
       if (q) {
@@ -952,7 +976,7 @@
 
         let actionHtml = '';
         if (isSelf) {
-          actionHtml = `<span class="text-xs text-gray-500 px-3 py-1.5 rounded-lg bg-[#0F0F0F] border border-white/5 font-mono">You</span>`;
+          actionHtml = `<span class="text-xs text-gray-400 px-3 py-1.5 rounded-lg bg-[#0F0F0F] border border-white/5 font-medium">You</span>`;
         } else if (isFriend) {
           actionHtml = `<button onclick="startDirectChat('${esc(u.name)}', '${esc(u.username)}')" class="btn !py-1.5 !px-3 !text-xs flex items-center gap-1.5">
             <i data-lucide="message-square" class="w-3.5 h-3.5"></i>Message
@@ -983,7 +1007,7 @@
 
         return `<div class="bg-[#0C0C0C] rounded-2xl p-4 border border-white/[0.08] hover:border-white/20 transition-all flex items-center justify-between gap-3">
           <div class="flex items-center gap-3 min-w-0">
-            <div class="av w-10 h-10 rounded-xl text-xs font-bold bg-[#0F0F0F] border border-white/10 shrink-0">
+            <div class="av w-10 h-10 rounded-full text-xs font-semibold shrink-0">
               ${esc(ini(u.name))}
             </div>
             <div class="min-w-0">
@@ -991,8 +1015,7 @@
                 <h4 class="text-xs font-semibold text-white truncate">${esc(u.name)}</h4>
                 ${isFriend ? '<span class="text-[9px] bg-emerald-950/70 border border-emerald-500/30 text-emerald-400 px-1.5 py-0.2 rounded-full font-medium">Friend</span>' : ''}
               </div>
-              <p class="text-[11px] text-gray-400 font-mono truncate">@${esc(u.username)}</p>
-              ${u.role ? `<p class="text-[10px] text-gray-500 truncate">${esc(u.role)}</p>` : ''}
+              <p class="text-xs text-gray-400 font-medium tracking-tight truncate">@${esc(u.username)}</p>
             </div>
           </div>
           <div class="shrink-0">${actionHtml}</div>
@@ -1014,12 +1037,12 @@
         inBox.innerHTML = inList.length ? inList.map(r => `
           <div class="p-3.5 rounded-xl bg-[#0F0F0F] border border-white/10 flex items-center justify-between gap-3">
             <div class="flex items-center gap-3 min-w-0">
-              <div class="av w-10 h-10 rounded-xl text-xs font-bold bg-[#0C0C0C] border border-white/15 shrink-0">
+              <div class="av w-10 h-10 rounded-full text-xs font-semibold shrink-0">
                 ${esc(ini(r.name))}
               </div>
               <div class="min-w-0">
                 <h4 class="text-xs font-semibold text-white truncate">${esc(r.name)}</h4>
-                <p class="text-[11px] text-gray-400 font-mono">@${esc(r.username)}</p>
+                <p class="text-xs text-gray-400 font-medium tracking-tight">@${esc(r.username)}</p>
                 <p class="text-[10px] text-gray-500 mt-0.5">${fmt(r.ts)}</p>
               </div>
             </div>
@@ -1040,12 +1063,12 @@
         outBox.innerHTML = outList.length ? outList.map(r => `
           <div class="p-3.5 rounded-xl bg-[#0F0F0F] border border-white/10 flex items-center justify-between gap-3">
             <div class="flex items-center gap-3 min-w-0">
-              <div class="av w-10 h-10 rounded-xl text-xs font-bold bg-[#0C0C0C] border border-white/15 shrink-0">
+              <div class="av w-10 h-10 rounded-full text-xs font-semibold shrink-0">
                 ${esc(ini(r.name))}
               </div>
               <div class="min-w-0">
                 <h4 class="text-xs font-semibold text-white truncate">${esc(r.name)}</h4>
-                <p class="text-[11px] text-gray-400 font-mono">@${esc(r.username)}</p>
+                <p class="text-xs text-gray-400 font-medium tracking-tight">@${esc(r.username)}</p>
                 <p class="text-[10px] text-gray-500 mt-0.5">${fmt(r.ts)}</p>
               </div>
             </div>
@@ -1189,7 +1212,6 @@
       $('joinCodeRow').classList.toggle('hidden', !isJoin);
       $('ncNameRow').classList.toggle('hidden', isJoin);
       $('ncCodeRow').classList.toggle('hidden', isJoin);
-      $('ncMemRow').classList.toggle('hidden', isJoin);
       $('ncSubmitBtn').textContent = isJoin ? 'Join room' : 'Create room';
       if (isJoin) {
         setTimeout(() => $('joinCode').focus(), 50);
@@ -1212,7 +1234,6 @@
         $('ncModalTitle').textContent = 'Direct message';
         $('joinCodeRow').classList.add('hidden');
         $('ncCodeRow').classList.add('hidden');
-        $('ncMemRow').classList.add('hidden');
         $('ncNameRow').classList.remove('hidden');
         $('ncNameLbl').textContent = 'Contact name';
         $('ncSubmitBtn').textContent = 'Start direct message';
@@ -1300,7 +1321,7 @@
         unread: 0,
         at: Date.now(),
         online: 1,
-        members: newIsRoom ? ($('ncMem').value.trim() || 'Just you') : 'Direct message',
+        members: newIsRoom ? '' : 'Direct message',
         desc: newIsRoom ? `Room created with code #${code}. Share this code with teammates.` : '',
         msgs: []
       };
@@ -1341,7 +1362,7 @@
     function closeModal(id) {
       $(id).classList.remove('flex'); $(id).classList.add('hidden');
       if (id === 'newChat') {
-        $('ncName').value = $('ncMem').value = $('ncCode').value = $('joinCode').value = '';
+        $('ncName').value = $('ncCode').value = $('joinCode').value = '';
         $('ncErr').textContent = '';
       }
     }
@@ -1349,7 +1370,7 @@
       tab = t; document.querySelectorAll('.st').forEach(b => b.classList.toggle('on', b.dataset.t === t));
       const T = {
         profile: () => `<form onsubmit="saveProfile(event)" class="space-y-4"><h3 class="font-bold text-white">Profile</h3>
-      <div class="flex items-center gap-4"><div class="av w-14 h-14 rounded-xl">${esc(ini(me.name))}</div><p class="text-xs text-gray-400">Your avatar uses your initials.</p></div>
+      <div class="flex items-center gap-4"><div class="av w-14 h-14 rounded-full text-xl font-bold">${esc(ini(me.name))}</div><p class="text-xs text-gray-400">Your avatar uses your initials.</p></div>
       <div><label class="lbl" for="pName">Name</label><input id="pName" class="inp" value="${esc(me.name)}" maxlength="40"></div>
       <div><label class="lbl" for="pUser">Username</label><input id="pUser" class="inp" value="${esc(me.username)}" maxlength="20" autocomplete="username"><p class="text-[11px] text-gray-500 mt-1.5">You sign in with your username. Use 3–20 letters, numbers, . or _</p></div>
       <button class="btn">Save changes</button></form>`,
@@ -1364,10 +1385,10 @@
       <div class="bg-[#0F0F0F] rounded-xl p-4 border border-white/10 space-y-3.5">
         <div class="flex items-center justify-between pb-3 border-b border-white/[0.08]">
           <div class="flex items-center gap-3 min-w-0">
-            <div class="av w-10 h-10 rounded-xl text-xs font-bold bg-[#0C0C0C] border border-white/15 text-white">${esc(ini(me.name))}</div>
+            <div class="av w-10 h-10 rounded-full text-xs font-semibold bg-[#0C0C0C] border border-white/15 text-white">${esc(ini(me.name))}</div>
             <div class="min-w-0">
               <h4 class="text-xs font-semibold text-white truncate">${esc(me.name)}</h4>
-              <p class="text-[11px] text-gray-400 truncate">@${esc(me.username)}</p>
+              <p class="text-xs text-gray-400 font-medium truncate">@${esc(me.username)}</p>
             </div>
           </div>
           <button type="button" onclick="copyText('@' + esc(me.username), 'Username copied!')" class="btn !py-1 !px-2.5 !text-[11px] text-gray-300 hover:text-white" title="Copy username">
@@ -1379,7 +1400,7 @@
           <div class="bg-[#0C0C0C] px-3.5 py-2.5 rounded-lg border border-white/[0.06] flex items-center justify-between">
             <span class="text-xs text-gray-400 font-medium">Account ID</span>
             <div class="flex items-center gap-2">
-              <span class="font-mono text-xs text-gray-200">${esc(me.id)}</span>
+              <span class="font-medium text-xs text-gray-200 tracking-tight">${esc(me.id)}</span>
               <button type="button" onclick="copyText(esc(me.id), 'Account ID copied!')" class="text-gray-400 hover:text-white p-0.5 transition-colors" title="Copy Account ID"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
             </div>
           </div>
