@@ -498,14 +498,6 @@
               <button onclick="openSettings('profile')" class="btn mt-3">Edit profile</button>
             </div>
           </div>
-          <hr class="border-white/[0.08]">
-          <div class="card flex items-center justify-between gap-4">
-            <div>
-              <p class="text-xs font-semibold text-gray-200">Emergency wipe</p>
-              <p class="text-[11px] text-gray-500">Remove every attachment and file preview from this device.</p>
-            </div>
-            <button onclick="wipe()" class="danger shrink-0">Wipe files</button>
-          </div>
         </div>
       </div>
     </main>
@@ -1773,11 +1765,6 @@
       if (ch) { save(); renderList(); renderMsgs(); }
     }
     setInterval(sweep, 5000);
-    function wipe() {
-      if (!confirm('Remove all attachments from every conversation on this device?')) return;
-      db.convos.forEach(c => c.msgs.forEach(m => { if (m.att?.url?.startsWith('blob:')) URL.revokeObjectURL(m.att.url); m.att = null; }));
-      save(); renderMsgs(); toast('All attachments removed.');
-    }
 
     // ---------- users, search & friend requests ----------
     let userSubView = 'search';
